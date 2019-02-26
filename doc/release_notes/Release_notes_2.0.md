@@ -86,7 +86,7 @@ From now on only one enum that represents account access type exists in xs2a. `A
 New endpoints were added to the CmsPsuPisController and to the CmsPsuAisController. The first one: GET `psu-api/v1/payment/{payment-id}/authorisation/psus` - returns map consisting of PsuData IDs (keys) and statuses of their authorisations for the given payment (values). If PsuData ID is null - this entry is not present in the map. Second endpoint: GET `psu-api/v1/ais/consent/{consent-id}/authorisation/psus` - returns the same map, but input data is consent ID here and it returns authorisations for this consent ID.
 
 ## Bugfix: validate PIIS consent creation request
-From now on request for creating new PIIS consent by ASPSP is being validated in controller(POST 
+From now on the request for creating new PIIS consent by ASPSP is being validated in controller(POST 
 `aspsp-api/v1/piis/consents` endpoint) and 
 service(`de.adorsys.psd2.consent.aspsp.api.piis.CmsAspspPiisService#createConsent`) layers.
 In case of invalid request HTTP `400 Bad Request` status code(for endpoint) or empty response(for service) will be returned.
