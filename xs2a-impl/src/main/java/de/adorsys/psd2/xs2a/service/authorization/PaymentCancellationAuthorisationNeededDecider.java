@@ -33,8 +33,7 @@ public class PaymentCancellationAuthorisationNeededDecider {
      * @return is no SCA is needed
      */
     public boolean isNoScaNeeded(boolean startAuthorisationRequired) {
-        return !startAuthorisationRequired
-                   && !aspspProfileService.getAspspSettings().isPaymentCancellationAuthorizationMandated();
+        return !isScaNeeded(startAuthorisationRequired);
     }
 
     /**
@@ -45,6 +44,7 @@ public class PaymentCancellationAuthorisationNeededDecider {
      * @return is no SCA is needed
      */
     public boolean isScaNeeded(boolean startAuthorisationRequired) {
-        return !isNoScaNeeded(startAuthorisationRequired);
+        return startAuthorisationRequired
+                   || aspspProfileService.getAspspSettings().isPaymentCancellationAuthorizationMandated();
     }
 }
