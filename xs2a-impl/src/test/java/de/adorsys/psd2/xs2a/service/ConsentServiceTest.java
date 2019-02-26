@@ -624,6 +624,16 @@ public class ConsentServiceTest {
     }
 
     @Test
+    public void getValidateConsent_AccessExceeded() {
+        //When
+        ResponseObject<AccountConsent> xs2aAccountAccessResponseObject = consentService.getValidatedConsent(CONSENT_ID);
+        //Then
+        assertThat(xs2aAccountAccessResponseObject.getBody()).isNull();
+        assertThat(xs2aAccountAccessResponseObject.getError().getErrorType()).isEqualTo(ErrorType.AIS_429);
+        assertThat(xs2aAccountAccessResponseObject.getError().getTppMessage().getMessageErrorCode()).isEqualTo(MessageErrorCode.ACCESS_EXCEEDED);
+    }
+
+    @Test
     public void updateConsentPsuData_Success_ShouldRecordEvent() {
         when(aisScaAuthorisationServiceResolver.getService()).thenReturn(redirectAisAuthorizationService);
         when(redirectAisAuthorizationService.createConsentAuthorization(any(), anyString()))
@@ -768,7 +778,7 @@ public class ConsentServiceTest {
     }
 
     private AccountConsent getConsent(String id, Xs2aAccountAccess access, boolean withBalance) {
-        return new AccountConsent(id, access, false, DATE, 4, null, ConsentStatus.VALID, withBalance, false, null, buildTppInfo(), AisConsentRequestType.GLOBAL, false, Collections.emptyList());
+        return new AccountConsent(id, access, false, DATE, 4, null, ConsentStatus.VALID, withBalance, false, null, buildTppInfo(), AisConsentRequestType.GLOBAL, false, Collections.emptyList(), 0);
     }
 
     private SpiAccountConsent getSpiConsent(String consentId, SpiAccountAccess access, boolean withBalance) {
@@ -776,11 +786,11 @@ public class ConsentServiceTest {
     }
 
     private AccountConsent getAccountConsent(String consentId, Xs2aAccountAccess access, boolean withBalance) {
-        return new AccountConsent(consentId, access, false, DATE, 4, null, ConsentStatus.VALID, withBalance, false, null, buildTppInfo(), AisConsentRequestType.GLOBAL, false, Collections.emptyList());
+        return new AccountConsent(consentId, access, false, DATE, 4, null, ConsentStatus.VALID, withBalance, false, null, buildTppInfo(), AisConsentRequestType.GLOBAL, false, Collections.emptyList(), 0);
     }
 
     private AccountConsent getAccountConsentDateValidYesterday(String consentId, Xs2aAccountAccess access, boolean withBalance) {
-        return new AccountConsent(consentId, access, false, YESTERDAY, 4, null, ConsentStatus.VALID, withBalance, false, null, buildTppInfo(), AisConsentRequestType.GLOBAL, false, Collections.emptyList());
+        return new AccountConsent(consentId, access, false, YESTERDAY, 4, null, ConsentStatus.VALID, withBalance, false, null, buildTppInfo(), AisConsentRequestType.GLOBAL, false, Collections.emptyList(), 0);
     }
 
     private CreateConsentReq getCreateConsentRequest(Xs2aAccountAccess access) {

@@ -191,7 +191,7 @@ public class CmsPsuAisServiceInternal implements CmsPsuAisService {
         consent.addAspspAccountAccess(aspspAccountAccesses);
         consent.setExpireDate(request.getValidUntil());
         consent.setAllowedFrequencyPerDay(request.getFrequencyPerDay());
-        consent.setUsageCounter(request.getFrequencyPerDay());
+        consent.getUsage().reset();
         aisConsentRepository.save(consent);
         return true;
     }

@@ -24,13 +24,16 @@ import de.adorsys.psd2.consent.api.service.EventServiceEncrypted;
 import de.adorsys.psd2.consent.api.service.TppStopListService;
 import de.adorsys.psd2.consent.service.AisConsentServiceRemote;
 import de.adorsys.psd2.xs2a.config.*;
+import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
 import de.adorsys.psd2.xs2a.core.event.Event;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
+import de.adorsys.psd2.xs2a.domain.consent.AccountConsent;
 import de.adorsys.psd2.xs2a.integration.builder.AspspSettingsBuilder;
 import de.adorsys.psd2.xs2a.integration.builder.TppInfoBuilder;
 import de.adorsys.psd2.xs2a.integration.builder.UrlBuilder;
 import de.adorsys.psd2.xs2a.service.TppService;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aAisConsentMapper;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +53,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -75,6 +80,8 @@ public class AccountControllerTest {
     private final static String CONSENT_ID = "e8356ea7-8e3e-474f-b5ea-2b89346cb2dc";
     private final static TppInfo TPP_INFO = TppInfoBuilder.buildTppInfo();
     private HttpHeaders httpHeaders = new HttpHeaders();
+    private static final Charset UTF_8 = Charset.forName("utf-8");
+    private static final String ACCESS_EXCEEDED_JSON_PATH = "/json/account/AccessExceededResponse.json";
 
     @Autowired
     private MockMvc mockMvc;
@@ -149,6 +156,26 @@ public class AccountControllerTest {
         // Then
         resultActions.andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+    }
+
+    @Test
+    public void getAccountList_ShouldFail_WithNoUsageCounter()  throws Exception  {
+        // Given
+        AccountConsent accountConsent = new AccountConsent(null, null, false, LocalDate.now().plusDays(1), 10,
+                                                           null, ConsentStatus.VALID, false, false,
+                                                           null, TPP_INFO, null, 0);
+        given(xs2aAisConsentMapper.mapToAccountConsent(new AisAccountConsent())).willReturn(accountConsent);
+
+        MockHttpServletRequestBuilder requestBuilder = get(UrlBuilder.buildGetAccountList());
+        requestBuilder.headers(httpHeaders);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+
+        // Then
+        resultActions.andExpect(status().isTooManyRequests())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().json(IOUtils.resourceToString(ACCESS_EXCEEDED_JSON_PATH, UTF_8)));
     }
 }
 
