@@ -53,4 +53,8 @@ public class PisCommonPaymentResponse {
 
     @ApiModelProperty(value = "Transaction status", required = true)
     private TransactionStatus transactionStatus;
+
+    public boolean isRawPayment() {
+        return paymentData != null;
+    }
 }

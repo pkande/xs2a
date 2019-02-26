@@ -106,6 +106,7 @@ public class CmsToXs2aPaymentMapper {
                    .map(r -> {
                             CommonPayment commonPayment = new CommonPayment();
                             commonPayment.setPaymentId(r.getExternalId());
+                            commonPayment.setTransactionStatus(r.getTransactionStatus());
                             commonPayment.setPaymentProduct(r.getPaymentProduct());
                             commonPayment.setPaymentType(r.getPaymentType());
                             commonPayment.setPaymentData(r.getPaymentData());

@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package de.adorsys.aspsp.aspspmockserver.service;
 
@@ -337,3 +338,4 @@ public class PaymentServiceTest {
         return new AspspAccountReference(details.getResourceId(), details.getIban(), null, null, null, null, details.getCurrency());
     }
 }
+*/
