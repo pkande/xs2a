@@ -234,9 +234,7 @@ public class PaymentService {
         }
 
         if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(paymentId, transactionStatus)) {
-            return ResponseObject.<TransactionStatus>builder()
-                       .fail(PIS_400, of(FORMAT_ERROR, "Payment is finalised already, so its status cannot be changed"))
-                       .build();
+            log.info("Couldn't update payment status in the CMS");
         }
 
         return ResponseObject.<TransactionStatus>builder().body(transactionStatus).build();

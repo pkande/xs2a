@@ -33,12 +33,14 @@ import de.adorsys.psd2.xs2a.spi.domain.payment.SpiPeriodicPayment;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
 import de.adorsys.psd2.xs2a.spi.service.PeriodicPaymentSpi;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service("periodic-payments")
 @RequiredArgsConstructor
 public class ReadPeriodicPaymentService extends ReadPaymentService<PaymentInformationResponse<PeriodicPayment>> {
@@ -74,11 +76,7 @@ public class ReadPeriodicPaymentService extends ReadPaymentService<PaymentInform
         PeriodicPayment xs2aPeriodicPayment = spiToXs2aPeriodicPaymentMapper.mapToXs2aPeriodicPayment(spiResponsePayment);
 
         if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(aspspConsentData.getConsentId(), xs2aPeriodicPayment.getTransactionStatus())) {
-            return new PaymentInformationResponse<>(
-                ErrorHolder.builder(MessageErrorCode.FORMAT_ERROR)
-                    .messages(Collections.singletonList("Payment is finalised already, so its status cannot be changed"))
-                    .build()
-            );
+            log.info("Couldn't update payment status in the CMS");
         }
 
         return new PaymentInformationResponse<>(xs2aPeriodicPayment);

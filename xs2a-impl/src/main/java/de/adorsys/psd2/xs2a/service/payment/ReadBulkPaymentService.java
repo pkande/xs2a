@@ -32,12 +32,14 @@ import de.adorsys.psd2.xs2a.spi.domain.payment.SpiBulkPayment;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
 import de.adorsys.psd2.xs2a.spi.service.BulkPaymentSpi;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service("bulk-payments")
 @RequiredArgsConstructor
 public class ReadBulkPaymentService extends ReadPaymentService<PaymentInformationResponse<BulkPayment>> {
@@ -72,11 +74,7 @@ public class ReadBulkPaymentService extends ReadPaymentService<PaymentInformatio
         BulkPayment xs2aBulkPayment = spiToXs2aBulkPaymentMapper.mapToXs2aBulkPayment(spiResponsePayment);
 
         if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(aspspConsentData.getConsentId(), xs2aBulkPayment.getTransactionStatus())) {
-            return new PaymentInformationResponse<>(
-                ErrorHolder.builder(MessageErrorCode.FORMAT_ERROR)
-                    .messages(Collections.singletonList("Payment is finalised already, so its status cannot be changed"))
-                    .build()
-            );
+            log.info("Couldn't update payment status in the CMS");
         }
 
         return new PaymentInformationResponse<>(xs2aBulkPayment);

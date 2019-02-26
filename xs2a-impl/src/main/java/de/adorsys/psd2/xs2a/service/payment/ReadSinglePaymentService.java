@@ -33,12 +33,14 @@ import de.adorsys.psd2.xs2a.spi.domain.payment.SpiSinglePayment;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
 import de.adorsys.psd2.xs2a.spi.service.SinglePaymentSpi;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service("payments")
 @RequiredArgsConstructor
 public class ReadSinglePaymentService extends ReadPaymentService<PaymentInformationResponse<SinglePayment>> {
@@ -76,11 +78,7 @@ public class ReadSinglePaymentService extends ReadPaymentService<PaymentInformat
         SinglePayment xs2aSinglePayment = spiToXs2aSinglePaymentMapper.mapToXs2aSinglePayment(spiSinglePayment);
 
         if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(aspspConsentData.getConsentId(), xs2aSinglePayment.getTransactionStatus())) {
-            return new PaymentInformationResponse<>(
-                ErrorHolder.builder(MessageErrorCode.FORMAT_ERROR)
-                    .messages(Collections.singletonList("Payment is finalised already, so its status cannot be changed"))
-                    .build()
-            );
+            log.info("Couldn't update payment status in the CMS");
         }
 
         return new PaymentInformationResponse<>(xs2aSinglePayment);
