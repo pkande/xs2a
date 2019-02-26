@@ -33,7 +33,8 @@ public class PaymentCancellationAuthorisationNeededDecider {
      * @return is no SCA is needed
      */
     public boolean isNoScaNeeded(boolean startAuthorisationRequired) {
-        return !startAuthorisationRequired && !aspspProfileService.getAspspSettings().isPaymentCancellationAuthorizationMandated();
+        return !startAuthorisationRequired
+                   && !aspspProfileService.getAspspSettings().isPaymentCancellationAuthorizationMandated();
     }
 
     /**
