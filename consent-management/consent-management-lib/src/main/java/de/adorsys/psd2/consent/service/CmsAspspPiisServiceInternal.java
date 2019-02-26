@@ -129,8 +129,8 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
         boolean invalidTpp = tppInfo != null
                                  && tppInfo.isNotValid();
 
-        return psuIdData.isEmpty()
-                   || invalidTpp
+        return invalidTpp
+                   || psuIdData.isEmpty()
                    || CollectionUtils.isEmpty(accounts)
                    || validUntil.isBefore(LocalDate.now());
     }
