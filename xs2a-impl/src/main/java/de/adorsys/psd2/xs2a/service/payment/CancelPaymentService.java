@@ -88,12 +88,12 @@ public class CancelPaymentService {
 
         if (resultStatus.isFinalisedStatus()) {
             return ResponseObject.<CancelPaymentResponse>builder()
-                       .fail(PIS_400, of(RESOURCE_BLOCKED, "Payment is finalised already and cannot be cancelled"))
+                       .fail(PIS_400, of(RESOURCE_BLOCKED))
                        .build();
         }
 
         if (resultStatus == TransactionStatus.RCVD
-                || cancellationScaNeededDecider.isNoScaPreferred(cancelPaymentResponse.isStartAuthorisationRequired())) {
+                || cancellationScaNeededDecider.isNoScaRequired(cancelPaymentResponse.isStartAuthorisationRequired())) {
             payment.setPaymentStatus(resultStatus);
             return proceedNoScaCancellation(payment, spiContextData, aspspConsentData, encryptedPaymentId);
         } else {

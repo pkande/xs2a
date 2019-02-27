@@ -29,22 +29,22 @@ public class PaymentCancellationAuthorisationNeededDecider {
      * Decides whether authorisation start is needed according to bank profile setting and spi response boolean field
      * No authorisation start takes place only when both 'paymentCancellationAuthorizationMandated' and 'startAuthorisationRequired' are false
      *
-     * @param startAuthorisationRequired does ASPSP requires authorisation start
+     * @param authorisationByAspspRequired does ASPSP requires authorisation start
      * @return is no SCA is needed
      */
-    public boolean isNoScaPreferred(boolean startAuthorisationRequired) {
-        return !isScaPreferred(startAuthorisationRequired);
+    public boolean isNoScaRequired(boolean authorisationByAspspRequired) {
+        return !isScaRequired(authorisationByAspspRequired);
     }
 
     /**
      * Decides whether authorisation start is needed according to bank profile setting and spi response boolean field
      * Authorisation start occurs when at least one of 'paymentCancellationAuthorizationMandated' and 'startAuthorisationRequired' fields is true
      *
-     * @param startAuthorisationRequired does ASPSP requires authorisation start
+     * @param authorisationByAspspRequired does ASPSP requires authorisation start
      * @return is no SCA is needed
      */
-    public boolean isScaPreferred(boolean startAuthorisationRequired) {
-        return startAuthorisationRequired
+    public boolean isScaRequired(boolean authorisationByAspspRequired) {
+        return authorisationByAspspRequired
                    || aspspProfileService.getAspspSettings().isPaymentCancellationAuthorizationMandated();
     }
 }

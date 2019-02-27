@@ -116,7 +116,7 @@ public class CancelPaymentServiceTest {
                             .aspspConsentData(SOME_ASPSP_CONSENT_DATA)
                             .success());
 
-        when(paymentCancellationAuthorisationNeededDecider.isNoScaPreferred(false))
+        when(paymentCancellationAuthorisationNeededDecider.isNoScaRequired(false))
             .thenReturn(true);
 
         when(paymentCancellationSpi.cancelPaymentWithoutSca(any(), any(), any()))
@@ -186,7 +186,7 @@ public class CancelPaymentServiceTest {
                             .aspspConsentData(SOME_ASPSP_CONSENT_DATA)
                             .success());
 
-        when(paymentCancellationAuthorisationNeededDecider.isNoScaPreferred(true))
+        when(paymentCancellationAuthorisationNeededDecider.isNoScaRequired(true))
             .thenReturn(false);
 
         // When
@@ -252,7 +252,7 @@ public class CancelPaymentServiceTest {
                             .aspspConsentData(SOME_ASPSP_CONSENT_DATA)
                             .success());
 
-        when(paymentCancellationAuthorisationNeededDecider.isNoScaPreferred(true))
+        when(paymentCancellationAuthorisationNeededDecider.isNoScaRequired(true))
             .thenReturn(false);
 
         // When

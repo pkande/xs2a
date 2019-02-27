@@ -262,13 +262,13 @@ public class PaymentService {
 
         if (isFinalisedPayment(pisCommonPaymentResponse)) {
             return ResponseObject.<CancelPaymentResponse>builder()
-                       .fail(PIS_400, of(RESOURCE_BLOCKED, "Payment is finalised already and cannot be cancelled"))
+                       .fail(PIS_400, of(RESOURCE_BLOCKED))
                        .build();
         }
 
         SpiPayment spiPayment;
 
-        if (pisCommonPaymentResponse.isRawPayment()) {
+        if (standardPaymentProductsResolver.isRawPaymentProduct(paymentProduct)) {
             CommonPayment commonPayment = cmsToXs2aPaymentMapper.mapToXs2aCommonPayment(pisCommonPaymentResponse);
             spiPayment = xs2aToSpiPaymentInfoMapper.mapToSpiPaymentInfo(commonPayment);
         } else {

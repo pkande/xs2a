@@ -63,6 +63,6 @@ public class PaymentCancellationAspect extends AbstractLinkAspect<PaymentControl
     private boolean isStartAuthorisationLinksNeeded(CancelPaymentResponse response) {
         return response.getTransactionStatus().isNotFinalisedStatus()
                    && response.getTransactionStatus() != TransactionStatus.RCVD
-                   && cancellationScaNeededDecider.isScaPreferred(response.isStartAuthorisationRequired());
+                   && cancellationScaNeededDecider.isScaRequired(response.isStartAuthorisationRequired());
     }
 }
