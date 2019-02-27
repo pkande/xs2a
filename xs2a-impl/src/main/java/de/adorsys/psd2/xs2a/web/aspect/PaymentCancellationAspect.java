@@ -52,7 +52,7 @@ public class PaymentCancellationAspect extends AbstractLinkAspect<PaymentControl
     private Links buildCancellationLinks(CancelPaymentResponse response, PaymentType paymentType, String paymentProduct, String paymentId) {
         Links links = new Links();
 
-        if (isLinksNeeded(response)) {
+        if (isStartAuthorisationLinksNeeded(response)) {
             links.setStartAuthorisation(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/cancellation-authorisations", paymentType.getValue(), paymentProduct, paymentId));
             links.setSelf(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}", paymentType.getValue(), paymentProduct, paymentId));
             links.setStatus(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/status", paymentType.getValue(), paymentProduct, paymentId));
@@ -60,9 +60,9 @@ public class PaymentCancellationAspect extends AbstractLinkAspect<PaymentControl
         return links;
     }
 
-    private boolean isLinksNeeded(CancelPaymentResponse response) {
+    private boolean isStartAuthorisationLinksNeeded(CancelPaymentResponse response) {
         return response.getTransactionStatus().isNotFinalisedStatus()
                    && response.getTransactionStatus() != TransactionStatus.RCVD
-                   && cancellationScaNeededDecider.isScaNeeded(response.isStartAuthorisationRequired());
+                   && cancellationScaNeededDecider.isScaPreferred(response.isStartAuthorisationRequired());
     }
 }

@@ -32,8 +32,8 @@ public class PaymentCancellationAuthorisationNeededDecider {
      * @param startAuthorisationRequired does ASPSP requires authorisation start
      * @return is no SCA is needed
      */
-    public boolean isNoScaNeeded(boolean startAuthorisationRequired) {
-        return !isScaNeeded(startAuthorisationRequired);
+    public boolean isNoScaPreferred(boolean startAuthorisationRequired) {
+        return !isScaPreferred(startAuthorisationRequired);
     }
 
     /**
@@ -43,7 +43,7 @@ public class PaymentCancellationAuthorisationNeededDecider {
      * @param startAuthorisationRequired does ASPSP requires authorisation start
      * @return is no SCA is needed
      */
-    public boolean isScaNeeded(boolean startAuthorisationRequired) {
+    public boolean isScaPreferred(boolean startAuthorisationRequired) {
         return startAuthorisationRequired
                    || aspspProfileService.getAspspSettings().isPaymentCancellationAuthorizationMandated();
     }

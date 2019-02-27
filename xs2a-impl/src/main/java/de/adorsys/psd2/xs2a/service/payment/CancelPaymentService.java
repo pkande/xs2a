@@ -93,7 +93,7 @@ public class CancelPaymentService {
         }
 
         if (resultStatus == TransactionStatus.RCVD
-                || cancellationScaNeededDecider.isNoScaNeeded(cancelPaymentResponse.isStartAuthorisationRequired())) {
+                || cancellationScaNeededDecider.isNoScaPreferred(cancelPaymentResponse.isStartAuthorisationRequired())) {
             payment.setPaymentStatus(resultStatus);
             return proceedNoScaCancellation(payment, spiContextData, aspspConsentData, encryptedPaymentId);
         } else {
