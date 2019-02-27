@@ -31,10 +31,17 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+import java.security.Principal;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 public class CertificateExtractorUtil {
@@ -64,6 +71,7 @@ public class CertificateExtractorUtil {
 
         tppCertData.setPspAuthorityName(psd2qcType.getnCAName().getString());
         tppCertData.setPspAuthorityId(psd2qcType.getnCAId().getString());
+        tppCertData.setIssuerCN(extractIssuerCNFromIssuerDN(cert.getIssuerDN()));
 
         try {
             X500Name x500name = new JcaX509CertificateHolder(cert).getSubject();
@@ -87,6 +95,27 @@ public class CertificateExtractorUtil {
     private static String getValueFromX500Name(X500Name x500Name, ASN1ObjectIdentifier asn1ObjectIdentifier) {
         boolean exist = ArrayUtils.contains( x500Name.getAttributeTypes(), asn1ObjectIdentifier );
         return  exist ? IETFUtils.valueToString(x500Name.getRDNs(asn1ObjectIdentifier)[0].getFirst().getValue()) : null;
+    }
+
+    private static String extractIssuerCNFromIssuerDN(Principal issuerDN) {
+        return Optional.ofNullable(issuerDN)
+            .map(Principal::getName)
+            .map(dn -> {
+                try {
+                    return new LdapName(dn);
+                } catch (InvalidNameException e) {
+                    log.error("Error extracting issuer cn from dn: {}", dn);
+                    return null;
+                }
+            })
+            .map(LdapName::getRdns)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(rdn -> "CN".equalsIgnoreCase(rdn.getType()))
+            .findFirst()
+            .filter(rdn -> rdn.getValue() instanceof String)
+            .map(rdn -> (String) rdn.getValue())
+            .orElse(null);
     }
 
 }
