@@ -97,6 +97,7 @@ public class CmsToXs2aPaymentMapper {
                                               .map(this::mapToSinglePayment)
                                               .collect(Collectors.toList());
         bulk.setPayments(paymentList);
+        bulk.setTransactionStatus(firstPayment.getTransactionStatus());
         bulk.setPsuDataList(firstPayment.getPsuDataList());
         return bulk;
     }
