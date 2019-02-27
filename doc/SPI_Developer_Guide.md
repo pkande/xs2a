@@ -43,6 +43,8 @@
 #### SCA Approach REDIRECT
 
 #### SCA Approach DECOUPLED
+!!! For the Decoupled and Embedded Approaches SPI developers have only to implement **PaymentAuthorisationSpi** that extends **AuthorisationSpi** (Description please see: *Implementation of PaymentSpi(s)* ) 
+
 * The authorisation of Payment in this case is only with an implicit start of the authorisation process
 * ASPSP is asking the Psu to authorise the payment via dedicated mobile app, or any other application or device which is independent from the online banking frontend.
 * The ASPSP is asking the TPP to inform the PSU abut this authentication by sending a corresponding PSU Message like _Please use your xxx App to authorise the payment_.
@@ -57,7 +59,7 @@
         * **multilevelScaRequired**: does response have multilevel SCA
       
     
-* For Decoupled approach the developer need the following methods: 
+* For Decoupled approach the developer need to implement the **PisScaAuthorisationService**. This contains following methods: 
 
     * createCommonPaymentAuthorisation: this method will create payment authorisation response and contains:
         * **paymentId**: ASPSP identifier of a payment,
@@ -84,7 +86,10 @@
    * getAuthorisationSubResources with the **paymentId** and returns authorisation sub resources
     
    * getAuthorisationScaStatus with **paymentId** (ASPSP identifier of the payment, associated with the authorisation) and 
-   **authorisationId** (authorisation identifier). This method will return SCA status of the authorisation
+   **authorisationId** (authorisation identifier). This method will return SCA status of the authorisation. 
+        * example of Sca Status: 
+            * RECEIVED("received", false): if an authorisation or cancellation-authorisation resource has been created successfully.
+            * PSUIDENTIFIED("psuIdentified", false): if the PSU related to the authorisation or cancellation-authorisation resource has been identified.
     
    * getScaApproachServiceTypeProvider: to get sca approach used in current service. This will return the ScaApproach **"Decoupled"**
     
@@ -99,6 +104,8 @@
     
 
 #### SCA Approach EMBEDDED
+
+!!! For the Decoupled and Embedded Approaches SPI developers have only to implement **PaymentAuthorisationSpi** that extends **AuthorisationSpi** (Description please see: *Implementation of PaymentSpi(s)* )
 
 For Embedded approach the developer need to implement the **PisScaAuthorisationService**. This contains following methods: 
 
@@ -130,7 +137,10 @@ For Embedded approach the developer need to implement the **PisScaAuthorisationS
    * getAuthorisationSubResources with the **paymentId** and returns authorisation sub resources
     
    * getAuthorisationScaStatus with **paymentId** (ASPSP identifier of the payment, associated with the authorisation) and 
-   **authorisationId** (authorisation identifier). This method will return SCA status of the authorisation
+     **authorisationId** (authorisation identifier). This method will return SCA status of the authorisation. 
+          * example of Sca Status: 
+              * RECEIVED("received", false): if an authorisation or cancellation-authorisation resource has been created successfully.
+              * PSUIDENTIFIED("psuIdentified", false): if the PSU related to the authorisation or cancellation-authorisation resource has been identified.
     
    * getScaApproachServiceTypeProvider: to get sca approach used in current service. This will return the ScaApproach **"Embedded"**
     
