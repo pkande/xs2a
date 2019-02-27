@@ -99,3 +99,7 @@ We expect to receive a `PARTIALLY_AUTHORISED` consent status during the Multilev
 Please, note: if AIS consent contains `multilevelScaRequired`, that equals to `false`, 
 but `PARTIALLY_AUTHORISED` has been received as a part of `AisConsentSpi#verifyScaAuthorisation()` response payload, 
 `multilevelScaRequired` value of AIS consent will be updated to `true` in DB.
+
+## Feature: added endpoints for getting consents and payments SCA statuses
+
+New endpoints were added to the CmsPsuPisController and to the CmsPsuAisController. The first one: GET `psu-api/v1/payment/{payment-id}/authorisation/psus` - returns map consisting of PsuData IDs (keys) and statuses of their authorisations for the given payment (values). If PsuData ID is null - this entry is not present in the map. Second endpoint: GET `psu-api/v1/ais/consent/{consent-id}/authorisation/psus` - returns the same map, but input data is consent ID here and it returns authorisations for this consent ID.
