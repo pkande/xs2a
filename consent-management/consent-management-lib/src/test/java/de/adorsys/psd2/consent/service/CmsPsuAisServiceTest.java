@@ -32,7 +32,6 @@ import de.adorsys.psd2.consent.repository.AisConsentRepository;
 import de.adorsys.psd2.consent.repository.PsuDataRepository;
 import de.adorsys.psd2.consent.repository.specification.AisConsentAuthorizationSpecification;
 import de.adorsys.psd2.consent.repository.specification.AisConsentSpecification;
-import de.adorsys.psd2.consent.repository.specification.EntityAttribute;
 import de.adorsys.psd2.consent.service.mapper.AisConsentMapper;
 import de.adorsys.psd2.consent.service.mapper.PsuDataMapper;
 import de.adorsys.psd2.consent.service.psu.CmsPsuAisServiceInternal;
@@ -235,7 +234,7 @@ public class CmsPsuAisServiceTest {
         // Assert
         assertEquals(consentsForPsu.size(), aisConsents.size());
         verify(aisConsentSpecification, times(1))
-            .byPsuIdIdAndInstanceId(psuIdData.getPsuId(), DEFAULT_SERVICE_INSTANCE_ID, EntityAttribute.PSU_DATA_LIST_ATTRIBUTE);
+            .byPsuIdInListAndInstanceId(psuIdData.getPsuId(), DEFAULT_SERVICE_INSTANCE_ID);
     }
 
     @Test
@@ -250,7 +249,7 @@ public class CmsPsuAisServiceTest {
         // Assert
         assertTrue(consentsForPsu.isEmpty());
         verify(aisConsentSpecification, times(1))
-            .byPsuIdIdAndInstanceId(psuIdDataWrong.getPsuId(), DEFAULT_SERVICE_INSTANCE_ID, EntityAttribute.PSU_DATA_LIST_ATTRIBUTE);
+            .byPsuIdInListAndInstanceId(psuIdDataWrong.getPsuId(), DEFAULT_SERVICE_INSTANCE_ID);
     }
 
     @Test

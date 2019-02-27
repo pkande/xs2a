@@ -30,7 +30,6 @@ import de.adorsys.psd2.consent.repository.AisConsentAuthorisationRepository;
 import de.adorsys.psd2.consent.repository.AisConsentRepository;
 import de.adorsys.psd2.consent.repository.specification.AisConsentAuthorizationSpecification;
 import de.adorsys.psd2.consent.repository.specification.AisConsentSpecification;
-import de.adorsys.psd2.consent.repository.specification.EntityAttribute;
 import de.adorsys.psd2.consent.service.mapper.AisConsentMapper;
 import de.adorsys.psd2.consent.service.mapper.PsuDataMapper;
 import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
@@ -115,7 +114,7 @@ public class CmsPsuAisServiceInternal implements CmsPsuAisService {
 
     @Override
     public @NotNull List<AisAccountConsent> getConsentsForPsu(@NotNull PsuIdData psuIdData, @NotNull String instanceId) {
-        return aisConsentRepository.findAll(aisConsentSpecification.byPsuIdIdAndInstanceId(psuIdData.getPsuId(), instanceId, EntityAttribute.PSU_DATA_LIST_ATTRIBUTE)).stream()
+        return aisConsentRepository.findAll(aisConsentSpecification.byPsuIdInListAndInstanceId(psuIdData.getPsuId(), instanceId)).stream()
                    .map(consentMapper::mapToAisAccountConsent)
                    .collect(Collectors.toList());
     }

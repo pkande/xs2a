@@ -19,7 +19,6 @@ package de.adorsys.psd2.consent.service.psu;
 import de.adorsys.psd2.consent.domain.piis.PiisConsentEntity;
 import de.adorsys.psd2.consent.psu.api.CmsPsuPiisService;
 import de.adorsys.psd2.consent.repository.PiisConsentRepository;
-import de.adorsys.psd2.consent.repository.specification.EntityAttribute;
 import de.adorsys.psd2.consent.repository.specification.PiisConsentEntitySpecification;
 import de.adorsys.psd2.consent.service.mapper.PiisConsentMapper;
 import de.adorsys.psd2.consent.service.mapper.PsuDataMapper;
@@ -55,7 +54,7 @@ public class CmsPsuPiisServiceInternal implements CmsPsuPiisService {
 
     @Override
     public @NotNull List<PiisConsent> getConsentsForPsu(@NotNull PsuIdData psuIdData, @NotNull String instanceId) {
-        return piisConsentRepository.findAll(piisConsentEntitySpecification.byPsuIdIdAndInstanceId(psuIdData.getPsuId(), instanceId, EntityAttribute.PSU_DATA_ATTRIBUTE)).stream()
+        return piisConsentRepository.findAll(piisConsentEntitySpecification.byPsuIdAndInstanceId(psuIdData.getPsuId(), instanceId)).stream()
                    .filter(con -> isPsuIdDataContentEquals(con, psuIdData))
                    .map(piisConsentMapper::mapToPiisConsent)
                    .collect(Collectors.toList());

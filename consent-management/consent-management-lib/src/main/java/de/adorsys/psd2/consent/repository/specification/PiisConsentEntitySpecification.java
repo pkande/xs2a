@@ -57,7 +57,7 @@ public class PiisConsentEntitySpecification extends GenericSpecification {
                                                                                               @Nullable String instanceId) {
         return Specifications.<PiisConsentEntity>where(byTppAuthorisationNumber(tppAuthorisationNumber))
                    .and(byCreationTimestamp(createDateFrom, createDateTo))
-                   .and(byPsuIdData(psuIdData, PSU_DATA_ATTRIBUTE))
+                   .and(byPsuIdData(psuIdData))
                    .and(byInstanceId(instanceId));
     }
 
@@ -74,7 +74,7 @@ public class PiisConsentEntitySpecification extends GenericSpecification {
                                                                                       @Nullable LocalDate createDateFrom,
                                                                                       @Nullable LocalDate createDateTo,
                                                                                       @Nullable String instanceId) {
-        return Specifications.<PiisConsentEntity>where(byPsuIdData(psuIdData, PSU_DATA_ATTRIBUTE))
+        return Specifications.<PiisConsentEntity>where(byPsuIdData(psuIdData))
                    .and(byCreationTimestamp(createDateFrom, createDateTo))
                    .and(byInstanceId(instanceId));
     }

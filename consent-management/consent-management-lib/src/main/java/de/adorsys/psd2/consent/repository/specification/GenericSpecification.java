@@ -38,6 +38,17 @@ import static de.adorsys.psd2.consent.repository.specification.EntityAttributeSp
 import static de.adorsys.psd2.consent.repository.specification.EntityAttributeSpecificationProvider.provideSpecificationForJoinedEntityAttribute;
 
 public abstract class GenericSpecification {
+    /**
+     * Returns specification for some entity for filtering data by PSU ID data from list and instance id.
+     *
+     * @param psuId      PSU ID data
+     * @param instanceId ID of particular service instance
+     * @param <T>        type of the entity, for which this specification will be created
+     * @return resulting specification
+     */
+    public <T> Specification<T> byPsuIdInListAndInstanceId(String psuId, String instanceId) {
+        return byPsuIdIdAndInstanceId(psuId, instanceId, PSU_DATA_LIST_ATTRIBUTE);
+    }
 
     /**
      * Returns specification for some entity for filtering data by PSU ID data and instance id.
@@ -47,13 +58,21 @@ public abstract class GenericSpecification {
      * @param <T>        type of the entity, for which this specification will be created
      * @return resulting specification
      */
-    public <T> Specification<T> byPsuIdIdAndInstanceId(String psuId, String instanceId, String psuAttribute) {
-        Specification<T> aisConsentSpecification = (root, query, cb) -> {
-            Join<T, PsuData> aisConsentPsuDataJoin = root.join(psuAttribute);
-            return cb.equal(aisConsentPsuDataJoin.get(PSU_ID_ATTRIBUTE), psuId);
-        };
-        return Specifications.where(aisConsentSpecification)
-                   .and(provideSpecificationForEntityAttribute(INSTANCE_ID_ATTRIBUTE, instanceId));
+    public <T> Specification<T> byPsuIdAndInstanceId(String psuId, String instanceId) {
+        return byPsuIdIdAndInstanceId(psuId, instanceId, PSU_DATA_ATTRIBUTE);
+    }
+
+    /**
+     * Returns specification for some entity for filtering data by PSU ID data from list.
+     * <p>
+     * If all fields in the given PsuIdData are null, this specification will not affect resulting data.
+     *
+     * @param psuIdData optional PSU ID data
+     * @param <T>       type of the entity, for which this specification will be created
+     * @return resulting specification, or <code>null</code> if PSU ID data was omitted
+     */
+    protected <T> Specification<T> byPsuIdDataInList(@Nullable PsuIdData psuIdData) {
+        return byPsuIdData(psuIdData, PSU_DATA_LIST_ATTRIBUTE);
     }
 
     /**
@@ -65,7 +84,20 @@ public abstract class GenericSpecification {
      * @param <T>       type of the entity, for which this specification will be created
      * @return resulting specification, or <code>null</code> if PSU ID data was omitted
      */
-    protected <T> Specification<T> byPsuIdData(@Nullable PsuIdData psuIdData, String psuAttribute) {
+    protected <T> Specification<T> byPsuIdData(@Nullable PsuIdData psuIdData) {
+        return byPsuIdData(psuIdData, PSU_DATA_ATTRIBUTE);
+    }
+
+    private  <T> Specification<T> byPsuIdIdAndInstanceId(String psuId, String instanceId, String psuAttribute) {
+        Specification<T> aisConsentSpecification = (root, query, cb) -> {
+            Join<T, PsuData> aisConsentPsuDataJoin = root.join(psuAttribute);
+            return cb.equal(aisConsentPsuDataJoin.get(PSU_ID_ATTRIBUTE), psuId);
+        };
+        return Specifications.where(aisConsentSpecification)
+                   .and(provideSpecificationForEntityAttribute(INSTANCE_ID_ATTRIBUTE, instanceId));
+    }
+
+    private <T> Specification<T> byPsuIdData(@Nullable PsuIdData psuIdData, String psuAttribute) {
         if (psuIdData == null) {
             return null;
         }
