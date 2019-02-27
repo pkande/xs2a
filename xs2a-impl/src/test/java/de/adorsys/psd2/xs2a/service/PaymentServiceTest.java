@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package de.adorsys.psd2.xs2a.service;
 
 import de.adorsys.psd2.consent.api.pis.CreatePisCommonPaymentResponse;
@@ -75,9 +74,7 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
 import static de.adorsys.psd2.xs2a.domain.TppMessageInformation.of;
 import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

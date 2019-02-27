@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-
-
 package de.adorsys.psd2.consent.service;
-
 
 import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;

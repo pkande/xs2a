@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package de.adorsys.psd2.xs2a.service.payment;
 
 import de.adorsys.psd2.xs2a.core.consent.AspspConsentData;
