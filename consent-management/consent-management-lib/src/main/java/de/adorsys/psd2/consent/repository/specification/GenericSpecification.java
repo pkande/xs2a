@@ -47,9 +47,9 @@ public abstract class GenericSpecification {
      * @param <T>        type of the entity, for which this specification will be created
      * @return resulting specification
      */
-    public <T> Specification<T> byPsuIdIdAndInstanceId(String psuId, String instanceId) {
+    public <T> Specification<T> byPsuIdIdAndInstanceId(String psuId, String instanceId, String psuAttribute) {
         Specification<T> aisConsentSpecification = (root, query, cb) -> {
-            Join<T, PsuData> aisConsentPsuDataJoin = root.join(PSU_DATA_ATTRIBUTE);
+            Join<T, PsuData> aisConsentPsuDataJoin = root.join(psuAttribute);
             return cb.equal(aisConsentPsuDataJoin.get(PSU_ID_ATTRIBUTE), psuId);
         };
         return Specifications.where(aisConsentSpecification)
@@ -65,13 +65,13 @@ public abstract class GenericSpecification {
      * @param <T>       type of the entity, for which this specification will be created
      * @return resulting specification, or <code>null</code> if PSU ID data was omitted
      */
-    protected <T> Specification<T> byPsuIdData(@Nullable PsuIdData psuIdData) {
+    protected <T> Specification<T> byPsuIdData(@Nullable PsuIdData psuIdData, String psuAttribute) {
         if (psuIdData == null) {
             return null;
         }
 
         return (root, query, cb) -> {
-            Join<T, PsuData> psuDataJoin = root.join(PSU_DATA_ATTRIBUTE);
+            Join<T, PsuData> psuDataJoin = root.join(psuAttribute);
             return Specifications.where(provideSpecificationForJoinedEntityAttribute(psuDataJoin, PSU_ID_ATTRIBUTE, psuIdData.getPsuId()))
                        .and(provideSpecificationForJoinedEntityAttribute(psuDataJoin, PSU_ID_TYPE_ATTRIBUTE, psuIdData.getPsuIdType()))
                        .and(provideSpecificationForJoinedEntityAttribute(psuDataJoin, PSU_CORPORATE_ID_ATTRIBUTE, psuIdData.getPsuCorporateId()))

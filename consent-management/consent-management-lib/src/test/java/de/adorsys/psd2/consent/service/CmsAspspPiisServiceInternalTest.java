@@ -19,6 +19,7 @@ package de.adorsys.psd2.consent.service;
 import de.adorsys.psd2.consent.domain.PsuData;
 import de.adorsys.psd2.consent.domain.piis.PiisConsentEntity;
 import de.adorsys.psd2.consent.repository.PiisConsentRepository;
+import de.adorsys.psd2.consent.repository.specification.EntityAttribute;
 import de.adorsys.psd2.consent.repository.specification.PiisConsentEntitySpecification;
 import de.adorsys.psd2.consent.service.mapper.AccountReferenceMapper;
 import de.adorsys.psd2.consent.service.mapper.PiisConsentMapper;
@@ -140,7 +141,7 @@ public class CmsAspspPiisServiceInternalTest {
         assertThat(actual.isEmpty()).isFalse();
         assertThat(actual.get(0)).isEqualTo(expected);
         verify(piisConsentEntitySpecification, times(1))
-            .byPsuIdIdAndInstanceId(PSU_ID, DEFAULT_SERVICE_INSTANCE_ID);
+            .byPsuIdIdAndInstanceId(PSU_ID, DEFAULT_SERVICE_INSTANCE_ID, EntityAttribute.PSU_DATA_ATTRIBUTE);
     }
 
     @Test
@@ -156,7 +157,7 @@ public class CmsAspspPiisServiceInternalTest {
         // Then
         assertThat(actual.isEmpty()).isTrue();
         verify(piisConsentEntitySpecification, times(1))
-            .byPsuIdIdAndInstanceId(PSU_ID_WRONG, DEFAULT_SERVICE_INSTANCE_ID);
+            .byPsuIdIdAndInstanceId(PSU_ID_WRONG, DEFAULT_SERVICE_INSTANCE_ID, EntityAttribute.PSU_DATA_ATTRIBUTE);
     }
 
     @Test

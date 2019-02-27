@@ -65,7 +65,7 @@ public class AisConsentSpecification extends GenericSpecification {
                                                                                        @Nullable String instanceId) {
         return Specifications.<AisConsent>where(byTppAuthorisationNumber(tppAuthorisationNumber))
                    .and(byCreationTimestamp(createDateFrom, createDateTo))
-                   .and(byPsuIdData(psuIdData))
+                   .and(byPsuIdData(psuIdData, EntityAttribute.PSU_DATA_LIST_ATTRIBUTE))
                    .and(byInstanceId(instanceId));
     }
 
@@ -82,7 +82,7 @@ public class AisConsentSpecification extends GenericSpecification {
                                                                                @Nullable LocalDate createDateFrom,
                                                                                @Nullable LocalDate createDateTo,
                                                                                @Nullable String instanceId) {
-        return Specifications.<AisConsent>where(byPsuIdData(psuIdData))
+        return Specifications.<AisConsent>where(byPsuIdData(psuIdData, EntityAttribute.PSU_DATA_LIST_ATTRIBUTE))
                    .and(byCreationTimestamp(createDateFrom, createDateTo))
                    .and(byInstanceId(instanceId));
     }
