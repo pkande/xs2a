@@ -611,7 +611,7 @@ Use it manually to generate javadocs. Don't commit it
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <failsOnError>false</failsOnError>
-                    <failOnViolation>false</failOnViolation>
+                    <failOnViolation>true</failOnViolation>
                     <excludes>**/model/**/*</excludes>
                     <configLocation>checkstyle.xml</configLocation>
                 </configuration>
