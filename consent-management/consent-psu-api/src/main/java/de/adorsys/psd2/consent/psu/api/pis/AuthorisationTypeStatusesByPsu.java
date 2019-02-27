@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 adorsys GmbH & Co KG
+ * Copyright 2018-2019 adorsys GmbH & Co KG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.spi.domain.consent;
+package de.adorsys.psd2.consent.psu.api.pis;
 
-public enum SpiAccountAccessType {
-    ALL_ACCOUNTS("allAccounts"),
-    ALL_ACCOUNTS_WITH_BALANCES("allAccountsWithBalances");
+import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
+import lombok.Value;
 
-    private String description;
+import java.util.Map;
 
-    SpiAccountAccessType(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
+@Value
+public class AuthorisationTypeStatusesByPsu {
+    private Map<String, ScaStatus> created;
+    private Map<String, ScaStatus> cancelled;
 }
