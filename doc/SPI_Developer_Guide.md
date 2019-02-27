@@ -234,7 +234,10 @@ After the Payment Initiation is created, it has to be authorise from the PSU. In
    * **getAuthorisationSubResources** with the **paymentId** and returns authorisation sub resources
     
    * **getAuthorisationScaStatus** with **paymentId** (ASPSP identifier of the payment, associated with the authorisation) and 
-    **authorisationId** (authorisation identifier). This method will returns SCA status
+    **authorisationId** (authorisation identifier). This method will returns SCA status.
+       * example of Sca Status: 
+           * RECEIVED(“received”, false): if an authorisation or cancellation-authorisation resource has been created successfully.
+           * PSUIDENTIFIED(“psuIdentified”, false): if the PSU related to the authorisation or cancellation-authorisation resource has been identified.
     
    * **getScaApproachServiceTypeProvider**: to get sca approach used in current service. This will return the ScaApproach **“Redirect”**
     
