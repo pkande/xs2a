@@ -142,9 +142,6 @@ public class CmsToXs2aPaymentMapperTest {
 
         assertEquals(REMITTANCE_INFORMATION_UNSTRUCTURED, periodicPayment.getRemittanceInformationUnstructured());
 
-        // TODO check whether these fields should be mapped
-        // assertEquals(REQUESTED_EXECUTION_DATE, periodicPayment.getRequestedExecutionDate());
-        // assertEquals(REQUESTED_EXECUTION_TIME, periodicPayment.getRequestedExecutionTime());
         assertEquals(TRANSACTION_STATUS, periodicPayment.getTransactionStatus());
         assertEquals(PSU_ID_DATA_LIST, periodicPayment.getPsuDataList());
 
@@ -164,11 +161,20 @@ public class CmsToXs2aPaymentMapperTest {
 
         PeriodicPayment periodicPayment = cmsToXs2aPaymentMapper.mapToPeriodicPayment(pisPayment);
 
-        // TODO check whether these fields should be mapped
         assertNull(periodicPayment.getUltimateDebtor());
         assertNull(periodicPayment.getUltimateCreditor());
         assertNull(periodicPayment.getPurposeCode());
         assertNull(periodicPayment.getRemittanceInformationStructured());
+    }
+
+    @Test
+    public void mapToPeriodicPayment_shouldNotMapRequestedExecutionDateAndTime() {
+        PisPayment pisPayment = buildPisPayment();
+
+        PeriodicPayment periodicPayment = cmsToXs2aPaymentMapper.mapToPeriodicPayment(pisPayment);
+
+        assertNull(periodicPayment.getRequestedExecutionDate());
+        assertNull(periodicPayment.getRequestedExecutionTime());
     }
 
     @Test
