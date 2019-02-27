@@ -46,7 +46,7 @@ public class SpiPaymentInfo implements SpiPayment {
     }
 
     @Override
-    public void setPaymentStatus(TransactionStatus paymentStatus) {
-        status = paymentStatus;
+    public void setPaymentStatus(TransactionStatus status) {
+        this.status = status;
     }
 }

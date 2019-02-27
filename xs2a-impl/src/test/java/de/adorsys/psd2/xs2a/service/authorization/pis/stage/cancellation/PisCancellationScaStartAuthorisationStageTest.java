@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *//*
+ */
 
 
 package de.adorsys.psd2.xs2a.service.authorization.pis.stage.cancellation;
@@ -40,6 +40,7 @@ import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.SpiToXs2aAuthenticationObjectMapper;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiPsuDataMapper;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiSinglePaymentMapper;
+import de.adorsys.psd2.xs2a.service.payment.Xs2aUpdatePaymentStatusAfterSpiService;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.domain.authorisation.SpiAuthenticationObject;
 import de.adorsys.psd2.xs2a.spi.domain.authorisation.SpiAuthorisationStatus;
@@ -111,6 +112,8 @@ public class PisCancellationScaStartAuthorisationStageTest {
     private Xs2aToSpiPsuDataMapper xs2aToSpiPsuDataMapper;
     @Mock
     private Xs2aPisCommonPaymentService xs2aPisCommonPaymentService;
+    @Mock
+    private Xs2aUpdatePaymentStatusAfterSpiService updatePaymentStatusAfterSpiService;
     @Mock
     private SpiToXs2aAuthenticationObjectMapper spiToXs2aAuthenticationObjectMapper;
     @Mock
@@ -185,6 +188,7 @@ public class PisCancellationScaStartAuthorisationStageTest {
         when(paymentCancellationSpi.authorisePsu(SPI_CONTEXT_DATA, SPI_PSU_DATA, PASSWORD, buildSpiPayment(), ASPSP_CONSENT_DATA)).thenReturn(buildSuccessfulSpiResponse(SpiAuthorisationStatus.SUCCESS));
         when(paymentCancellationSpi.requestAvailableScaMethods(SPI_CONTEXT_DATA, buildSpiPayment(), ASPSP_CONSENT_DATA)).thenReturn(buildSuccessfulSpiResponse(NONE_SPI_SCA_METHOD));
         when(paymentCancellationSpi.cancelPaymentWithoutSca(SPI_CONTEXT_DATA, buildSpiPayment(), ASPSP_CONSENT_DATA)).thenReturn(buildSuccessfulSpiResponse(SpiResponse.voidResponse()));
+        when(updatePaymentStatusAfterSpiService.updatePaymentStatus(PAYMENT_ID, TransactionStatus.CANC)).thenReturn(true);
 
         //When
         Xs2aUpdatePisCommonPaymentPsuDataResponse actualResponse = pisCancellationScaStartAuthorisationStage.apply(xs2aUpdatePisCommonPaymentPsuDataRequest, getPisAuthorisationResponse);
@@ -287,4 +291,3 @@ public class PisCancellationScaStartAuthorisationStageTest {
         return response;
     }
 }
-*/

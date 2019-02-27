@@ -102,6 +102,7 @@ public class PisCommonPaymentServiceRemote implements PisCommonPaymentServiceEnc
             return Optional.ofNullable(consentRestTemplate.postForEntity(remotePisCommonPaymentUrls.createPisAuthorisationCancellation(), request, CreatePisAuthorisationResponse.class, paymentId))
                        .map(ResponseEntity::getBody);
         } catch (CmsRestException cmsRestException) {
+            log.warn("No cancellation authorisation was created for the paymentId {}", paymentId);
             return Optional.empty();
         }
     }
