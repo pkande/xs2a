@@ -70,6 +70,7 @@ public class AisConsentServiceInternal implements AisConsentService {
     private final TppInfoMapper tppInfoMapper;
     private final ScaMethodMapper scaMethodMapper;
     private final CmsPsuService cmsPsuService;
+    private final AisConsentUsageService aisConsentUsageService;
 
     /**
      * Create AIS consent
@@ -566,7 +567,7 @@ public class AisConsentServiceInternal implements AisConsentService {
     }
 
     private void updateAisConsentUsage(AisConsent consent) {
-        consent.getUsage().increment();
+        aisConsentUsageService.incrementUsage(consent);
         consent.setLastActionDate(LocalDate.now());
         aisConsentRepository.save(consent);
     }

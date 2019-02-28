@@ -16,8 +16,6 @@
 
 package de.adorsys.psd2.consent.domain.account;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +24,6 @@ import java.time.LocalDate;
 
 @Data
 @Entity(name = "ais_consent_usage")
-@ApiModel(description = "Ais consent usage entity", value = "AisConsentUsage")
 @NoArgsConstructor
 public class AisConsentUsage {
     @Id
@@ -38,25 +35,15 @@ public class AisConsentUsage {
     @JoinColumn(name = "consent_id", nullable = false)
     private AisConsent consent;
 
-    @Column(name = "date", nullable = false)
-    @ApiModelProperty(value = "Date for the requested consent. The content is the local ASPSP date in ISODate Format", required = true, example = "2018-05-04")
-    private LocalDate date;
+    @Column(name = "usage_date", nullable = false)
+    private LocalDate usageDate;
 
     @Column(name = "usage", nullable = false)
-    @ApiModelProperty(value = "Usage consent per one day.", required = true, example = "4")
     private int usage;
 
     public AisConsentUsage(AisConsent consent) {
-        this.date = LocalDate.now();
+        this.usageDate = LocalDate.now();
         this.consent = consent;
         this.consent.getUsages().add(this);
-    }
-
-    public void increment() {
-        this.usage++;
-    }
-
-    public void reset() {
-        this.usage = 0;
     }
 }

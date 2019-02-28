@@ -55,6 +55,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.Charset;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -163,7 +164,7 @@ public class AccountControllerTest {
         // Given
         AccountConsent accountConsent = new AccountConsent(null, null, false, LocalDate.now().plusDays(1), 10,
                                                            null, ConsentStatus.VALID, false, false,
-                                                           null, TPP_INFO, null, 0);
+                                                           null, TPP_INFO, null, false, Collections.emptyList(), 0);
         given(xs2aAisConsentMapper.mapToAccountConsent(new AisAccountConsent())).willReturn(accountConsent);
 
         MockHttpServletRequestBuilder requestBuilder = get(UrlBuilder.buildGetAccountList());

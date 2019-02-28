@@ -36,7 +36,6 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -186,24 +185,5 @@ public class AisConsent extends InstanceDependableEntity {
     public boolean isWrongConsentData() {
         return CollectionUtils.isEmpty(psuDataList)
                    || tppInfo == null;
-    }
-
-    public int getUsageCounter() {
-        Integer usage = getCurrentAisConsentUsage()
-                            .map(AisConsentUsage::getUsage)
-                            .orElse(0);
-
-        return Math.max(allowedFrequencyPerDay - usage, 0);
-    }
-
-    public AisConsentUsage getUsage() {
-        return getCurrentAisConsentUsage()
-                   .orElseGet(() -> new AisConsentUsage(this));
-    }
-
-    private Optional<AisConsentUsage> getCurrentAisConsentUsage() {
-        return usages.stream()
-                   .filter(consent -> LocalDate.now().isEqual(consent.getDate()))
-                   .findFirst();
     }
 }
