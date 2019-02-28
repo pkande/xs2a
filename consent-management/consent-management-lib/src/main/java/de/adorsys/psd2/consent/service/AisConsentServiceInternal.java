@@ -33,6 +33,7 @@ import de.adorsys.psd2.consent.service.mapper.PsuDataMapper;
 import de.adorsys.psd2.consent.service.mapper.ScaMethodMapper;
 import de.adorsys.psd2.consent.service.mapper.TppInfoMapper;
 import de.adorsys.psd2.consent.service.psu.CmsPsuService;
+import de.adorsys.psd2.xs2a.core.ais.AccountAccessType;
 import de.adorsys.psd2.xs2a.core.consent.AisConsentRequestType;
 import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
@@ -172,7 +173,7 @@ public class AisConsentServiceInternal implements AisConsentService {
                                                                                               tppInfo.getAuthorityId(),
                                                                                               newConsent.getInstanceId(),
                                                                                               newConsent.getExternalId(),
-                                                                                              EnumSet.of(RECEIVED, VALID));
+                                                                                              EnumSet.of(RECEIVED, PARTIALLY_AUTHORISED, VALID));
 
         List<AisConsent> oldConsentsWithExactPsuDataLists = oldConsents.stream()
                                                                 .filter(c -> cmsPsuService.isPsuDataListEqual(c.getPsuDataList(), psuDataList))
@@ -350,11 +351,15 @@ public class AisConsentServiceInternal implements AisConsentService {
             }
 
             AisConsent aisConsent = aisConsentAuthorization.getConsent();
-            PsuData psuData = cmsPsuService.definePsuDataForAuthorisation(psuRequest, aisConsent.getPsuDataList());
-            aisConsent.setPsuDataList(cmsPsuService.enrichPsuData(psuData, aisConsent.getPsuDataList()));
+            Optional<PsuData> psuDataOptional = cmsPsuService.definePsuDataForAuthorisation(psuRequest, aisConsent.getPsuDataList());
+
+            if (psuDataOptional.isPresent()) {
+                PsuData psuData = psuDataOptional.get();
+                aisConsent.setPsuDataList(cmsPsuService.enrichPsuData(psuData, aisConsent.getPsuDataList()));
+                aisConsentAuthorization.setPsuData(psuData);
+            }
 
             aisConsentAuthorization.setConsent(aisConsent);
-            aisConsentAuthorization.setPsuData(psuData);
         }
 
         if (ScaStatus.SCAMETHODSELECTED == request.getScaStatus()) {
@@ -390,6 +395,20 @@ public class AisConsentServiceInternal implements AisConsentService {
         return true;
     }
 
+    @Override
+    @Transactional
+    public boolean updateMultilevelScaRequired(String consentId, boolean multilevelScaRequired) {
+        Optional<AisConsent> aisConsentOptional = aisConsentRepository.findByExternalId(consentId);
+        if (!aisConsentOptional.isPresent()) {
+            return false;
+        }
+        AisConsent consent = aisConsentOptional.get();
+        consent.setMultilevelScaRequired(multilevelScaRequired);
+        aisConsentRepository.save(consent);
+
+        return true;
+    }
+
     private AisConsent createConsentFromRequest(CreateAisConsentRequest request) {
 
         AisConsent consent = new AisConsent();
@@ -413,9 +432,9 @@ public class AisConsentServiceInternal implements AisConsentService {
     }
 
     private AisConsentRequestType getRequestTypeFromAccess(AisAccountAccessInfo accessInfo) {
-        if (accessInfo.getAllPsd2() == AisAccountAccessType.ALL_ACCOUNTS) {
+        if (accessInfo.getAllPsd2() == AccountAccessType.ALL_ACCOUNTS) {
             return AisConsentRequestType.GLOBAL;
-        } else if (EnumSet.of(AisAccountAccessType.ALL_ACCOUNTS, AisAccountAccessType.ALL_ACCOUNTS_WITH_BALANCES).contains(accessInfo.getAvailableAccounts())) {
+        } else if (EnumSet.of(AccountAccessType.ALL_ACCOUNTS, AccountAccessType.ALL_ACCOUNTS_WITH_BALANCES).contains(accessInfo.getAvailableAccounts())) {
             return AisConsentRequestType.ALL_AVAILABLE_ACCOUNTS;
         } else if (isEmptyAccess(accessInfo)) {
             return AisConsentRequestType.BANK_OFFERED;
@@ -480,12 +499,16 @@ public class AisConsentServiceInternal implements AisConsentService {
     }
 
     private String saveNewAuthorization(AisConsent aisConsent, AisConsentAuthorizationRequest request) {
-        PsuData psuData = cmsPsuService.definePsuDataForAuthorisation(psuDataMapper.mapToPsuData(request.getPsuData()), aisConsent.getPsuDataList());
-        aisConsent.setPsuDataList(cmsPsuService.enrichPsuData(psuData, aisConsent.getPsuDataList()));
-
         AisConsentAuthorization consentAuthorization = new AisConsentAuthorization();
+        Optional<PsuData> psuDataOptional = cmsPsuService.definePsuDataForAuthorisation(psuDataMapper.mapToPsuData(request.getPsuData()), aisConsent.getPsuDataList());
+
+        if (psuDataOptional.isPresent()) {
+            PsuData psuData = psuDataOptional.get();
+            aisConsent.setPsuDataList(cmsPsuService.enrichPsuData(psuData, aisConsent.getPsuDataList()));
+            consentAuthorization.setPsuData(psuData);
+        }
+
         consentAuthorization.setExternalId(UUID.randomUUID().toString());
-        consentAuthorization.setPsuData(psuData);
         consentAuthorization.setConsent(aisConsent);
         consentAuthorization.setScaStatus(request.getScaStatus());
         consentAuthorization.setRedirectUrlExpirationTimestamp(OffsetDateTime.now().plus(aspspProfileService.getAspspSettings().getRedirectUrlExpirationTimeMs(), ChronoUnit.MILLIS));
@@ -524,8 +547,8 @@ public class AisConsentServiceInternal implements AisConsentService {
     }
 
     private boolean isPsuDataRequestCorrect(PsuData psuRequest, PsuData psuAuth) {
-        return psuRequest != null
-                   || psuAuth == null
-                   || psuRequest.contentEquals(psuAuth);
+        return Optional.ofNullable(psuRequest)
+                   .map(psu -> psuAuth == null || psu.contentEquals(psuAuth))
+                   .orElse(false);
     }
 }

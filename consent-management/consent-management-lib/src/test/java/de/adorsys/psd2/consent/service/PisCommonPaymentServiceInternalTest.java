@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 package de.adorsys.psd2.consent.service;
-
 
 import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
@@ -220,6 +218,35 @@ public class PisCommonPaymentServiceInternalTest {
     }
 
     @Test
+    public void updatePisAuthorisation_startedStatus_shouldUpdatePsuDataInPayment() {
+        //Given
+        ArgumentCaptor<PisAuthorization> savedAuthorisationCaptor = ArgumentCaptor.forClass(PisAuthorization.class);
+        UpdatePisCommonPaymentPsuDataRequest updatePisCommonPaymentPsuDataRequest =
+            buildUpdatePisCommonPaymentPsuDataRequest(ScaStatus.STARTED, PSU_ID_DATA);
+        List<PsuData> psuDataList = Collections.singletonList(PSU_DATA);
+
+        when(cmsPsuService.enrichPsuData(PSU_DATA, Collections.emptyList()))
+            .thenReturn(psuDataList);
+        when(pisAuthorisationRepository.findByExternalIdAndAuthorizationType(PAYMENT_ID, CmsAuthorisationType.CREATED))
+            .thenReturn(Optional.of(pisAuthorization));
+        when(pisAuthorisationRepository.save(pisAuthorization))
+            .thenReturn(pisAuthorization);
+
+        //When
+        Optional<UpdatePisCommonPaymentPsuDataResponse> response =
+            pisCommonPaymentService.updatePisAuthorisation(PAYMENT_ID, updatePisCommonPaymentPsuDataRequest);
+
+        //Then
+        assertTrue(response.isPresent());
+
+        verify(pisAuthorisationRepository).save(savedAuthorisationCaptor.capture());
+        PisAuthorization savedAuthorisation = savedAuthorisationCaptor.getValue();
+
+        assertEquals(PSU_DATA, savedAuthorisation.getPsuData());
+        assertEquals(psuDataList, savedAuthorisation.getPaymentData().getPsuDataList());
+    }
+
+    @Test
     public void updateConsentCancellationAuthorisation_FinalisedStatus_Fail() {
         //Given
         ScaStatus expectedScaStatus = ScaStatus.STARTED;
@@ -250,7 +277,7 @@ public class PisCommonPaymentServiceInternalTest {
         when(pisAuthorisationRepository.save(any(PisAuthorization.class))).thenReturn(pisAuthorization);
         when(pisPaymentDataRepository.findByPaymentIdAndPaymentDataTransactionStatusIn(PAYMENT_ID, Arrays.asList(RCVD, PATC))).thenReturn(Optional.of(Collections.singletonList(pisPaymentData)));
         when(pisCommonPaymentConfirmationExpirationService.checkAndUpdatePaymentDataOnConfirmationExpiration(pisPaymentData.getPaymentData())).thenReturn(pisPaymentData.getPaymentData());
-        when(cmsPsuService.definePsuDataForAuthorisation(any(), any())).thenReturn(PSU_DATA);
+        when(cmsPsuService.definePsuDataForAuthorisation(any(), any())).thenReturn(Optional.of(PSU_DATA));
         when(cmsPsuService.enrichPsuData(any(), any())).thenReturn(Collections.singletonList(PSU_DATA));
 
         // When
@@ -271,9 +298,14 @@ public class PisCommonPaymentServiceInternalTest {
     }
 
     private UpdatePisCommonPaymentPsuDataRequest buildUpdatePisCommonPaymentPsuDataRequest(ScaStatus status) {
+        return buildUpdatePisCommonPaymentPsuDataRequest(status, null);
+    }
+
+    private UpdatePisCommonPaymentPsuDataRequest buildUpdatePisCommonPaymentPsuDataRequest(ScaStatus status, PsuIdData psuIdData) {
         UpdatePisCommonPaymentPsuDataRequest request = new UpdatePisCommonPaymentPsuDataRequest();
         request.setAuthorizationId(FINALISED_AUTHORISATION_ID);
         request.setScaStatus(status);
+        request.setPsuData(psuIdData);
         return request;
     }
 
@@ -310,4 +342,3 @@ public class PisCommonPaymentServiceInternalTest {
         return paymentData;
     }
 }
-

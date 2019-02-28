@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.controller;
 
 import de.adorsys.psd2.model.*;
+import de.adorsys.psd2.xs2a.core.ais.AccountAccessType;
 import de.adorsys.psd2.xs2a.core.consent.AisConsentRequestType;
 import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
@@ -307,13 +308,13 @@ public class ConsentControllerTest {
     private ResponseObject<CreateConsentResponse> createXs2aConsentResponse(String consentId) {
         return isEmpty(consentId)
                    ? ResponseObject.<CreateConsentResponse>builder().fail(MESSAGE_ERROR_AIS_404).build()
-                   : ResponseObject.<CreateConsentResponse>builder().body(new CreateConsentResponse(ConsentStatus.RECEIVED.getValue(), consentId, null, null, null, null)).build();
+                   : ResponseObject.<CreateConsentResponse>builder().body(new CreateConsentResponse(ConsentStatus.RECEIVED.getValue(), consentId, null, null, null, null, false)).build();
     }
 
     private ResponseObject<AccountConsent> getConsent(String consentId) {
         AccountConsent accountConsent = consentId.equals(WRONG_CONSENT_ID)
                                             ? null
-                                            : new AccountConsent(consentId, new Xs2aAccountAccess(null, null, null, null, null), false, LocalDate.now(), 4, LocalDate.now(), ConsentStatus.VALID, false, false, null, null, AisConsentRequestType.GLOBAL);
+                                            : new AccountConsent(consentId, new Xs2aAccountAccess(null, null, null, null, null), false, LocalDate.now(), 4, LocalDate.now(), ConsentStatus.VALID, false, false, null, null, AisConsentRequestType.GLOBAL, false, Collections.emptyList());
         return isEmpty(accountConsent)
                    ? ResponseObject.<AccountConsent>builder().fail(MESSAGE_ERROR_AIS_404).build()
                    : ResponseObject.<AccountConsent>builder().body(accountConsent).build();
@@ -340,7 +341,7 @@ public class ConsentControllerTest {
     private CreateConsentReq getCreateConsentReq() {
         CreateConsentReq req = new CreateConsentReq();
         Xs2aAccountAccess access = new Xs2aAccountAccess(Collections.emptyList(), Collections.emptyList(),
-                                                         Collections.emptyList(), Xs2aAccountAccessType.ALL_ACCOUNTS, Xs2aAccountAccessType.ALL_ACCOUNTS);
+                                                         Collections.emptyList(), AccountAccessType.ALL_ACCOUNTS, AccountAccessType.ALL_ACCOUNTS);
         req.setAccess(access);
         return req;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 adorsys GmbH & Co KG
+ * Copyright 2018-2019 adorsys GmbH & Co KG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.spi.domain.consent;
+package de.adorsys.psd2.consent.web.xs2a.config;
 
-public enum SpiAccountAccessType {
-    ALL_ACCOUNTS("allAccounts"),
-    ALL_ACCOUNTS_WITH_BALANCES("allAccountsWithBalances");
+import org.springframework.context.annotation.Import;
 
-    private String description;
+import java.lang.annotation.*;
 
-    SpiAccountAccessType(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
+/**
+ * This annotation is designed to turn on/off cms swagger
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@Import(Xs2aApiSwaggerConfig.class)
+public @interface EnableCmsXs2aApiSwagger {
 }

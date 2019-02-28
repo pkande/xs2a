@@ -30,9 +30,9 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
+import static de.adorsys.psd2.xs2a.core.ais.AccountAccessType.ALL_ACCOUNTS;
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.EMBEDDED;
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
-import static de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccessType.ALL_ACCOUNTS;
 
 @Component
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class CreateConsentRequestValidator {
      * <li>supporting of bank offered consent</li>
      * <li>expiration date of consent</li>
      * </ul>
-     * If there is new consent requirements, this method has to be updated.
+     * If there are new consent requirements, this method has to be updated.
      *
      * @param request CreateConsentReq request for consent creating
      * @return ValidationResult instance, that contains boolean isValid, that shows if request is valid
