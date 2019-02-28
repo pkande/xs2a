@@ -33,6 +33,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import java.security.Principal;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -43,6 +44,8 @@ import java.util.Optional;
 
 @Slf4j
 public class CertificateExtractorUtil {
+    private static final String LDAP_COMMON_NAME = "CN";
+
     private CertificateExtractorUtil() {
     }
 
@@ -96,24 +99,32 @@ public class CertificateExtractorUtil {
     }
 
     private static String extractIssuerCNFromIssuerDN(Principal issuerDN) {
-        return Optional.ofNullable(issuerDN)
-            .map(Principal::getName)
-            .map(dn -> {
-                try {
-                    return new LdapName(dn);
-                } catch (InvalidNameException e) {
-                    log.error("Error extracting issuer cn from dn: {}", dn);
-                    return null;
-                }
-            })
-            .map(LdapName::getRdns)
-            .orElse(Collections.emptyList())
+        List<Rdn> rdns = getRdns(issuerDN);
+        return rdns
             .stream()
-            .filter(rdn -> "CN".equalsIgnoreCase(rdn.getType()))
+            .filter(rdn ->  LDAP_COMMON_NAME.equalsIgnoreCase(rdn.getType()))
             .findFirst()
             .filter(rdn -> rdn.getValue() instanceof String)
             .map(rdn -> (String) rdn.getValue())
             .orElse(null);
     }
+
+    private static List<Rdn> getRdns(Principal issuerDN) {
+        return Optional.ofNullable(issuerDN)
+            .map(Principal::getName)
+            .map(CertificateExtractorUtil::getLdapName)
+            .map(LdapName::getRdns)
+            .orElseGet(Collections::emptyList);
+    }
+
+    private static LdapName getLdapName(String dn) {
+        try {
+            return new LdapName(dn);
+        } catch (InvalidNameException e) {
+            log.error("Error extracting issuer cn from dn: {}", dn);
+            return null;
+        }
+    }
+
 
 }
