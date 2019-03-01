@@ -166,6 +166,8 @@ public class PaymentServiceTest {
     private CommonPaymentSpi commonPaymentSpi;
     @Mock
     private GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
+    @Mock
+    private AccountReferenceValidationService referenceValidationService;
 
     @Before
     public void setUp() {
@@ -187,6 +189,8 @@ public class PaymentServiceTest {
         when(readPaymentFactory.getService(anyString())).thenReturn(readPaymentService);
         when(standardPaymentProductsResolver.isRawPaymentProduct(anyString()))
             .thenReturn(false);
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
     }
 
     @Test

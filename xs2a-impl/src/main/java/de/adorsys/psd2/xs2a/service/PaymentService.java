@@ -50,6 +50,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,6 +83,7 @@ public class PaymentService {
     private final SpiContextDataProvider spiContextDataProvider;
     private final ReadCommonPaymentStatusService readCommonPaymentStatusService;
     private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
+    private final AccountReferenceValidationService referenceValidationService;
 
     private final StandardPaymentProductsResolver standardPaymentProductsResolver;
 
@@ -119,12 +121,46 @@ public class PaymentService {
         }
 
         if (paymentInitiationParameters.getPaymentType() == PaymentType.SINGLE) {
-            return createSinglePaymentService.createPayment((SinglePayment) payment, paymentInitiationParameters, tppInfo);
+            return processSinglePayment((SinglePayment) payment, paymentInitiationParameters, tppInfo);
         } else if (paymentInitiationParameters.getPaymentType() == PaymentType.PERIODIC) {
-            return createPeriodicPaymentService.createPayment((PeriodicPayment) payment, paymentInitiationParameters, tppInfo);
+            return processPeriodicPayment((PeriodicPayment) payment, paymentInitiationParameters, tppInfo);
         } else {
-            return createBulkPaymentService.createPayment((BulkPayment) payment, paymentInitiationParameters, tppInfo);
+            return processBulkPayment((BulkPayment) payment, paymentInitiationParameters, tppInfo);
         }
+    }
+
+    private ResponseObject processSinglePayment(SinglePayment singePayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
+
+        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
+
+        return accountReferenceValidationResponse.hasError()
+            ? buildErrorResponse(accountReferenceValidationResponse)
+            : createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
+    }
+
+    private ResponseObject processPeriodicPayment(PeriodicPayment periodicPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
+
+        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
+
+        return accountReferenceValidationResponse.hasError()
+            ? buildErrorResponse(accountReferenceValidationResponse)
+            : createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
+    }
+
+    private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
+
+        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(
+            new HashSet<>(Collections.singletonList(bulkPayment.getDebtorAccount())));
+
+        return accountReferenceValidationResponse.hasError()
+            ? buildErrorResponse(accountReferenceValidationResponse)
+            : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
+    }
+
+    private ResponseObject buildErrorResponse(ResponseObject accountReferenceValidationResponse) {
+        return ResponseObject.<CreateConsentResponse>builder()
+            .fail(accountReferenceValidationResponse.getError())
+            .build();
     }
 
     /**
