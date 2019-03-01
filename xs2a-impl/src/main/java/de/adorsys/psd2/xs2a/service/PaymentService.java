@@ -62,6 +62,8 @@ import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.*;
 @Service
 @AllArgsConstructor
 public class PaymentService {
+    private static final String MESSAGE_ERROR_NO_PSU = "Please provide the PSU identification data";
+
     private final ReadPaymentFactory readPaymentFactory;
     private final ReadPaymentStatusFactory readPaymentStatusFactory;
     private final SpiPaymentFactory spiPaymentFactory;
@@ -84,10 +86,9 @@ public class PaymentService {
     private final ReadCommonPaymentStatusService readCommonPaymentStatusService;
     private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
     private final AccountReferenceValidationService referenceValidationService;
+    private final RequestProviderService requestProviderService;
 
     private final StandardPaymentProductsResolver standardPaymentProductsResolver;
-
-    private static final String MESSAGE_ERROR_NO_PSU = "Please provide the PSU identification data";
 
     /**
      * Initiates a payment though "payment service" corresponding service method
@@ -270,9 +271,8 @@ public class PaymentService {
         }
 
         if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(paymentId, transactionStatus)) {
-            return ResponseObject.<TransactionStatus>builder()
-                       .fail(PIS_400, of(FORMAT_ERROR, "Payment is finalised already, so its status cannot be changed"))
-                       .build();
+            log.info("X-Request-ID: [{}], Payment ID: [{}], Transaction status: [{}]. Update of a payment status in the CMS has failed.",
+                     requestProviderService.getRequestId(), paymentId, transactionStatus);
         }
 
         return ResponseObject.<TransactionStatus>builder().body(transactionStatus).build();
