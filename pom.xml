@@ -752,7 +752,15 @@ Use it manually to generate javadocs. Don't commit it
                             <excludes>**/de/adorsys/psd2/xs2a/exception/model/**</excludes>
                             <configLocation>qa/javadoc/javadoc-checkstyle.xml</configLocation>
                         </configuration>
-
+                        <executions>
+                            <execution>
+                                <id>check_javadoc</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
