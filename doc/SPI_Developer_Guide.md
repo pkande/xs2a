@@ -231,7 +231,7 @@ After the Payment Initiation is created, it has to be authorise from the PSU. In
         |updatePsuidentification | href Type           | The link to the payment initiation, which needs to be updated by the PSU identification if not delivered yet|
           
    
-   * **getAuthorisationSubResources** with the **paymentId** and returns authorisation sub resources
+   * **getAuthorisationSubResources** with the **paymentId** and returns authorisation sub resources (e.g. list of authorisation ids)
     
    * **getAuthorisationScaStatus** with **paymentId** (ASPSP identifier of the payment, associated with the authorisation) and 
     **authorisationId** (authorisation identifier). This method will returns SCA status.
