@@ -18,11 +18,13 @@ package de.adorsys.psd2.xs2a.service.payment;
 
 import de.adorsys.psd2.consent.api.pis.PisPayment;
 import de.adorsys.psd2.xs2a.core.consent.AspspConsentData;
+import de.adorsys.psd2.xs2a.core.pis.TransactionStatus;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.domain.ErrorHolder;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInformationResponse;
+import de.adorsys.psd2.xs2a.service.RequestProviderService;
 import de.adorsys.psd2.xs2a.service.consent.PisAspspDataService;
 import de.adorsys.psd2.xs2a.service.context.SpiContextDataProvider;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ServiceType;
@@ -50,6 +52,7 @@ public class ReadBulkPaymentService extends ReadPaymentService<PaymentInformatio
     private final SpiToXs2aBulkPaymentMapper spiToXs2aBulkPaymentMapper;
     private final SpiErrorMapper spiErrorMapper;
     private final SpiPaymentFactory spiPaymentFactory;
+    private final RequestProviderService requestProviderService;
 
     @Override
     public PaymentInformationResponse<BulkPayment> getPayment(List<PisPayment> pisPayments, String paymentProduct, PsuIdData psuData, AspspConsentData aspspConsentData) {
@@ -73,8 +76,10 @@ public class ReadBulkPaymentService extends ReadPaymentService<PaymentInformatio
         SpiBulkPayment spiResponsePayment = spiResponse.getPayload();
         BulkPayment xs2aBulkPayment = spiToXs2aBulkPaymentMapper.mapToXs2aBulkPayment(spiResponsePayment);
 
-        if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(aspspConsentData.getConsentId(), xs2aBulkPayment.getTransactionStatus())) {
-            log.info("Couldn't update payment status in the CMS");
+        TransactionStatus paymentStatus = xs2aBulkPayment.getTransactionStatus();
+        if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(aspspConsentData.getConsentId(), paymentStatus)) {
+            log.info("X-Request-ID: [{}], Internal payment ID: [{}], Transaction status: [{}]. Update of a payment status in the CMS has failed.",
+                     requestProviderService.getRequestId(), xs2aBulkPayment.getPaymentId(), paymentStatus);
         }
 
         return new PaymentInformationResponse<>(xs2aBulkPayment);
