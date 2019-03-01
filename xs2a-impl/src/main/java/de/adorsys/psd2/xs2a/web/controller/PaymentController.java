@@ -97,7 +97,7 @@ public class PaymentController implements PaymentApi {
         ResponseObject serviceResponse = PaymentType.getByValue(paymentService)
                                              .map(pt -> xs2aPaymentService.getPaymentById(pt, paymentProduct, paymentId))
                                              .orElseGet(ResponseObject.builder()
-                                                            .fail(ErrorType.PIS_400, TppMessageInformation.of(FORMAT_ERROR))::build);
+                                                            .fail(ErrorType.PIS_404, TppMessageInformation.of(RESOURCE_UNKNOWN_404))::build);
 
         //TODO check for Optional.get() without check for value presence https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/380
         return serviceResponse.hasError()
