@@ -186,4 +186,10 @@ public class AisConsent extends InstanceDependableEntity {
         return CollectionUtils.isEmpty(psuDataList)
                    || tppInfo == null;
     }
+    public void addUsage(AisConsentUsage aisConsentUsage) {
+        if (usages == null) {
+            usages = new ArrayList<>();
+        }
+        usages.add(aisConsentUsage);
+    }
 }

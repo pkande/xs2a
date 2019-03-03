@@ -20,36 +20,34 @@ import de.adorsys.psd2.consent.domain.account.AisConsent;
 import de.adorsys.psd2.consent.domain.account.AisConsentUsage;
 import de.adorsys.psd2.consent.repository.AisConsentUsageRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.LockModeType;
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AisConsentUsageService {
     private final AisConsentUsageRepository aisConsentUsageRepository;
 
-    @Lock(value = LockModeType.WRITE)
-    void incrementUsage(AisConsent aisConsent) {
+    @Transactional
+    public void incrementUsage(AisConsent aisConsent) {
         AisConsentUsage aisConsentUsage = getUsage(aisConsent);
         int usage = aisConsentUsage.getUsage();
-        int newUsage = ++usage;
-        aisConsentUsage.setUsage(newUsage);
+        aisConsentUsage.setUsage(++usage);
         aisConsentUsageRepository.save(aisConsentUsage);
     }
 
-    @Lock(value = LockModeType.WRITE)
+    @Transactional
     public void resetUsage(AisConsent aisConsent) {
         AisConsentUsage aisConsentUsage = getUsage(aisConsent);
         aisConsentUsage.setUsage(0);
         aisConsentUsageRepository.save(aisConsentUsage);
     }
 
+    @Transactional(readOnly = true)
     public int getUsageCounter(AisConsent aisConsent) {
-        Integer usage = getCurrentAisConsentUsage(aisConsent)
+        Integer usage = aisConsentUsageRepository.findReadByConsentAndUsageDate(aisConsent, LocalDate.now())
                             .map(AisConsentUsage::getUsage)
                             .orElse(0);
 
@@ -57,11 +55,11 @@ public class AisConsentUsageService {
     }
 
     private AisConsentUsage getUsage(AisConsent aisConsent) {
-        return getCurrentAisConsentUsage(aisConsent)
-                   .orElseGet(() -> new AisConsentUsage(aisConsent));
-    }
-
-    private Optional<AisConsentUsage> getCurrentAisConsentUsage(AisConsent aisConsent) {
-        return aisConsentUsageRepository.findByConsentAndUsageDate(aisConsent, LocalDate.now());
+        return aisConsentUsageRepository.findWriteByConsentAndUsageDate(aisConsent, LocalDate.now())
+                   .orElseGet(() -> {
+                       AisConsentUsage usage = new AisConsentUsage(aisConsent);
+                       aisConsent.addUsage(usage);
+                       return usage;
+                   });
     }
 }

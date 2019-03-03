@@ -18,11 +18,16 @@ package de.adorsys.psd2.consent.repository;
 
 import de.adorsys.psd2.consent.domain.account.AisConsent;
 import de.adorsys.psd2.consent.domain.account.AisConsentUsage;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 
+import javax.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.Optional;
 
-public interface AisConsentUsageRepository extends Xs2aCrudRepository<AisConsentUsage, Long>, JpaSpecificationExecutor<AisConsentUsage> {
-    Optional<AisConsentUsage> findByConsentAndUsageDate(AisConsent aisConsent, LocalDate usageDate);
+public interface AisConsentUsageRepository extends Xs2aCrudRepository<AisConsentUsage, Long> {
+    @Lock(value = LockModeType.OPTIMISTIC_FORCE_INCREMENT)
+    Optional<AisConsentUsage> findWriteByConsentAndUsageDate(AisConsent aisConsent, LocalDate usageDate);
+
+    @Lock(value = LockModeType.OPTIMISTIC)
+    Optional<AisConsentUsage> findReadByConsentAndUsageDate(AisConsent aisConsent, LocalDate usageDate);
 }

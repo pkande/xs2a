@@ -28,7 +28,7 @@
         <comment>Create table ais_consent_usage</comment>
 
         <createTable tableName="ais_consent_usage">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="ais_consent_usage_id_seq">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="consent_id" type="BIGINT">
@@ -38,6 +38,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="usage" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -53,6 +56,20 @@
     </changeSet>
 
     <changeSet id="2019-02-22-4" author="iku@adorsys.com.ua">
+        <comment>Copy existing usage_counter from ais_consent into ais_consent_usage table</comment>
+
+        <sql>
+            INSERT INTO ais_consent_usage (consent_id, usage_date, usage, version)
+            SELECT id,
+            CURRENT_DATE,
+            expected_frequency_per_day - usage_counter as usage,
+            0
+            FROM ais_consent consent
+            WHERE expected_frequency_per_day > usage_counter
+        </sql>
+    </changeSet>
+
+    <changeSet id="2019-02-22-5" author="iku@adorsys.com.ua">
         <comment>Drop usage_counter column in ais_consent</comment>
         <dropColumn columnName="usage_counter" tableName="ais_consent"/>
     </changeSet>

@@ -41,9 +41,12 @@ public class AisConsentUsage {
     @Column(name = "usage", nullable = false)
     private int usage;
 
+    @Version
+    @Column(name = "version")
+    private long version;
+
     public AisConsentUsage(AisConsent consent) {
         this.usageDate = LocalDate.now();
         this.consent = consent;
-        this.consent.getUsages().add(this);
     }
 }
