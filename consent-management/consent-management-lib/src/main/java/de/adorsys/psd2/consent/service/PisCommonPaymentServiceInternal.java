@@ -158,7 +158,13 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
     @Override
     @Transactional
     public Optional<CreatePisAuthorisationResponse> createAuthorizationCancellation(String paymentId, CreatePisAuthorisationRequest request) {
-        return createAuthorization(paymentId, request);
+        return readPisCommonPaymentDataByPaymentId(paymentId)
+                   .filter(p -> p.getTransactionStatus().isNotFinalisedStatus())
+                   .map(pmt -> {
+                       closePreviousAuthorisationsByPsu(pmt.getAuthorizations(), request.getAuthorizationType(), request.getPsuData());
+                       return saveNewAuthorisation(pmt, request);
+                   })
+                   .map(c -> new CreatePisAuthorisationResponse(c.getExternalId()));
     }
 
     /**
@@ -285,7 +291,7 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
     public Optional<List<PsuIdData>> getPsuDataListByPaymentId(String paymentId) {
 
         return readPisCommonPaymentDataByPaymentId(paymentId)
-                   .map(pc -> psuDataMapper.mapToPsuIdDataList(pc.getPsuData()));
+                   .map(pc -> psuDataMapper.mapToPsuIdDataList(pc.getPsuDataList()));
     }
 
     @Override
@@ -385,11 +391,11 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
      */
     private PisAuthorization saveNewAuthorisation(PisCommonPaymentData paymentData, CreatePisAuthorisationRequest request) {
         PisAuthorization consentAuthorisation = new PisAuthorization();
-        Optional<PsuData> psuDataOptional = cmsPsuService.definePsuDataForAuthorisation(psuDataMapper.mapToPsuData(request.getPsuData()), paymentData.getPsuData());
+        Optional<PsuData> psuDataOptional = cmsPsuService.definePsuDataForAuthorisation(psuDataMapper.mapToPsuData(request.getPsuData()), paymentData.getPsuDataList());
 
         if (psuDataOptional.isPresent()) {
             PsuData psuData = psuDataOptional.get();
-            paymentData.setPsuData(cmsPsuService.enrichPsuData(psuData, paymentData.getPsuData()));
+            paymentData.setPsuDataList(cmsPsuService.enrichPsuData(psuData, paymentData.getPsuDataList()));
             consentAuthorisation.setPsuData(psuData);
         }
 
@@ -455,8 +461,8 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         if (STARTED == pisAuthorisation.getScaStatus()) {
             PsuData psuData = psuDataMapper.mapToPsuData(request.getPsuData());
             PisCommonPaymentData paymentData = pisAuthorisation.getPaymentData();
-            List<PsuData> psuDataList = cmsPsuService.enrichPsuData(psuData, paymentData.getPsuData());
-            paymentData.setPsuData(psuDataList);
+            List<PsuData> psuDataList = cmsPsuService.enrichPsuData(psuData, paymentData.getPsuDataList());
+            paymentData.setPsuDataList(psuDataList);
 
             if (psuData != null) {
                 pisAuthorisation.setPsuData(psuData);

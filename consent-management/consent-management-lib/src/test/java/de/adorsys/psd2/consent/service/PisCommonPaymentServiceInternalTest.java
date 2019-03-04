@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 package de.adorsys.psd2.consent.service;
-
 
 import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
@@ -245,7 +243,7 @@ public class PisCommonPaymentServiceInternalTest {
         PisAuthorization savedAuthorisation = savedAuthorisationCaptor.getValue();
 
         assertEquals(PSU_DATA, savedAuthorisation.getPsuData());
-        assertEquals(psuDataList, savedAuthorisation.getPaymentData().getPsuData());
+        assertEquals(psuDataList, savedAuthorisation.getPaymentData().getPsuDataList());
     }
 
     @Test
@@ -344,4 +342,3 @@ public class PisCommonPaymentServiceInternalTest {
         return paymentData;
     }
 }
-

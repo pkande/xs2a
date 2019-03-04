@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.consent.psu.api.pis;
+package de.adorsys.psd2.xs2a.domain.pis;
 
-import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
-import lombok.Value;
-
-import java.util.Map;
-
-@Value
-public class AuthorisationTypeStatusesByPsu {
-    private Map<String, ScaStatus> created;
-    private Map<String, ScaStatus> cancelled;
+// TODO Move PaymentAuthorisationType to the xs2a-core https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/717
+public enum PaymentAuthorisationType {
+    INITIATION,
+    CANCELLATION
 }
