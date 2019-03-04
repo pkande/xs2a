@@ -38,7 +38,7 @@ public class AisConsentUsage {
     @Column(name = "usage_date", nullable = false)
     private LocalDate usageDate;
 
-    @Column(name = "usage", nullable = false)
+    @Column(name = "usage_amount", nullable = false)
     private int usage;
 
     @Version

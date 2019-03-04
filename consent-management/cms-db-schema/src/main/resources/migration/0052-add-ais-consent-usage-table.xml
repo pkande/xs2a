@@ -28,7 +28,7 @@
         <comment>Create table ais_consent_usage</comment>
 
         <createTable tableName="ais_consent_usage">
-            <column name="id" type="BIGINT" defaultValueSequenceNext="ais_consent_usage_id_seq">
+            <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="consent_id" type="BIGINT">
@@ -37,7 +37,7 @@
             <column name="usage_date" type="DATE">
                 <constraints nullable="false"/>
             </column>
-            <column name="usage" type="INTEGER">
+            <column name="usage_amount" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="version" type="INTEGER">
@@ -46,7 +46,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="2019-02-22-3" author="iku@adorsys.com.ua">
+    <changeSet id="2019-02-22-4" author="iku@adorsys.com.ua">
         <comment>Add foreign keys to ais_consent_usage</comment>
 
         <addForeignKeyConstraint baseColumnNames="consent_id" baseTableName="ais_consent_usage"
@@ -55,23 +55,43 @@
                                  referencedColumnNames="id" referencedTableName="ais_consent"/>
     </changeSet>
 
-    <changeSet id="2019-02-22-4" author="iku@adorsys.com.ua">
+    <changeSet id="2019-02-22-5" author="iku@adorsys.com.ua">
         <comment>Copy existing usage_counter from ais_consent into ais_consent_usage table</comment>
 
-        <sql>
-            INSERT INTO ais_consent_usage (consent_id, usage_date, usage, version)
-            SELECT id,
+        <sql dbms="oracle">
+            INSERT INTO ais_consent_usage (id, consent_id, usage_date, usage_amount, version)
+            SELECT
+            ais_consent_usage_id_seq.nextval,
+            id,
             CURRENT_DATE,
-            expected_frequency_per_day - usage_counter as usage,
+            expected_frequency_per_day - usage_counter,
+            0
+            FROM ais_consent consent
+            WHERE expected_frequency_per_day > usage_counter
+        </sql>
+
+        <sql dbms="postgresql">
+            INSERT INTO ais_consent_usage (id, consent_id, usage_date, usage_amount, version)
+            SELECT
+            nextval('ais_consent_usage_id_seq'),
+            id,
+            CURRENT_DATE,
+            expected_frequency_per_day - usage_counter,
+            0
+            FROM ais_consent consent
+            WHERE expected_frequency_per_day > usage_counter
+        </sql>
+
+        <sql dbms="mariadb">
+            INSERT INTO ais_consent_usage (id, consent_id, usage_date, usage_amount, version)
+            SELECT
+            NEXTVAL(ais_consent_usage_id_seq),
+            id,
+            CURRENT_DATE,
+            expected_frequency_per_day - usage_counter,
             0
             FROM ais_consent consent
             WHERE expected_frequency_per_day > usage_counter
         </sql>
     </changeSet>
-
-    <changeSet id="2019-02-22-5" author="iku@adorsys.com.ua">
-        <comment>Drop usage_counter column in ais_consent</comment>
-        <dropColumn columnName="usage_counter" tableName="ais_consent"/>
-    </changeSet>
-
 </databaseChangeLog>
