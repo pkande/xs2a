@@ -320,9 +320,9 @@ public class PaymentService {
         ResponseObject datesValidationResponse = validateDatesInSinglePayment(singePayment);
 
         if (accountReferenceValidationResponse.hasError()) {
-            return buildErrorResponse(accountReferenceValidationResponse);
+            return buildErrorResponseIbanValidation();
         } else if (datesValidationResponse.hasError()) {
-            return buildErrorResponse(datesValidationResponse);
+            return buildErrorResponseDatesValidation();
         }
 
         return createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
@@ -334,9 +334,9 @@ public class PaymentService {
         ResponseObject datesValidationResponse = validateDatesInPeriodicPayment(periodicPayment);
 
         if (accountReferenceValidationResponse.hasError()) {
-            return buildErrorResponse(accountReferenceValidationResponse);
+            return buildErrorResponseIbanValidation();
         } else if (datesValidationResponse.hasError()) {
-            return buildErrorResponse(datesValidationResponse);
+            return buildErrorResponseDatesValidation();
         }
 
         return createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
@@ -347,18 +347,14 @@ public class PaymentService {
         LocalDate paymentStartDate = periodicPayment.getStartDate();
 
         return paymentStartDate.isBefore(LocalDate.now()) || periodicPayment.getEndDate().isBefore(paymentStartDate)
-            ? buildErrorResponse(ResponseObject.builder()
-            .fail(PIS_400, of(PERIOD_INVALID))
-            .build())
+            ? buildErrorResponseDatesValidation()
             : ResponseObject.builder().build();
     }
 
     private ResponseObject validateDatesInSinglePayment(SinglePayment singlePayment) {
 
         return singlePayment.getRequestedExecutionDate().isBefore(LocalDate.now())
-            ? buildErrorResponse(ResponseObject.builder()
-                .fail(PIS_400, of(PERIOD_INVALID))
-                .build())
+            ? buildErrorResponseDatesValidation()
             : ResponseObject.builder().build();
     }
 
@@ -367,13 +363,19 @@ public class PaymentService {
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponse(accountReferenceValidationResponse)
+            ? buildErrorResponseIbanValidation()
             : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
     }
 
-    private ResponseObject buildErrorResponse(ResponseObject accountReferenceValidationResponse) {
-        return ResponseObject.<CreateConsentResponse>builder()
-            .fail(accountReferenceValidationResponse.getError())
+    private ResponseObject buildErrorResponseIbanValidation() {
+        return ResponseObject.builder()
+            .fail(PIS_400, of(FORMAT_ERROR))
+            .build();
+    }
+
+    private ResponseObject buildErrorResponseDatesValidation() {
+        return ResponseObject.builder()
+            .fail(PIS_400, of(PERIOD_INVALID))
             .build();
     }
 

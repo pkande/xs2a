@@ -1,5 +1,8 @@
 # Release notes v.2.0.1
 
+## Bugfix: Fixed the process of checking daily access limit for AIS consent
+From now on when TPP exceeds allowed frequency per day for AIS consent, it will receive response with `ACCESS_EXCEEDED` error (response code HTTP 429).
+
 ## Bugfix: added validation for incorrect dates in periodic payments creation      
 
 Now while creating new periodic payment its start date and end date are validated:
@@ -8,4 +11,4 @@ Now while creating new periodic payment its start date and end date are validate
  
 Also while creating the future payment its execution date is validated and it can not be in the past.
  
-In all above cases response with error `400 PERIOD_INVALID` is returned.
+In all above cases response with error `PERIOD_INVALID` (response code HTTP 400) is returned.
