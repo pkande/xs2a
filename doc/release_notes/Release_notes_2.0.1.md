@@ -8,7 +8,6 @@ Executing get accounts request will no longer incorrectly provide accesses to ba
 if no such accesses were granted beforehand.
 
 ## Bugfix: changed the response code for getting payment and its status by ID with wrong payment service      
-
 Before the response for getting payment details by its ID with wrong payment service in path (GET `/v1/wrong-payment-service/sepa-credit-transfers/payment_id`)
 was returning `400 - Bad Request`. The same was in getting payment status (GET `/v1/wrong-payment-service/sepa-credit-transfers/payment_id/status`).
 From now on new response is: `404 - Resource Unknown`.
@@ -16,12 +15,14 @@ From now on new response is: `404 - Resource Unknown`.
 ## Bugfix: Frequency per day in AIS consent can accept only positive values
 From now on value of the `frequencyPerDay` field in AIS consent is being validated and can only contain positive values 
 
-## Bugfix: added validation for incorrect dates in periodic payments creation      
+## Bugfix: made Tpp-Redirect-Uri to be mandatory for TPP-Redirect-Preferred == true case
+From now, during the process of AIS consent creation and payment initiation, 
+if `TPP-Redirect-Preferred` header is equal to `true`, the `TPP-Redirect-Uri` header is mandatory. 
+In case of missing `TPP-Redirect-Uri` header, `400` HTTP error code will be returned.
 
+## Bugfix: added validation for incorrect dates in periodic payments creation      
 Now while creating new periodic payment its start date and end date are validated:
  - start date can not be in the past
  - end date can not be earlier than start date
- 
 Also while creating the future payment its execution date is validated and it can not be in the past.
- 
 In all above cases response with error `PERIOD_INVALID` (response code HTTP 400) is returned.
