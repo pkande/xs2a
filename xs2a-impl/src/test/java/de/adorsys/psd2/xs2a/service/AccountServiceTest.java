@@ -245,6 +245,33 @@ public class AccountServiceTest {
     }
 
     @Test
+    public void getAccountDetailsList_shouldUpdateAccountReferences() {
+        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
+            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+
+        when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
+            .thenReturn(ASPSP_CONSENT_DATA);
+
+        List<SpiAccountDetails> spiAccountDetailsList = Collections.singletonList(spiAccountDetails);
+
+        when(consentMapper.mapToSpiAccountConsent(any()))
+            .thenReturn(SPI_ACCOUNT_CONSENT);
+
+        when(accountSpi.requestAccountList(SPI_CONTEXT_DATA, WITH_BALANCE, SPI_ACCOUNT_CONSENT, ASPSP_CONSENT_DATA))
+            .thenReturn(buildSuccessSpiResponse(spiAccountDetailsList));
+
+        List<Xs2aAccountDetails> xs2aAccountDetailsList = Collections.singletonList(xs2aAccountDetails);
+
+        when(accountDetailsMapper.mapToXs2aAccountDetailsList(spiAccountDetailsList))
+            .thenReturn(xs2aAccountDetailsList);
+
+        ResponseObject<Map<String, List<Xs2aAccountDetails>>> actualResponse = accountService.getAccountList(CONSENT_ID, WITH_BALANCE);
+
+        Xs2aAccountAccess access = SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE.getBody().getAccess();
+        verify(accountReferenceUpdater).updateAccountReferences(CONSENT_ID, access, xs2aAccountDetailsList);
+    }
+
+    @Test
     public void getAccountList_Success_ShouldRecordEvent() {
         when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
             .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
