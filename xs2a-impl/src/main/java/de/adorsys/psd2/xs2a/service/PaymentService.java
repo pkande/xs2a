@@ -343,7 +343,7 @@ public class PaymentService {
 
         LocalDate paymentStartDate = periodicPayment.getStartDate();
 
-        return (paymentStartDate.isBefore(LocalDate.now()) || periodicPayment.getEndDate().isBefore(paymentStartDate))
+        return paymentStartDate.isBefore(LocalDate.now()) || periodicPayment.getEndDate().isBefore(paymentStartDate)
             ? buildErrorResponse(ResponseObject.builder()
             .fail(PIS_400, of(PERIOD_INVALID))
             .build())
