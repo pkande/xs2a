@@ -117,19 +117,24 @@ public class Xs2aEventService {
     }
 
     private Event buildTppEvent(EventType eventType, Object body) {
+        RequestData requestData = requestProviderService.getRequestData();
+
         Event event = Event.builder()
                           .timestamp(OffsetDateTime.now())
                           .eventOrigin(EventOrigin.TPP)
                           .eventType(eventType)
+                          .psuId(requestData.getPsuId())
+                          .psuCorporateId(requestData.getPsuCorporateId())
+                          .requestId(requestData.getRequestId())
+                          .authorisationNumber(tppService.getTppInfo().getAuthorisationNumber())
                           .build();
-        RequestEventPayload payload = buildRequestEventPayload(body);
+        RequestEventPayload payload = buildRequestEventPayload(requestData, body);
         event.setPayload(payload);
 
         return event;
     }
 
-    private RequestEventPayload buildRequestEventPayload(Object body) {
-        RequestData requestData = requestProviderService.getRequestData();
+    private RequestEventPayload buildRequestEventPayload(RequestData requestData, Object body) {
         RequestEventPayload requestPayload = new RequestEventPayload();
         requestPayload.setTppInfo(tppService.getTppInfo());
         requestPayload.setTppIp(requestData.getIp());

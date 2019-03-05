@@ -20,6 +20,7 @@ import de.adorsys.psd2.consent.api.service.EventServiceEncrypted;
 import de.adorsys.psd2.xs2a.core.event.Event;
 import de.adorsys.psd2.xs2a.core.event.EventOrigin;
 import de.adorsys.psd2.xs2a.core.event.EventType;
+import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.RequestData;
 import de.adorsys.psd2.xs2a.service.RequestProviderService;
 import de.adorsys.psd2.xs2a.service.TppService;
@@ -47,6 +48,9 @@ public class Xs2aEventServiceTest {
     private static final UUID REQUEST_ID = UUID.fromString("0d7f200e-09b4-46f5-85bd-f4ea89fccace");
     private static final String TPP_IP = "1.2.3.4";
     private static final EventType EVENT_TYPE = EventType.PAYMENT_INITIATION_REQUEST_RECEIVED;
+    private static final String PSU_ID = "777";
+    private static final String PSU_CORPORATE_ID = "888";
+    private static final String AUTHORISATION_NUMBER = "999";
 
     @Mock
     private TppService tppService;
@@ -62,6 +66,7 @@ public class Xs2aEventServiceTest {
     public void setUp() {
         when(eventService.recordEvent(any(Event.class))).thenReturn(true);
         when(requestProviderService.getRequestData()).thenReturn(buildRequestData());
+        when(tppService.getTppInfo()).thenReturn(buildTppInfo());
     }
 
     @Test
@@ -79,6 +84,10 @@ public class Xs2aEventServiceTest {
         assertThat(capturedEvent.getEventOrigin()).isEqualTo(EventOrigin.TPP);
         assertThat(capturedEvent.getEventType()).isEqualTo(EVENT_TYPE);
         assertThat(capturedEvent.getPayload()).isNotNull();
+        assertThat(capturedEvent.getPsuId()).isEqualTo(PSU_ID);
+        assertThat(capturedEvent.getPsuCorporateId()).isEqualTo(PSU_CORPORATE_ID);
+        assertThat(capturedEvent.getAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
+        assertThat(capturedEvent.getRequestId()).isEqualTo(REQUEST_ID);
     }
 
     @Test
@@ -96,6 +105,10 @@ public class Xs2aEventServiceTest {
         assertThat(capturedEvent.getEventOrigin()).isEqualTo(EventOrigin.TPP);
         assertThat(capturedEvent.getEventType()).isEqualTo(EVENT_TYPE);
         assertThat(capturedEvent.getPayload()).isNotNull();
+        assertThat(capturedEvent.getPsuId()).isEqualTo(PSU_ID);
+        assertThat(capturedEvent.getPsuCorporateId()).isEqualTo(PSU_CORPORATE_ID);
+        assertThat(capturedEvent.getAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
+        assertThat(capturedEvent.getRequestId()).isEqualTo(REQUEST_ID);
     }
 
     @Test
@@ -113,9 +126,19 @@ public class Xs2aEventServiceTest {
         assertThat(capturedEvent.getEventOrigin()).isEqualTo(EventOrigin.TPP);
         assertThat(capturedEvent.getEventType()).isEqualTo(EVENT_TYPE);
         assertThat(capturedEvent.getPayload()).isNotNull();
+        assertThat(capturedEvent.getPsuId()).isEqualTo(PSU_ID);
+        assertThat(capturedEvent.getPsuCorporateId()).isEqualTo(PSU_CORPORATE_ID);
+        assertThat(capturedEvent.getAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
+        assertThat(capturedEvent.getRequestId()).isEqualTo(REQUEST_ID);
     }
 
     private RequestData buildRequestData() {
-        return new RequestData(URI, REQUEST_ID, TPP_IP, Collections.emptyMap());
+        return new RequestData(URI, REQUEST_ID, TPP_IP, Collections.emptyMap(), PSU_ID, PSU_CORPORATE_ID);
+    }
+
+    private TppInfo buildTppInfo() {
+        TppInfo tppInfo = new TppInfo();
+        tppInfo.setAuthorisationNumber(AUTHORISATION_NUMBER);
+        return tppInfo;
     }
 }

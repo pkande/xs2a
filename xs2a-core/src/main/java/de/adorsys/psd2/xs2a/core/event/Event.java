@@ -19,6 +19,7 @@ package de.adorsys.psd2.xs2a.core.event;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 /**
  * Contains information about the event.
@@ -43,12 +44,6 @@ public class Event {
     private String paymentId;
 
     /**
-     * Object that may contain additional information about the event.
-     * Can be null if the event doesn't provide any additional information.
-     */
-    private Object payload;
-
-    /**
      * Indicates the origin of the event.
      */
     private EventOrigin eventOrigin;
@@ -62,6 +57,32 @@ public class Event {
      * The id of particular service instance.
      */
     private String instanceId;
+
+    /**
+     * Client ID of the PSU
+     */
+    private String psuId;
+
+    /**
+     * Corporate ID of the PSU
+     */
+    private String psuCorporateId;
+
+    /**
+     * Authorization number of the TPP
+     */
+    private String authorisationNumber;
+
+    /**
+     * ID of the request
+     */
+    private UUID requestId;
+
+    /**
+     * Object that may contain additional information about the event.
+     * Can be null if the event doesn't provide any additional information.
+     */
+    private Object payload;
 
     private Event() {
     }
@@ -78,6 +99,10 @@ public class Event {
         private EventOrigin eventOrigin;
         private EventType eventType;
         private String instanceId;
+        private String psuId;
+        private String psuCorporateId;
+        private String authorisationNumber;
+        private UUID requestId;
 
         private EventBuilder() {
         }
@@ -117,6 +142,26 @@ public class Event {
             return this;
         }
 
+        public EventBuilder psuId(String psuId) {
+            this.psuId = psuId;
+            return this;
+        }
+
+        public EventBuilder psuCorporateId(String psuCorporateId) {
+            this.psuCorporateId = psuCorporateId;
+            return this;
+        }
+
+        public EventBuilder authorisationNumber(String authorisationNumber) {
+            this.authorisationNumber = authorisationNumber;
+            return this;
+        }
+
+        public EventBuilder requestId(UUID requestId) {
+            this.requestId = requestId;
+            return this;
+        }
+
         public Event build() {
             Event event = new Event();
             event.setTimestamp(timestamp);
@@ -126,6 +171,10 @@ public class Event {
             event.setEventOrigin(eventOrigin);
             event.setEventType(eventType);
             event.setInstanceId(instanceId);
+            event.setPsuId(psuId);
+            event.setPsuCorporateId(psuCorporateId);
+            event.setAuthorisationNumber(authorisationNumber);
+            event.setRequestId(requestId);
             return event;
         }
     }

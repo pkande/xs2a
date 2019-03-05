@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,6 +57,10 @@ public class EventMapper {
         eventEntity.setPayload(payload);
         eventEntity.setEventOrigin(event.getEventOrigin());
         eventEntity.setEventType(event.getEventType());
+        eventEntity.setPsuId(event.getPsuId());
+        eventEntity.setPsuCorporateId(event.getPsuCorporateId());
+        eventEntity.setAuthorisationNumber(event.getAuthorisationNumber());
+        eventEntity.setRequestId(Optional.ofNullable(event.getRequestId()).map(UUID::toString).orElse(null));
         return eventEntity;
     }
 
@@ -69,6 +75,10 @@ public class EventMapper {
                    .eventOrigin(eventEntity.getEventOrigin())
                    .eventType(eventEntity.getEventType())
                    .instanceId(eventEntity.getInstanceId())
+                   .psuId(eventEntity.getPsuId())
+                   .psuCorporateId(eventEntity.getPsuCorporateId())
+                   .authorisationNumber(eventEntity.getAuthorisationNumber())
+                   .requestId(Optional.ofNullable(eventEntity.getRequestId()).map(UUID::fromString).orElse(null))
                    .build();
     }
 }

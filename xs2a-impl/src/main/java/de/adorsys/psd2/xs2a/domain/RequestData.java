@@ -46,4 +46,14 @@ public class RequestData {
      * Headers used in the request.
      */
     private Map<String, String> headers;
+
+    /**
+     * Client ID of the PSU
+     */
+    private String psuId;
+
+    /**
+     * Corporate ID of the PSU
+     */
+    private String psuCorporateId;
 }

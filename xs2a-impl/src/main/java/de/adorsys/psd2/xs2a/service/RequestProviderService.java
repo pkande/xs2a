@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 public class RequestProviderService {
     private static final String TPP_REDIRECT_PREFERRED_HEADER = "tpp-redirect-preferred";
     private static final String X_REQUEST_ID_HEADER = "x-request-id";
+    private static final String PSU_ID_HEADER = "PSU-ID";
+    private static final String PSU_CORPORATE_ID_HEADER = "PSU-Corporate-ID";
 
     private final HttpServletRequest httpServletRequest;
 
@@ -46,10 +48,12 @@ public class RequestProviderService {
     public RequestData getRequestData() {
         String uri = httpServletRequest.getRequestURI();
         UUID requestId = UUID.fromString(httpServletRequest.getHeader(X_REQUEST_ID_HEADER));
+        String psuId = httpServletRequest.getHeader(PSU_ID_HEADER);
+        String psuCorporateId = httpServletRequest.getHeader(PSU_CORPORATE_ID_HEADER);
         String ip = httpServletRequest.getRemoteAddr();
         Map<String, String> headers = getRequestHeaders(httpServletRequest);
 
-        return new RequestData(uri, requestId, ip, headers);
+        return new RequestData(uri, requestId, ip, headers, psuId, psuCorporateId);
     }
 
     public UUID getRequestId() {

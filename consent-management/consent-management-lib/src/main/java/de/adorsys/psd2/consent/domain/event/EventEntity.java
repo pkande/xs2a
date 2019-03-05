@@ -52,4 +52,16 @@ public class EventEntity extends InstanceDependableEntity {
     @Column(name = "event_type", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private EventType eventType;
+
+    @Column(name = "psu_id")
+    private String psuId;
+
+    @Column(name = "psu_corporate_id")
+    private String psuCorporateId;
+
+    @Column(name = "authorisation_number")
+    private String authorisationNumber;
+
+    @Column(name = "request_id")
+    private String requestId;
 }
