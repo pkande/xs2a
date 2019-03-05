@@ -20,7 +20,7 @@ From now, during the process of AIS consent creation and payment initiation,
 if `TPP-Redirect-Preferred` header is equal to `true`, the `TPP-Redirect-Uri` header is mandatory. 
 In case of missing `TPP-Redirect-Uri` header, `400` HTTP error code will be returned.
 
-## Bugfix: Change 
+## Bugfix: Change error code on fetching resources without proper access in AIS consent
 From now on error `CONSENT_INVALID` (HTTP response code `401`) will be returned instead of `RESOURCE_UNKNOWN` 
 (HTTP response code `404`) if the access to particular resources is not allowed for given AIS consent.
 
