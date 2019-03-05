@@ -7,6 +7,15 @@ From now on when TPP exceeds allowed frequency per day for AIS consent, it will 
 Executing get accounts request will no longer incorrectly provide accesses to balances and transactions in AIS consent 
 if no such accesses were granted beforehand.
 
+## Bugfix: changed the response code for getting payment and its status by ID with wrong payment service      
+
+Before the response for getting payment details by its ID with wrong payment service in path (GET `/v1/wrong-payment-service/sepa-credit-transfers/payment_id`)
+was returning `400 - Bad Request`. The same was in getting payment status (GET `/v1/wrong-payment-service/sepa-credit-transfers/payment_id/status`).
+From now on new response is: `404 - Resource Unknown`.
+
+## Bugfix: Frequency per day in AIS consent can accept only positive values
+From now on value of the `frequencyPerDay` field in AIS consent is being validated and can only contain positive values 
+
 ## Bugfix: added validation for incorrect dates in periodic payments creation      
 
 Now while creating new periodic payment its start date and end date are validated:
