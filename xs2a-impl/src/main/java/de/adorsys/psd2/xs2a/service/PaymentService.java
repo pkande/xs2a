@@ -51,7 +51,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -317,12 +316,16 @@ public class PaymentService {
 
     private ResponseObject processSinglePayment(SinglePayment singePayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
-        // TODO: https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/659 Validate future dated payments, currently they are not supported due to yaml version (no field "requestedExecutionDate")
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
+        ResponseObject datesValidationResponse = validateDatesInSinglePayment(singePayment);
 
-        return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponse(accountReferenceValidationResponse)
-            : createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
+        if (accountReferenceValidationResponse.hasError()) {
+            return buildErrorResponse(accountReferenceValidationResponse);
+        } else if (datesValidationResponse.hasError()) {
+            return buildErrorResponse(datesValidationResponse);
+        }
+
+        return createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
     }
 
     private ResponseObject processPeriodicPayment(PeriodicPayment periodicPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
@@ -350,10 +353,18 @@ public class PaymentService {
             : ResponseObject.builder().build();
     }
 
+    private ResponseObject validateDatesInSinglePayment(SinglePayment singlePayment) {
+
+        return singlePayment.getRequestedExecutionDate().isBefore(LocalDate.now())
+            ? buildErrorResponse(ResponseObject.builder()
+                .fail(PIS_400, of(PERIOD_INVALID))
+                .build())
+            : ResponseObject.builder().build();
+    }
+
     private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(
-            new HashSet<>(Collections.singleton(bulkPayment.getDebtorAccount())));
+        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
 
         return accountReferenceValidationResponse.hasError()
             ? buildErrorResponse(accountReferenceValidationResponse)

@@ -102,6 +102,8 @@ public class PaymentServiceTest {
     private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_ID = new ValidationResult(false, new MessageError(PIS_404, TppMessageInformation.of(RESOURCE_UNKNOWN_404, "Payment not found")));
 
     private final SinglePayment SINGLE_PAYMENT_OK = getSinglePayment(IBAN, AMOUNT);
+    private final SinglePayment FUTURE_PAYMENT_WRONG_DATE = getFuturePaymentWrongDate(IBAN, AMOUNT);
+
     private final PeriodicPayment PERIODIC_PAYMENT_OK = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2019, 12, 12), LocalDate.of(2020, 12, 12));
     private final PeriodicPayment PERIODIC_PAYMENT_START_IN_THE_PAST = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2013, 12, 12), LocalDate.of(2020, 12, 12));
     private final PeriodicPayment PERIODIC_PAYMENT_WRONG_DATES = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2013, 12, 12), LocalDate.of(2010, 12, 12));
@@ -214,6 +216,39 @@ public class PaymentServiceTest {
     }
 
     @Test
+    public void createFuturePayment_Success() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(createSinglePaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
+                .body(buildSinglePaymentInitiationResponse())
+                .build());
+        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
+
+        // Then
+        assertThat(actualResponse.hasError()).isFalse();
+        assertThat(actualResponse.getBody().getPaymentId()).isEqualTo(PAYMENT_ID);
+        assertThat(actualResponse.getBody().getTransactionStatus()).isEqualTo(RCVD);
+    }
+
+    @Test
+    public void createFuturePaymentWrongDates_Error() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(createSinglePaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
+                .body(buildSinglePaymentInitiationResponse())
+                .build());
+        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(FUTURE_PAYMENT_WRONG_DATE, buildPaymentInitiationParameters(PaymentType.SINGLE));
+
+        // Then
+        assertThat(actualResponse.hasError()).isTrue();
+        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
+    }
+
+    @Test
     public void createPeriodicPaymentStartInThePast_Error() {
         // When
         when(referenceValidationService.validateAccountReferences(any()))
@@ -226,7 +261,7 @@ public class PaymentServiceTest {
 
         // Then
         assertThat(actualResponse.hasError()).isTrue();
-        assertThat(actualResponse.getError().getErrorType().equals(PIS_400));
+        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
     }
 
     @Test
@@ -242,7 +277,7 @@ public class PaymentServiceTest {
 
         // Then
         assertThat(actualResponse.hasError()).isTrue();
-        assertThat(actualResponse.getError().getErrorType().equals(PIS_400));
+        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
     }
 
     private PeriodicPaymentInitiationResponse buildPeriodicPaymentInitiationResponse() {
@@ -591,6 +626,21 @@ public class PaymentServiceTest {
         return singlePayments;
     }
 
+    private static SinglePayment getFuturePaymentWrongDate(String iban, String amountToPay) {
+        SinglePayment singlePayments = new SinglePayment();
+        singlePayments.setEndToEndIdentification(PAYMENT_ID);
+        Xs2aAmount amount = new Xs2aAmount();
+        amount.setCurrency(CURRENCY);
+        amount.setAmount(amountToPay);
+        singlePayments.setInstructedAmount(amount);
+        singlePayments.setDebtorAccount(getReference(iban));
+        singlePayments.setCreditorAccount(getReference(iban));
+        singlePayments.setRequestedExecutionDate(LocalDate.now());
+        singlePayments.setRequestedExecutionTime(OffsetDateTime.now());
+        singlePayments.setRequestedExecutionDate(LocalDate.of(2015, 12, 12));
+        return singlePayments;
+    }
+
     private static AccountReference getReference(String iban) {
         AccountReference reference = new AccountReference();
         reference.setIban(iban);
@@ -710,6 +760,14 @@ public class PaymentServiceTest {
         PisPayment pisPayment = new PisPayment();
         pisPayment.setTransactionStatus(TransactionStatus.ACCP);
         return pisPayment;
+    }
+
+    private SinglePaymentInitiationResponse buildSinglePaymentInitiationResponse() {
+        SinglePaymentInitiationResponse response = new SinglePaymentInitiationResponse();
+        response.setPaymentId(PAYMENT_ID);
+        response.setTransactionStatus(TransactionStatus.RCVD);
+        response.setAspspConsentData(ASPSP_CONSENT_DATA);
+        return response;
     }
 
     private List<PisPayment> getFinalisedPisPayment() {
