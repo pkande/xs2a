@@ -33,17 +33,15 @@ import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.PIS_400;
 @Service
 @RequiredArgsConstructor
 public class PaymentValidationService {
-
     private final AccountReferenceValidationService referenceValidationService;
-
 
     public ResponseObject validateSinglePayment(SinglePayment singePayment) {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
-            : ResponseObject.builder().build();
+                   ? buildErrorResponseIbanValidation()
+                   : ResponseObject.builder().build();
     }
 
     public ResponseObject validatePeriodicPayment(PeriodicPayment periodicPayment) {
@@ -51,8 +49,8 @@ public class PaymentValidationService {
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
-            : ResponseObject.builder().build();
+                   ? buildErrorResponseIbanValidation()
+                   : ResponseObject.builder().build();
     }
 
     public ResponseObject validateBulkPayment(BulkPayment bulkPayment) {
@@ -60,14 +58,14 @@ public class PaymentValidationService {
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
-            : ResponseObject.builder().build();
+                   ? buildErrorResponseIbanValidation()
+                   : ResponseObject.builder().build();
     }
 
     private ResponseObject buildErrorResponseIbanValidation() {
         return ResponseObject.builder()
-            .fail(PIS_400, of(FORMAT_ERROR))
-            .build();
+                   .fail(PIS_400, of(FORMAT_ERROR))
+                   .build();
     }
 
 }

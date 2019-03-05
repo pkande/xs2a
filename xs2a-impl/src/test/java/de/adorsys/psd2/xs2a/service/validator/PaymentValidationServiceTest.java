@@ -47,7 +47,8 @@ public class PaymentValidationServiceTest {
 
     private static final Currency CURRENCY = Currency.getInstance("EUR");
     private static final String PAYMENT_ID = "12345";
-    private static final String IBAN = "DE123456789";
+    private static final String IBAN = "DE15500105172295759744";
+    private static final String WRONG_IBAN = "ZZ33300105172295759744";
     private static final String AMOUNT = "100";
 
     @InjectMocks
@@ -73,7 +74,7 @@ public class PaymentValidationServiceTest {
         when(referenceValidationService.validateAccountReferences(any()))
             .thenReturn(buildFailedSinglePaymentInitiationResponse());
 
-        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validateSinglePayment(getSinglePayment(IBAN, AMOUNT));
+        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validateSinglePayment(getSinglePayment(WRONG_IBAN, AMOUNT));
 
         // Then
         assertThat(actualResponse.hasError()).isTrue();
