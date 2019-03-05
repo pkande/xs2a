@@ -41,6 +41,7 @@ import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
+import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.service.SpiPayment;
@@ -86,7 +87,7 @@ public class PaymentService {
     private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
     private final AccountReferenceValidationService referenceValidationService;
     private final RequestProviderService requestProviderService;
-
+    private final PaymentValidationService paymentValidationService;
     private final StandardPaymentProductsResolver standardPaymentProductsResolver;
 
     /**
@@ -127,39 +128,6 @@ public class PaymentService {
         } else {
             return processBulkPayment((BulkPayment) payment, paymentInitiationParameters, tppInfo);
         }
-    }
-
-    private ResponseObject processSinglePayment(SinglePayment singePayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
-
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
-
-        return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
-            : createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
-    }
-
-    private ResponseObject processPeriodicPayment(PeriodicPayment periodicPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
-
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
-
-        return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
-            : createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
-    }
-
-    private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
-
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
-
-        return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
-            : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
-    }
-
-    private ResponseObject buildErrorResponseIbanValidation() {
-        return ResponseObject.builder()
-            .fail(PIS_400, of(FORMAT_ERROR))
-            .build();
     }
 
     /**
@@ -345,4 +313,32 @@ public class PaymentService {
         }
         return null;
     }
+
+    private ResponseObject processSinglePayment(SinglePayment singePayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
+
+        ResponseObject singlePaymentValidationResult = paymentValidationService.validateSinglePayment(singePayment);
+
+        return singlePaymentValidationResult.hasError()
+            ? singlePaymentValidationResult
+            : createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
+    }
+
+    private ResponseObject processPeriodicPayment(PeriodicPayment periodicPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
+
+        ResponseObject periodicPaymentValidationResponse = paymentValidationService.validatePeriodicPayment(periodicPayment);
+
+        return periodicPaymentValidationResponse.hasError()
+            ? periodicPaymentValidationResponse
+            : createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
+    }
+
+    private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
+
+        ResponseObject bulkPaymentValidationResponse = paymentValidationService.validateBulkPayment(bulkPayment);
+
+        return bulkPaymentValidationResponse.hasError()
+            ? bulkPaymentValidationResponse
+            : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
+    }
+
 }

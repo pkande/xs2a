@@ -51,6 +51,7 @@ import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
+import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.domain.payment.SpiSinglePayment;
@@ -171,6 +172,8 @@ public class PaymentServiceTest {
     private GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
     @Mock
     private AccountReferenceValidationService referenceValidationService;
+    @Mock
+    private PaymentValidationService paymentValidationService;
 
     @Before
     public void setUp() {
@@ -203,6 +206,9 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
             .body(buildSinglePaymentInitiationResponse())
             .build());
+        when(paymentValidationService.validateSinglePayment(any()))
+            .thenReturn(getValidResponse());
+
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
         // Then
@@ -220,6 +226,9 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                 .body(buildPeriodicPaymentInitiationResponse())
                 .build());
+        when(paymentValidationService.validatePeriodicPayment(any()))
+            .thenReturn(getValidResponse());
+
         ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
         // Then
@@ -237,6 +246,9 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                 .body(buildSinglePaymentInitiationResponse())
                 .build());
+        when(paymentValidationService.validateSinglePayment(any()))
+            .thenReturn(buildFailedSinglePaymentInitiationResponse());
+
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
         // Then
@@ -252,6 +264,9 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                 .body(buildPeriodicPaymentInitiationResponse())
                 .build());
+        when(paymentValidationService.validatePeriodicPayment(any()))
+            .thenReturn(buildFailedPeriodicPaymentInitiationResponse());
+
         ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
         // Then
@@ -261,6 +276,8 @@ public class PaymentServiceTest {
     @Test
     public void createBulkPayments() {
         when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(paymentValidationService.validateBulkPayment(any()))
             .thenReturn(getValidResponse());
 
         // When
@@ -278,6 +295,8 @@ public class PaymentServiceTest {
         PaymentInitiationParameters parameters = buildPaymentInitiationParameters(PaymentType.SINGLE);
         ArgumentCaptor<EventType> argumentCaptor = ArgumentCaptor.forClass(EventType.class);
         when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(paymentValidationService.validateSinglePayment(any()))
             .thenReturn(getValidResponse());
 
         // When
