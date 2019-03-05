@@ -353,7 +353,7 @@ public class PaymentService {
     private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(
-            new HashSet<>(Collections.singletonList(bulkPayment.getDebtorAccount())));
+            new HashSet<>(Collections.singleton(bulkPayment.getDebtorAccount())));
 
         return accountReferenceValidationResponse.hasError()
             ? buildErrorResponse(accountReferenceValidationResponse)
