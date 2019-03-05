@@ -50,7 +50,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -135,7 +134,7 @@ public class PaymentService {
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponse(accountReferenceValidationResponse)
+            ? buildErrorResponseIbanValidation()
             : createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
     }
 
@@ -144,23 +143,22 @@ public class PaymentService {
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponse(accountReferenceValidationResponse)
+            ? buildErrorResponseIbanValidation()
             : createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
     }
 
     private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(
-            new HashSet<>(Collections.singleton(bulkPayment.getDebtorAccount())));
+        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
 
         return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponse(accountReferenceValidationResponse)
+            ? buildErrorResponseIbanValidation()
             : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
     }
 
-    private ResponseObject buildErrorResponse(ResponseObject accountReferenceValidationResponse) {
-        return ResponseObject.<CreateConsentResponse>builder()
-            .fail(accountReferenceValidationResponse.getError())
+    private ResponseObject buildErrorResponseIbanValidation() {
+        return ResponseObject.builder()
+            .fail(PIS_400, of(FORMAT_ERROR))
             .build();
     }
 
