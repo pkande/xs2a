@@ -26,6 +26,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +48,10 @@ public class BankProfileReaderConfiguration implements ResourceLoaderAware {
 
     @Bean
     public ProfileConfiguration profileConfiguration() {
-        return new Yaml(getDumperOptions()).loadAs(loadProfile(), ProfileConfiguration.class);
+        Representer representer = new Representer();
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+
+        return new Yaml(representer, getDumperOptions()).loadAs(loadProfile(), ProfileConfiguration.class);
     }
 
     private DumperOptions getDumperOptions() {
