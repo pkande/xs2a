@@ -246,6 +246,7 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetailsList_shouldUpdateAccountReferences() {
+        // Given
         when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
             .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
 
@@ -265,10 +266,19 @@ public class AccountServiceTest {
         when(accountDetailsMapper.mapToXs2aAccountDetailsList(spiAccountDetailsList))
             .thenReturn(xs2aAccountDetailsList);
 
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<Xs2aAccountDetails>> argumentCaptor = ArgumentCaptor.forClass((Class) List.class);
+
+        // When
         ResponseObject<Map<String, List<Xs2aAccountDetails>>> actualResponse = accountService.getAccountList(CONSENT_ID, WITH_BALANCE);
 
+        // Then
         Xs2aAccountAccess access = SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE.getBody().getAccess();
-        verify(accountReferenceUpdater).updateAccountReferences(CONSENT_ID, access, xs2aAccountDetailsList);
+        verify(accountReferenceUpdater).updateAccountReferences(eq(CONSENT_ID), eq(access), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(xs2aAccountDetailsList);
+
+        Map<String, List<Xs2aAccountDetails>> responseBody = actualResponse.getBody();
+        assertThat(responseBody.get("accountList")).isEqualTo(xs2aAccountDetailsList);
     }
 
     @Test
