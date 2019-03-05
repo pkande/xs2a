@@ -317,11 +317,12 @@ public class PaymentService {
     private ResponseObject processSinglePayment(SinglePayment singePayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
-        ResponseObject datesValidationResponse = validateDatesInSinglePayment(singePayment);
-
         if (accountReferenceValidationResponse.hasError()) {
             return buildErrorResponseIbanValidation();
-        } else if (datesValidationResponse.hasError()) {
+        }
+
+        ResponseObject datesValidationResponse = validateDatesInSinglePayment(singePayment);
+        if (datesValidationResponse.hasError()) {
             return buildErrorResponseDatesValidation();
         }
 
@@ -331,11 +332,12 @@ public class PaymentService {
     private ResponseObject processPeriodicPayment(PeriodicPayment periodicPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
-        ResponseObject datesValidationResponse = validateDatesInPeriodicPayment(periodicPayment);
-
         if (accountReferenceValidationResponse.hasError()) {
             return buildErrorResponseIbanValidation();
-        } else if (datesValidationResponse.hasError()) {
+        }
+
+        ResponseObject datesValidationResponse = validateDatesInPeriodicPayment(periodicPayment);
+        if (datesValidationResponse.hasError()) {
             return buildErrorResponseDatesValidation();
         }
 
