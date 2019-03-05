@@ -68,7 +68,8 @@ public class AisConsentMapper {
             psuDataMapper.mapToPsuIdDataList(consent.getPsuDataList()),
             tppInfoMapper.mapToTppInfo(consent.getTppInfo()),
             consent.isMultilevelScaRequired(),
-            mapToAisAccountConsentAuthorisation(consent.getAuthorizations()));
+            mapToAisAccountConsentAuthorisation(consent.getAuthorizations()),
+            consent.getCreationTimestamp());
     }
 
     /**
@@ -92,7 +93,8 @@ public class AisConsentMapper {
             psuDataMapper.mapToPsuIdDataList(consent.getPsuDataList()),
             tppInfoMapper.mapToTppInfo(consent.getTppInfo()),
             consent.isMultilevelScaRequired(),
-            mapToAisAccountConsentAuthorisation(consent.getAuthorizations()));
+            mapToAisAccountConsentAuthorisation(consent.getAuthorizations()),
+            consent.getCreationTimestamp());
     }
 
     public AisConsentAuthorizationResponse mapToAisConsentAuthorizationResponse(AisConsentAuthorization aisConsentAuthorization) {
