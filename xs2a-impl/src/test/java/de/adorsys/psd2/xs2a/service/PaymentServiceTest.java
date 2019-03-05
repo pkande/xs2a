@@ -67,7 +67,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.List;
+import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.core.pis.TransactionStatus.*;
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
@@ -97,9 +100,11 @@ public class PaymentServiceTest {
     private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_TYPE = new ValidationResult(false, new MessageError(PIS_405, TppMessageInformation.of(SERVICE_INVALID_405, "Service invalid for adressed payment")));
     private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_PRODUCT = new ValidationResult(false, new MessageError(PIS_403, TppMessageInformation.of(PRODUCT_INVALID, "Payment product invalid for addressed payment")));
     private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_ID = new ValidationResult(false, new MessageError(PIS_404, TppMessageInformation.of(RESOURCE_UNKNOWN_404, "Payment not found")));
-    private final List<String> ERROR_MESSAGE_TEXT = Arrays.asList("message 1", "message 2", "message 3");
-    private final SinglePayment SINGLE_PAYMENT_OK = getSinglePayment(IBAN, AMOUNT);
 
+    private final SinglePayment SINGLE_PAYMENT_OK = getSinglePayment(IBAN, AMOUNT);
+    private final PeriodicPayment PERIODIC_PAYMENT_OK = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2019, 12, 12), LocalDate.of(2020, 12, 12));
+    private final PeriodicPayment PERIODIC_PAYMENT_START_IN_THE_PAST = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2013, 12, 12), LocalDate.of(2020, 12, 12));
+    private final PeriodicPayment PERIODIC_PAYMENT_WRONG_DATES = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2013, 12, 12), LocalDate.of(2010, 12, 12));
     private final BulkPayment BULK_PAYMENT_OK = getBulkPayment(SINGLE_PAYMENT_OK, IBAN);
 
     @InjectMocks
@@ -166,6 +171,8 @@ public class PaymentServiceTest {
     private CommonPaymentSpi commonPaymentSpi;
     @Mock
     private GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
+    @Mock
+    private AccountReferenceValidationService referenceValidationService;
 
     @Before
     public void setUp() {
@@ -190,7 +197,67 @@ public class PaymentServiceTest {
     }
 
     @Test
+    public void createPeriodicPayment_Success() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
+                .body(buildPeriodicPaymentInitiationResponse())
+                .build());
+        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
+
+        // Then
+        assertThat(actualResponse.hasError()).isFalse();
+        assertThat(actualResponse.getBody().getPaymentId()).isEqualTo(PAYMENT_ID);
+        assertThat(actualResponse.getBody().getTransactionStatus()).isEqualTo(RCVD);
+    }
+
+    @Test
+    public void createPeriodicPaymentStartInThePast_Error() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
+                .body(buildPeriodicPaymentInitiationResponse())
+                .build());
+        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_START_IN_THE_PAST, buildPaymentInitiationParameters(PaymentType.PERIODIC));
+
+        // Then
+        assertThat(actualResponse.hasError()).isTrue();
+        assertThat(actualResponse.getError().getErrorType().equals(PIS_400));
+    }
+
+    @Test
+    public void createPeriodicPaymentWrongDates_Error() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
+                .body(buildPeriodicPaymentInitiationResponse())
+                .build());
+        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_WRONG_DATES, buildPaymentInitiationParameters(PaymentType.PERIODIC));
+
+        // Then
+        assertThat(actualResponse.hasError()).isTrue();
+        assertThat(actualResponse.getError().getErrorType().equals(PIS_400));
+    }
+
+    private PeriodicPaymentInitiationResponse buildPeriodicPaymentInitiationResponse() {
+        PeriodicPaymentInitiationResponse response = new PeriodicPaymentInitiationResponse();
+        response.setPaymentId(PAYMENT_ID);
+        response.setTransactionStatus(TransactionStatus.RCVD);
+        response.setAspspConsentData(ASPSP_CONSENT_DATA);
+        return response;
+    }
+
+    @Test
     public void createBulkPayments() {
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+
         // When
         ResponseObject<BulkPaymentInitiationResponse> actualResponse = paymentService.createPayment(BULK_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.BULK));
         // Then
@@ -204,6 +271,8 @@ public class PaymentServiceTest {
         // Given
         PaymentInitiationParameters parameters = buildPaymentInitiationParameters(PaymentType.SINGLE);
         ArgumentCaptor<EventType> argumentCaptor = ArgumentCaptor.forClass(EventType.class);
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
 
         // When
         paymentService.createPayment(SINGLE_PAYMENT_OK, parameters);
@@ -581,6 +650,22 @@ public class PaymentServiceTest {
         bulkPayment.setBatchBookingPreferred(false);
 
         return bulkPayment;
+    }
+
+    private static PeriodicPayment getPeriodicPayment(String iban, String amountToPay, LocalDate startDate, LocalDate endDate) {
+        PeriodicPayment periodicPayment = new PeriodicPayment();
+        periodicPayment.setEndToEndIdentification(PAYMENT_ID);
+        Xs2aAmount amount = new Xs2aAmount();
+        amount.setCurrency(CURRENCY);
+        amount.setAmount(amountToPay);
+        periodicPayment.setStartDate(startDate);
+        periodicPayment.setEndDate(endDate);
+        periodicPayment.setInstructedAmount(amount);
+        periodicPayment.setDebtorAccount(getReference(iban));
+        periodicPayment.setCreditorAccount(getReference(iban));
+        periodicPayment.setRequestedExecutionDate(LocalDate.now());
+        periodicPayment.setRequestedExecutionTime(OffsetDateTime.now());
+        return periodicPayment;
     }
 
     private Xs2aPisCommonPayment getXs2aPisCommonPayment() {
