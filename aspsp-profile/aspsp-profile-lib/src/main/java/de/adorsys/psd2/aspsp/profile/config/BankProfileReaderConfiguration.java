@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 adorsys GmbH & Co KG
+ * Copyright 2018-2019 adorsys GmbH & Co KG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.io.InputStream;
 @Configuration
 public class BankProfileReaderConfiguration implements ResourceLoaderAware {
     private static final String DEFAULT_BANK_PROFILE = "classpath:bank_profile.yml";
+    private static final String CLASSPATH_PREFIX = "classpath:";
     private static final String FILE_PREFIX = "file:";
 
     @Value("${bank_profile.path}")
@@ -71,8 +72,14 @@ public class BankProfileReaderConfiguration implements ResourceLoaderAware {
     }
 
     private String resolveBankProfile() {
-        return StringUtils.isBlank(customBankProfile)
-                   ? DEFAULT_BANK_PROFILE
-                   : FILE_PREFIX + customBankProfile;
+        if (StringUtils.isBlank(customBankProfile)) {
+            return DEFAULT_BANK_PROFILE;
+        } else {
+            if (customBankProfile.startsWith(CLASSPATH_PREFIX)
+                || customBankProfile.startsWith(FILE_PREFIX)) {
+                return customBankProfile;
+            }
+            return FILE_PREFIX + customBankProfile;
+        }
     }
 }
