@@ -41,6 +41,7 @@ import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
+import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.service.SpiPayment;
@@ -49,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -85,9 +85,8 @@ public class PaymentService {
     private final SpiContextDataProvider spiContextDataProvider;
     private final ReadCommonPaymentStatusService readCommonPaymentStatusService;
     private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
-    private final AccountReferenceValidationService referenceValidationService;
     private final RequestProviderService requestProviderService;
-
+    private final PaymentValidationService paymentValidationService;
     private final StandardPaymentProductsResolver standardPaymentProductsResolver;
 
     /**
@@ -101,10 +100,10 @@ public class PaymentService {
         xs2aEventService.recordTppRequest(EventType.PAYMENT_INITIATION_REQUEST_RECEIVED, payment);
 
         if (profileService.isPsuInInitialRequestMandated()
-            && paymentInitiationParameters.getPsuData().isEmpty()) {
+                && paymentInitiationParameters.getPsuData().isEmpty()) {
             return ResponseObject.<CreateConsentResponse>builder()
-                .fail(PIS_400, of(FORMAT_ERROR, MESSAGE_ERROR_NO_PSU))
-                .build();
+                       .fail(PIS_400, of(FORMAT_ERROR, MESSAGE_ERROR_NO_PSU))
+                       .build();
         }
 
         TppInfo tppInfo = tppService.getTppInfo();
@@ -159,8 +158,8 @@ public class PaymentService {
             List<PisPayment> pisPayments = getPisPaymentFromCommonPaymentResponse(commonPaymentResponse);
             if (CollectionUtils.isEmpty(pisPayments)) {
                 return ResponseObject.builder()
-                    .fail(PIS_400, of(FORMAT_ERROR, "Payment not found"))
-                    .build();
+                           .fail(PIS_400, of(FORMAT_ERROR, "Payment not found"))
+                           .build();
             }
 
             ReadPaymentService<PaymentInformationResponse> readPaymentService = readPaymentFactory.getService(paymentType.getValue());
@@ -169,12 +168,12 @@ public class PaymentService {
 
         if (response.hasError()) {
             return ResponseObject.builder()
-                .fail(response.getErrorHolder())
-                .build();
+                       .fail(response.getErrorHolder())
+                       .build();
         }
         return ResponseObject.builder()
-            .body(response.getPayment())
-            .build();
+                   .body(response.getPayment())
+                   .build();
     }
 
     /**
@@ -213,8 +212,8 @@ public class PaymentService {
             List<PisPayment> pisPayments = getPisPaymentFromCommonPaymentResponse(pisCommonPaymentResponse);
             if (CollectionUtils.isEmpty(pisPayments)) {
                 return ResponseObject.<TransactionStatus>builder()
-                    .fail(PIS_400, of(FORMAT_ERROR, "Payment not found"))
-                    .build();
+                           .fail(PIS_400, of(FORMAT_ERROR, "Payment not found"))
+                           .build();
             }
 
             ReadPaymentStatusService readPaymentStatusService = readPaymentStatusFactory.getService(ReadPaymentStatusFactory.SERVICE_PREFIX + paymentType.getValue());
@@ -224,21 +223,21 @@ public class PaymentService {
         if (readPaymentStatusResponse.hasError()) {
             ErrorHolder errorHolder = readPaymentStatusResponse.getErrorHolder();
             return ResponseObject.<TransactionStatus>builder()
-                .fail(errorHolder)
-                .build();
+                       .fail(errorHolder)
+                       .build();
         }
 
         TransactionStatus transactionStatus = readPaymentStatusResponse.getStatus();
 
         if (transactionStatus == null) {
             return ResponseObject.<TransactionStatus>builder()
-                .fail(PIS_403, of(RESOURCE_UNKNOWN_403))
-                .build();
+                       .fail(PIS_403, of(RESOURCE_UNKNOWN_403))
+                       .build();
         }
 
         if (!updatePaymentStatusAfterSpiService.updatePaymentStatus(paymentId, transactionStatus)) {
             log.info("X-Request-ID: [{}], Payment ID: [{}], Transaction status: [{}]. Update of a payment status in the CMS has failed.",
-                requestProviderService.getRequestId(), paymentId, transactionStatus);
+                     requestProviderService.getRequestId(), paymentId, transactionStatus);
         }
 
         return ResponseObject.<TransactionStatus>builder().body(transactionStatus).build();
@@ -264,8 +263,8 @@ public class PaymentService {
 
         if (isFinalisedPayment(pisCommonPaymentResponse)) {
             return ResponseObject.<CancelPaymentResponse>builder()
-                .fail(PIS_400, of(RESOURCE_BLOCKED))
-                .build();
+                       .fail(PIS_400, of(RESOURCE_BLOCKED))
+                       .build();
         }
 
         SpiPayment spiPayment;
@@ -277,8 +276,8 @@ public class PaymentService {
             List<PisPayment> pisPayments = getPisPaymentFromCommonPaymentResponse(pisCommonPaymentResponse);
             if (CollectionUtils.isEmpty(pisPayments)) {
                 return ResponseObject.<CancelPaymentResponse>builder()
-                    .fail(PIS_404, of(RESOURCE_UNKNOWN_404, "Payment not found"))
-                    .build();
+                           .fail(PIS_404, of(RESOURCE_UNKNOWN_404, "Payment not found"))
+                           .build();
             }
 
             Optional<? extends SpiPayment> spiPaymentOptional = spiPaymentFactory.createSpiPaymentByPaymentType(pisPayments, pisCommonPaymentResponse.getPaymentProduct(), paymentType);
@@ -295,8 +294,8 @@ public class PaymentService {
 
     private List<PisPayment> getPisPaymentFromCommonPaymentResponse(PisCommonPaymentResponse pisCommonPaymentResponse) {
         List<PisPayment> pisPayments = Optional.of(pisCommonPaymentResponse)
-            .map(PisCommonPaymentResponse::getPayments)
-            .orElseGet(Collections::emptyList);
+                                           .map(PisCommonPaymentResponse::getPayments)
+                                           .orElseGet(Collections::emptyList);
 
         pisPayments.forEach(pmt -> {
             pmt.setPaymentId(pisCommonPaymentResponse.getExternalId());
@@ -316,69 +315,29 @@ public class PaymentService {
 
     private ResponseObject processSinglePayment(SinglePayment singePayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
-        if (accountReferenceValidationResponse.hasError()) {
-            return buildErrorResponseIbanValidation();
-        }
+        ResponseObject singlePaymentValidationResult = paymentValidationService.validateSinglePayment(singePayment);
 
-        ResponseObject datesValidationResponse = validateDatesInSinglePayment(singePayment);
-        if (datesValidationResponse.hasError()) {
-            return buildErrorResponseDatesValidation();
-        }
-
-        return createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
+        return singlePaymentValidationResult.hasError()
+            ? singlePaymentValidationResult
+            : createSinglePaymentService.createPayment(singePayment, paymentInitiationParameters, tppInfo);
     }
 
     private ResponseObject processPeriodicPayment(PeriodicPayment periodicPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
-        if (accountReferenceValidationResponse.hasError()) {
-            return buildErrorResponseIbanValidation();
-        }
+        ResponseObject periodicPaymentValidationResponse = paymentValidationService.validatePeriodicPayment(periodicPayment);
 
-        ResponseObject datesValidationResponse = validateDatesInPeriodicPayment(periodicPayment);
-        if (datesValidationResponse.hasError()) {
-            return buildErrorResponseDatesValidation();
-        }
-
-        return createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
-    }
-
-    private ResponseObject validateDatesInPeriodicPayment(PeriodicPayment periodicPayment) {
-
-        LocalDate paymentStartDate = periodicPayment.getStartDate();
-
-        return paymentStartDate.isBefore(LocalDate.now()) || periodicPayment.getEndDate().isBefore(paymentStartDate)
-            ? buildErrorResponseDatesValidation()
-            : ResponseObject.builder().build();
-    }
-
-    private ResponseObject validateDatesInSinglePayment(SinglePayment singlePayment) {
-
-        return singlePayment.getRequestedExecutionDate().isBefore(LocalDate.now())
-            ? buildErrorResponseDatesValidation()
-            : ResponseObject.builder().build();
+        return periodicPaymentValidationResponse.hasError()
+            ? periodicPaymentValidationResponse
+            : createPeriodicPaymentService.createPayment(periodicPayment, paymentInitiationParameters, tppInfo);
     }
 
     private ResponseObject processBulkPayment(BulkPayment bulkPayment, PaymentInitiationParameters paymentInitiationParameters, TppInfo tppInfo) {
 
-        ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
+        ResponseObject bulkPaymentValidationResponse = paymentValidationService.validateBulkPayment(bulkPayment);
 
-        return accountReferenceValidationResponse.hasError()
-            ? buildErrorResponseIbanValidation()
+        return bulkPaymentValidationResponse.hasError()
+            ? bulkPaymentValidationResponse
             : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
-    }
-
-    private ResponseObject buildErrorResponseIbanValidation() {
-        return ResponseObject.builder()
-            .fail(PIS_400, of(FORMAT_ERROR))
-            .build();
-    }
-
-    private ResponseObject buildErrorResponseDatesValidation() {
-        return ResponseObject.builder()
-            .fail(PIS_400, of(PERIOD_INVALID))
-            .build();
     }
 
 }

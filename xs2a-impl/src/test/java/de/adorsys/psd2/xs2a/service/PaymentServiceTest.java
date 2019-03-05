@@ -51,6 +51,7 @@ import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
+import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.domain.payment.SpiSinglePayment;
@@ -102,11 +103,7 @@ public class PaymentServiceTest {
     private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_ID = new ValidationResult(false, new MessageError(PIS_404, TppMessageInformation.of(RESOURCE_UNKNOWN_404, "Payment not found")));
 
     private final SinglePayment SINGLE_PAYMENT_OK = getSinglePayment(IBAN, AMOUNT);
-    private final SinglePayment FUTURE_PAYMENT_WRONG_DATE = getFuturePaymentWrongDate(IBAN, AMOUNT);
-
-    private final PeriodicPayment PERIODIC_PAYMENT_OK = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2019, 12, 12), LocalDate.of(2020, 12, 12));
-    private final PeriodicPayment PERIODIC_PAYMENT_START_IN_THE_PAST = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2013, 12, 12), LocalDate.of(2020, 12, 12));
-    private final PeriodicPayment PERIODIC_PAYMENT_WRONG_DATES = getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2013, 12, 12), LocalDate.of(2010, 12, 12));
+    private final PeriodicPayment PERIODIC_PAYMENT_OK = getPeriodicPayment(IBAN, AMOUNT);
     private final BulkPayment BULK_PAYMENT_OK = getBulkPayment(SINGLE_PAYMENT_OK, IBAN);
 
     @InjectMocks
@@ -175,6 +172,8 @@ public class PaymentServiceTest {
     private GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
     @Mock
     private AccountReferenceValidationService referenceValidationService;
+    @Mock
+    private PaymentValidationService paymentValidationService;
 
     @Before
     public void setUp() {
@@ -199,31 +198,17 @@ public class PaymentServiceTest {
     }
 
     @Test
-    public void createPeriodicPayment_Success() {
-        // When
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(getValidResponse());
-        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
-            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
-                .body(buildPeriodicPaymentInitiationResponse())
-                .build());
-        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
-
-        // Then
-        assertThat(actualResponse.hasError()).isFalse();
-        assertThat(actualResponse.getBody().getPaymentId()).isEqualTo(PAYMENT_ID);
-        assertThat(actualResponse.getBody().getTransactionStatus()).isEqualTo(RCVD);
-    }
-
-    @Test
-    public void createFuturePayment_Success() {
+    public void createSinglePayment_Success() {
         // When
         when(referenceValidationService.validateAccountReferences(any()))
             .thenReturn(getValidResponse());
         when(createSinglePaymentService.createPayment(any(), any(), any()))
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
-                .body(buildSinglePaymentInitiationResponse())
-                .build());
+            .body(buildSinglePaymentInitiationResponse())
+            .build());
+        when(paymentValidationService.validateSinglePayment(any()))
+            .thenReturn(getValidResponse());
+
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
         // Then
@@ -233,68 +218,71 @@ public class PaymentServiceTest {
     }
 
     @Test
-    public void createFuturePaymentWrongDates_Error() {
+    public void createPeriodicPayment_Success() {
         // When
         when(referenceValidationService.validateAccountReferences(any()))
             .thenReturn(getValidResponse());
+        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
+                .body(buildPeriodicPaymentInitiationResponse())
+                .build());
+        when(paymentValidationService.validatePeriodicPayment(any()))
+            .thenReturn(getValidResponse());
+
+        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
+
+        // Then
+        assertThat(actualResponse.hasError()).isFalse();
+        assertThat(actualResponse.getBody().getPaymentId()).isEqualTo(PAYMENT_ID);
+        assertThat(actualResponse.getBody().getTransactionStatus()).isEqualTo(RCVD);
+    }
+
+    @Test
+    public void createSinglePayment_Failure_ShouldReturnError() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(buildFailedSinglePaymentInitiationResponse());
         when(createSinglePaymentService.createPayment(any(), any(), any()))
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                 .body(buildSinglePaymentInitiationResponse())
                 .build());
-        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(FUTURE_PAYMENT_WRONG_DATE, buildPaymentInitiationParameters(PaymentType.SINGLE));
+        when(paymentValidationService.validateSinglePayment(any()))
+            .thenReturn(buildFailedSinglePaymentInitiationResponse());
+
+        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
         // Then
         assertThat(actualResponse.hasError()).isTrue();
-        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
     }
 
     @Test
-    public void createPeriodicPaymentStartInThePast_Error() {
+    public void createPeriodicPayment_Failure_ShouldReturnError() {
         // When
         when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(getValidResponse());
+            .thenReturn(buildFailedPeriodicPaymentInitiationResponse());
         when(createPeriodicPaymentService.createPayment(any(), any(), any()))
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                 .body(buildPeriodicPaymentInitiationResponse())
                 .build());
-        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_START_IN_THE_PAST, buildPaymentInitiationParameters(PaymentType.PERIODIC));
+        when(paymentValidationService.validatePeriodicPayment(any()))
+            .thenReturn(buildFailedPeriodicPaymentInitiationResponse());
+
+        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
         // Then
         assertThat(actualResponse.hasError()).isTrue();
-        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
-    }
-
-    @Test
-    public void createPeriodicPaymentWrongDates_Error() {
-        // When
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(getValidResponse());
-        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
-            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
-                .body(buildPeriodicPaymentInitiationResponse())
-                .build());
-        ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_WRONG_DATES, buildPaymentInitiationParameters(PaymentType.PERIODIC));
-
-        // Then
-        assertThat(actualResponse.hasError()).isTrue();
-        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
-    }
-
-    private PeriodicPaymentInitiationResponse buildPeriodicPaymentInitiationResponse() {
-        PeriodicPaymentInitiationResponse response = new PeriodicPaymentInitiationResponse();
-        response.setPaymentId(PAYMENT_ID);
-        response.setTransactionStatus(TransactionStatus.RCVD);
-        response.setAspspConsentData(ASPSP_CONSENT_DATA);
-        return response;
     }
 
     @Test
     public void createBulkPayments() {
         when(referenceValidationService.validateAccountReferences(any()))
             .thenReturn(getValidResponse());
+        when(paymentValidationService.validateBulkPayment(any()))
+            .thenReturn(getValidResponse());
 
         // When
         ResponseObject<BulkPaymentInitiationResponse> actualResponse = paymentService.createPayment(BULK_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.BULK));
+
         // Then
         assertThat(actualResponse.hasError()).isFalse();
         assertThat(actualResponse.getBody().getPaymentId()).isEqualTo(PAYMENT_ID);
@@ -307,6 +295,8 @@ public class PaymentServiceTest {
         PaymentInitiationParameters parameters = buildPaymentInitiationParameters(PaymentType.SINGLE);
         ArgumentCaptor<EventType> argumentCaptor = ArgumentCaptor.forClass(EventType.class);
         when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+        when(paymentValidationService.validateSinglePayment(any()))
             .thenReturn(getValidResponse());
 
         // When
@@ -626,19 +616,18 @@ public class PaymentServiceTest {
         return singlePayments;
     }
 
-    private static SinglePayment getFuturePaymentWrongDate(String iban, String amountToPay) {
-        SinglePayment singlePayments = new SinglePayment();
-        singlePayments.setEndToEndIdentification(PAYMENT_ID);
+    private static PeriodicPayment getPeriodicPayment(String iban, String amountToPay) {
+        PeriodicPayment periodicPayment = new PeriodicPayment();
+        periodicPayment.setEndToEndIdentification(PAYMENT_ID);
         Xs2aAmount amount = new Xs2aAmount();
         amount.setCurrency(CURRENCY);
         amount.setAmount(amountToPay);
-        singlePayments.setInstructedAmount(amount);
-        singlePayments.setDebtorAccount(getReference(iban));
-        singlePayments.setCreditorAccount(getReference(iban));
-        singlePayments.setRequestedExecutionDate(LocalDate.now());
-        singlePayments.setRequestedExecutionTime(OffsetDateTime.now());
-        singlePayments.setRequestedExecutionDate(LocalDate.of(2015, 12, 12));
-        return singlePayments;
+        periodicPayment.setInstructedAmount(amount);
+        periodicPayment.setDebtorAccount(getReference(iban));
+        periodicPayment.setCreditorAccount(getReference(iban));
+        periodicPayment.setRequestedExecutionDate(LocalDate.now());
+        periodicPayment.setRequestedExecutionTime(OffsetDateTime.now());
+        return periodicPayment;
     }
 
     private static AccountReference getReference(String iban) {
@@ -702,22 +691,6 @@ public class PaymentServiceTest {
         return bulkPayment;
     }
 
-    private static PeriodicPayment getPeriodicPayment(String iban, String amountToPay, LocalDate startDate, LocalDate endDate) {
-        PeriodicPayment periodicPayment = new PeriodicPayment();
-        periodicPayment.setEndToEndIdentification(PAYMENT_ID);
-        Xs2aAmount amount = new Xs2aAmount();
-        amount.setCurrency(CURRENCY);
-        amount.setAmount(amountToPay);
-        periodicPayment.setStartDate(startDate);
-        periodicPayment.setEndDate(endDate);
-        periodicPayment.setInstructedAmount(amount);
-        periodicPayment.setDebtorAccount(getReference(iban));
-        periodicPayment.setCreditorAccount(getReference(iban));
-        periodicPayment.setRequestedExecutionDate(LocalDate.now());
-        periodicPayment.setRequestedExecutionTime(OffsetDateTime.now());
-        return periodicPayment;
-    }
-
     private Xs2aPisCommonPayment getXs2aPisCommonPayment() {
         return new Xs2aPisCommonPayment("TEST", PSU_ID_DATA);
     }
@@ -728,6 +701,30 @@ public class PaymentServiceTest {
         requestParameters.setPaymentProduct("sepa-credit-transfers");
         requestParameters.setPsuData(PSU_ID_DATA);
         return requestParameters;
+    }
+
+    private SinglePaymentInitiationResponse buildSinglePaymentInitiationResponse() {
+        SinglePaymentInitiationResponse response = new SinglePaymentInitiationResponse();
+        response.setPaymentId(PAYMENT_ID);
+        response.setTransactionStatus(TransactionStatus.RCVD);
+        response.setAspspConsentData(ASPSP_CONSENT_DATA);
+        return response;
+    }
+
+    private ResponseObject<SinglePaymentInitiationResponse> buildFailedSinglePaymentInitiationResponse() {
+        return ResponseObject.<SinglePaymentInitiationResponse>builder().fail(PIS_400).build();
+    }
+
+    private PeriodicPaymentInitiationResponse buildPeriodicPaymentInitiationResponse() {
+        PeriodicPaymentInitiationResponse response = new PeriodicPaymentInitiationResponse();
+        response.setPaymentId(PAYMENT_ID);
+        response.setTransactionStatus(TransactionStatus.RCVD);
+        response.setAspspConsentData(ASPSP_CONSENT_DATA);
+        return response;
+    }
+
+    private ResponseObject<PeriodicPaymentInitiationResponse> buildFailedPeriodicPaymentInitiationResponse() {
+        return ResponseObject.<PeriodicPaymentInitiationResponse>builder().fail(PIS_400).build();
     }
 
     private ResponseObject<BulkPaymentInitiationResponse> getValidResponse() {
@@ -760,14 +757,6 @@ public class PaymentServiceTest {
         PisPayment pisPayment = new PisPayment();
         pisPayment.setTransactionStatus(TransactionStatus.ACCP);
         return pisPayment;
-    }
-
-    private SinglePaymentInitiationResponse buildSinglePaymentInitiationResponse() {
-        SinglePaymentInitiationResponse response = new SinglePaymentInitiationResponse();
-        response.setPaymentId(PAYMENT_ID);
-        response.setTransactionStatus(TransactionStatus.RCVD);
-        response.setAspspConsentData(ASPSP_CONSENT_DATA);
-        return response;
     }
 
     private List<PisPayment> getFinalisedPisPayment() {
