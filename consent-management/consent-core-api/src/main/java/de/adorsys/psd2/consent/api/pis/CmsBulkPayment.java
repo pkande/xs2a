@@ -25,15 +25,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class CmsBulkPayment implements CmsPayment {
+public class CmsBulkPayment extends BaseCmsPayment {
 
-    private String paymentId;
     private boolean batchBookingPreferred;
     private CmsAccountReference debtorAccount;
     private LocalDate requestedExecutionDate;
     private TransactionStatus paymentStatus;
     private List<CmsSinglePayment> payments;
-    private String paymentProduct;
 
     @Override
     public PaymentType getPaymentType() {

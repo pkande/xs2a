@@ -26,9 +26,7 @@ import de.adorsys.psd2.consent.domain.payment.PisCommonPaymentData;
 import de.adorsys.psd2.consent.domain.payment.PisPaymentData;
 import de.adorsys.psd2.consent.psu.api.CmsPsuPisService;
 import de.adorsys.psd2.consent.psu.api.pis.CmsPisPsuDataAuthorisation;
-import de.adorsys.psd2.consent.repository.PisAuthorisationRepository;
-import de.adorsys.psd2.consent.repository.PisCommonPaymentDataRepository;
-import de.adorsys.psd2.consent.repository.PisPaymentDataRepository;
+import de.adorsys.psd2.consent.repository.*;
 import de.adorsys.psd2.consent.repository.specification.PisAuthorisationSpecification;
 import de.adorsys.psd2.consent.repository.specification.PisPaymentDataSpecification;
 import de.adorsys.psd2.consent.service.CommonPaymentDataService;
@@ -63,6 +61,7 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
     private final PisAuthorisationSpecification pisAuthorisationSpecification;
     private final PisPaymentDataSpecification pisPaymentDataSpecification;
     private final PisCommonPaymentDataRepository pisCommonPaymentDataRepository;
+    private final PsuDataRepository psuDataRepository;
 
     @Override
     @Transactional
@@ -71,7 +70,6 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
             pisAuthorisationRepository.findOne(
                 pisAuthorisationSpecification.byExternalIdAndInstanceId(authorisationId, instanceId)
             );
-
         return Optional.ofNullable(authorisation)
                    .map(auth -> updatePsuData(auth, psuIdData))
                    .orElse(false);
@@ -203,6 +201,8 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
         if (optionalPsuData.isPresent()) {
             newPsuData.setId(optionalPsuData.get().getId());
         } else {
+            newPsuData = psuDataRepository.save(newPsuData);
+            authorisation.getPaymentData().getPsuDataList().add(newPsuData);
             log.info("Authorisation ID [{}]. Update PSU in payment failed in updatePsuData method because authorisation contains no psu data.", authorisation.getId());
         }
 
