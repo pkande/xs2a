@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.service.validator;
 
+import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.PeriodicPayment;
@@ -42,30 +43,24 @@ public class PaymentValidationService {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(singePayment.getAccountReferences());
         if (accountReferenceValidationResponse.hasError()) {
-            return buildErrorResponseIbanValidation();
+            return buildErrorResponse(FORMAT_ERROR);
         }
 
-        ResponseObject datesValidationResponse = validateDatesInSinglePayment(singePayment);
-        if (datesValidationResponse.hasError()) {
-            return buildErrorResponseDatesValidation();
-        }
-
-        return ResponseObject.builder().build();
+        return isDateInThePast(singePayment.getRequestedExecutionDate())
+                   ? buildErrorResponse(PERIOD_INVALID)
+                   : ResponseObject.builder().build();
     }
 
     public ResponseObject validatePeriodicPayment(PeriodicPayment periodicPayment) {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(periodicPayment.getAccountReferences());
         if (accountReferenceValidationResponse.hasError()) {
-            return buildErrorResponseIbanValidation();
+            return buildErrorResponse(FORMAT_ERROR);
         }
 
-        ResponseObject datesValidationResponse = validateDatesInPeriodicPayment(periodicPayment);
-        if (datesValidationResponse.hasError()) {
-            return buildErrorResponseDatesValidation();
-        }
-
-        return ResponseObject.builder().build();
+        return areDatesValidInPeriodicPayment(periodicPayment)
+                   ? ResponseObject.builder().build()
+                   : buildErrorResponse(PERIOD_INVALID);
     }
 
     public ResponseObject validateBulkPayment(BulkPayment bulkPayment) {
@@ -73,37 +68,27 @@ public class PaymentValidationService {
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
 
         return accountReferenceValidationResponse.hasError()
-                   ? buildErrorResponseIbanValidation()
+                   ? buildErrorResponse(FORMAT_ERROR)
                    : ResponseObject.builder().build();
     }
 
-    private ResponseObject validateDatesInPeriodicPayment(PeriodicPayment periodicPayment) {
+    private boolean areDatesValidInPeriodicPayment(PeriodicPayment periodicPayment) {
 
         LocalDate paymentStartDate = periodicPayment.getStartDate();
 
-        return paymentStartDate.isBefore(LocalDate.now()) || periodicPayment.getEndDate().isBefore(paymentStartDate)
-                   ? buildErrorResponseDatesValidation()
-                   : ResponseObject.builder().build();
+        return !isDateInThePast(paymentStartDate) && !periodicPayment.getEndDate().isBefore(paymentStartDate);
     }
 
-    private ResponseObject validateDatesInSinglePayment(SinglePayment singlePayment) {
-
-        Optional<LocalDate> requestedExecutionDate = Optional.ofNullable(singlePayment.getRequestedExecutionDate());
-
-        return requestedExecutionDate.isPresent() && requestedExecutionDate.get().isBefore(LocalDate.now())
-                   ? buildErrorResponseDatesValidation()
-                   : ResponseObject.builder().build();
+    private boolean isDateInThePast(LocalDate dateToCheck) {
+        return Optional.ofNullable(dateToCheck)
+                   .map(date -> date.isBefore(LocalDate.now()))
+                   .orElse(false);
     }
 
-    private ResponseObject buildErrorResponseIbanValidation() {
+    private ResponseObject buildErrorResponse(MessageErrorCode errorCode) {
         return ResponseObject.builder()
-                   .fail(PIS_400, of(FORMAT_ERROR))
+                   .fail(PIS_400, of(errorCode))
                    .build();
     }
 
-    private ResponseObject buildErrorResponseDatesValidation() {
-        return ResponseObject.builder()
-                   .fail(PIS_400, of(PERIOD_INVALID))
-                   .build();
-    }
 }
