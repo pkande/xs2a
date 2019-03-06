@@ -201,13 +201,12 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
         if (optionalPsuData.isPresent()) {
             newPsuData.setId(optionalPsuData.get().getId());
         } else {
-            newPsuData = psuDataRepository.save(newPsuData);
-            authorisation.getPaymentData().getPsuDataList().add(newPsuData);
+            authorisation.getPaymentData().getPsuDataList().add(newPsuData); //psu data not set in the initial request
             log.info("Authorisation ID [{}]. Update PSU in payment failed in updatePsuData method because authorisation contains no psu data.", authorisation.getId());
         }
 
         authorisation.setPsuData(newPsuData);
-        pisAuthorisationRepository.save(authorisation);
+        authorisation = pisAuthorisationRepository.save(authorisation);
         return true;
     }
 
