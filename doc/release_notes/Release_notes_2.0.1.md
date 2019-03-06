@@ -38,4 +38,4 @@ Also while creating the future payment its execution date is validated and it ca
 In all above cases response with error `PERIOD_INVALID` (response code HTTP 400) is returned.
 
 ## Bugfix: added validation for expired QWAC certificates
-Now, it is not possible anymore to perform any successful endpoint call when providing QWAC certificate with `notAfter` date before than now.
+Now, it is not possible anymore to perform any successful endpoint call when providing QWAC certificate with `notAfter` date before now.
