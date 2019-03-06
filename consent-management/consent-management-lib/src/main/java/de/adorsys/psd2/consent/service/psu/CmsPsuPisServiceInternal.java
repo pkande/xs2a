@@ -206,7 +206,7 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
         }
 
         authorisation.setPsuData(newPsuData);
-        authorisation = pisAuthorisationRepository.save(authorisation);
+        pisAuthorisationRepository.save(authorisation);
         return true;
     }
 
