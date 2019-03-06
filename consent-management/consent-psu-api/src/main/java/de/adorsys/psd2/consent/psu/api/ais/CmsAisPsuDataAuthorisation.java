@@ -27,4 +27,5 @@ public class CmsAisPsuDataAuthorisation {
     private PsuIdData psu;
     private String authorisationId;
     private ScaStatus scaStatus;
+    private String authorisationType;
 }

@@ -27,7 +27,6 @@ import de.adorsys.psd2.consent.domain.payment.PisPaymentData;
 import de.adorsys.psd2.consent.psu.api.CmsPsuPisService;
 import de.adorsys.psd2.consent.psu.api.pis.CmsPisPsuDataAuthorisation;
 import de.adorsys.psd2.consent.repository.PisAuthorisationRepository;
-import de.adorsys.psd2.consent.repository.PisCommonPaymentDataRepository;
 import de.adorsys.psd2.consent.repository.PisPaymentDataRepository;
 import de.adorsys.psd2.consent.repository.specification.PisAuthorisationSpecification;
 import de.adorsys.psd2.consent.repository.specification.PisPaymentDataSpecification;
@@ -62,7 +61,6 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
     private final PsuDataMapper psuDataMapper;
     private final PisAuthorisationSpecification pisAuthorisationSpecification;
     private final PisPaymentDataSpecification pisPaymentDataSpecification;
-    private final PisCommonPaymentDataRepository pisCommonPaymentDataRepository;
 
     @Override
     @Transactional
@@ -184,11 +182,12 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
     @NotNull
     private List<CmsPisPsuDataAuthorisation> getPsuDataAuthorisations(List<PisAuthorization> authorisations) {
         return authorisations.stream()
-            .filter(auth -> Objects.nonNull(auth.getPsuData()))
-            .map(auth -> new CmsPisPsuDataAuthorisation(psuDataMapper.mapToPsuIdData(auth.getPsuData()),
-                auth.getExternalId(),
-                auth.getScaStatus()))
-            .collect(Collectors.toList());
+                   .filter(auth -> Objects.nonNull(auth.getPsuData()))
+                   .map(auth -> new CmsPisPsuDataAuthorisation(psuDataMapper.mapToPsuIdData(auth.getPsuData()),
+                                                               auth.getExternalId(),
+                                                               auth.getScaStatus(),
+                                                               auth.getAuthorizationType().name()))
+                   .collect(Collectors.toList());
     }
 
     private boolean updatePsuData(PisAuthorization authorisation, PsuIdData psuIdData) {
