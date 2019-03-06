@@ -67,8 +67,12 @@ public class PaymentValidationService {
 
         ResponseObject accountReferenceValidationResponse = referenceValidationService.validateAccountReferences(Collections.singleton(bulkPayment.getDebtorAccount()));
 
-        return accountReferenceValidationResponse.hasError()
-                   ? buildErrorResponse(FORMAT_ERROR)
+        if (accountReferenceValidationResponse.hasError()) {
+            return buildErrorResponse(FORMAT_ERROR);
+        }
+
+        return isDateInThePast(bulkPayment.getRequestedExecutionDate())
+                   ? buildErrorResponse(PERIOD_INVALID)
                    : ResponseObject.builder().build();
     }
 
