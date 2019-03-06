@@ -58,9 +58,9 @@ public class PaymentValidationService {
             return buildErrorResponse(FORMAT_ERROR);
         }
 
-        return areDatesValidInPeriodicPayment(periodicPayment)
-                   ? ResponseObject.builder().build()
-                   : buildErrorResponse(PERIOD_INVALID);
+        return areDatesInvalidInPeriodicPayment(periodicPayment)
+                   ? buildErrorResponse(PERIOD_INVALID)
+                   : ResponseObject.builder().build();
     }
 
     public ResponseObject validateBulkPayment(BulkPayment bulkPayment) {
@@ -72,11 +72,14 @@ public class PaymentValidationService {
                    : ResponseObject.builder().build();
     }
 
-    private boolean areDatesValidInPeriodicPayment(PeriodicPayment periodicPayment) {
-
+    private boolean areDatesInvalidInPeriodicPayment(PeriodicPayment periodicPayment) {
         LocalDate paymentStartDate = periodicPayment.getStartDate();
+        LocalDate paymentEndDate = periodicPayment.getEndDate();
 
-        return !isDateInThePast(paymentStartDate) && !periodicPayment.getEndDate().isBefore(paymentStartDate);
+        return isDateInThePast(paymentStartDate)
+                   || Optional.ofNullable(paymentEndDate)
+                          .map(dt -> dt.isBefore(paymentStartDate))
+                          .orElse(false);
     }
 
     private boolean isDateInThePast(LocalDate dateToCheck) {
