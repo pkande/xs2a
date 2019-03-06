@@ -115,6 +115,6 @@ public class QwacCertificateFilter extends AbstractXs2aFilter {
         return Optional.ofNullable(date)
                    .map(d -> d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                    .map(d -> d.isBefore(LocalDateTime.now()))
-                   .orElse(false);
+                   .orElse(true);
     }
 }
