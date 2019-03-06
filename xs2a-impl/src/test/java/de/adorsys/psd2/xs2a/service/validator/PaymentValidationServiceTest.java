@@ -22,6 +22,7 @@ import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.Xs2aAmount;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPaymentInitiationResponse;
+import de.adorsys.psd2.xs2a.domain.pis.PeriodicPayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePaymentInitiationResponse;
 import de.adorsys.psd2.xs2a.service.AccountReferenceValidationService;
@@ -69,6 +70,31 @@ public class PaymentValidationServiceTest {
     }
 
     @Test
+    public void validatePeriodicPayment_Success() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+
+        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validatePeriodicPayment(getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2050, 12, 12), LocalDate.of(2060, 12, 12)));
+
+        // Then
+        assertThat(actualResponse.hasError()).isFalse();
+    }
+
+    @Test
+    public void validatePeriodicPaymentWrongDates_Error() {
+        // When
+        when(referenceValidationService.validateAccountReferences(any()))
+            .thenReturn(getValidResponse());
+
+        ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validatePeriodicPayment(getPeriodicPayment(IBAN, AMOUNT, LocalDate.of(2020, 12, 12), LocalDate.of(2010, 12, 12)));
+
+        // Then
+        assertThat(actualResponse.hasError()).isTrue();
+        assertThat(actualResponse.getError().getErrorType()).isEqualTo(PIS_400);
+    }
+
+    @Test
     public void validateSinglePaymentWrongIban_Error() {
         // When
         when(referenceValidationService.validateAccountReferences(any()))
@@ -95,7 +121,23 @@ public class PaymentValidationServiceTest {
         return singlePayments;
     }
 
-    private static AccountReference getReference(String iban) {
+    private PeriodicPayment getPeriodicPayment(String iban, String amountToPay, LocalDate beginDate, LocalDate endDate) {
+        PeriodicPayment periodicPayment = new PeriodicPayment();
+        periodicPayment.setEndToEndIdentification(PAYMENT_ID);
+        Xs2aAmount amount = new Xs2aAmount();
+        amount.setCurrency(CURRENCY);
+        amount.setAmount(amountToPay);
+        periodicPayment.setStartDate(beginDate);
+        periodicPayment.setEndDate(endDate);
+        periodicPayment.setInstructedAmount(amount);
+        periodicPayment.setDebtorAccount(getReference(iban));
+        periodicPayment.setCreditorAccount(getReference(iban));
+        periodicPayment.setRequestedExecutionDate(LocalDate.now());
+        periodicPayment.setRequestedExecutionTime(OffsetDateTime.now());
+        return periodicPayment;
+    }
+
+    private AccountReference getReference(String iban) {
         AccountReference reference = new AccountReference();
         reference.setIban(iban);
         reference.setCurrency(CURRENCY);
