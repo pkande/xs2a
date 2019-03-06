@@ -27,6 +27,6 @@ public class CmsCommonPayment extends BaseCmsPayment {
     private byte[] paymentData;
 
     public CmsCommonPayment(String paymentProduct) {
-        this.paymentProduct = paymentProduct;
+        setPaymentProduct(paymentProduct);
     }
 }

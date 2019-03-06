@@ -26,7 +26,8 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Data
-public class CmsSinglePayment extends BaseCmsPayment {
+public class
+CmsSinglePayment extends BaseCmsPayment {
     private String endToEndIdentification;
     private CmsAccountReference debtorAccount;
     private CmsAmount instructedAmount;
@@ -40,7 +41,7 @@ public class CmsSinglePayment extends BaseCmsPayment {
     private OffsetDateTime requestedExecutionTime;
 
     public CmsSinglePayment(String paymentProduct) {
-        this.paymentProduct = paymentProduct;
+        setPaymentProduct(paymentProduct);
     }
 
     @Override
@@ -48,8 +49,4 @@ public class CmsSinglePayment extends BaseCmsPayment {
         return PaymentType.SINGLE;
     }
 
-    @Override
-    public String getPaymentProduct() {
-        return paymentProduct;
-    }
 }

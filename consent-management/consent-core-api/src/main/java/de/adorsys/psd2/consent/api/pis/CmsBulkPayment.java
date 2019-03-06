@@ -26,7 +26,6 @@ import java.util.List;
 
 @Data
 public class CmsBulkPayment extends BaseCmsPayment {
-
     private boolean batchBookingPreferred;
     private CmsAccountReference debtorAccount;
     private LocalDate requestedExecutionDate;
@@ -38,8 +37,4 @@ public class CmsBulkPayment extends BaseCmsPayment {
         return PaymentType.BULK;
     }
 
-    @Override
-    public String getPaymentProduct() {
-        return paymentProduct;
-    }
 }

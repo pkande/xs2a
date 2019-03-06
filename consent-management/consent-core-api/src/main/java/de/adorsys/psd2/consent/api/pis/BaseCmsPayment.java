@@ -24,8 +24,8 @@ import java.util.*;
 
 @Data
 public abstract class BaseCmsPayment implements CmsPayment{
-    protected String paymentId;
-    protected String paymentProduct;
-    protected List<PsuIdData> psuIdDatas;
-    protected TppInfo tppInfo;
+    private String paymentId;
+    private String paymentProduct;
+    private List<PsuIdData> psuIdDatas = new ArrayList<>();
+    private TppInfo tppInfo;
 }
