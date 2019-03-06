@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -69,7 +69,12 @@ public class CertificateExtractorUtilTest {
         // Then
         Date extractedNotAfter = extractedData.getNotAfter();
         Assert.assertNotNull(extractedNotAfter);
-        Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 19, 19, 6, 24).getTime();
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.set(2018, Calendar.JUNE, 19, 16, 6, 24);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date expectedDate = calendar.getTime();
+
         Assert.assertEquals(expectedDate, extractedNotAfter);
     }
 }
