@@ -589,12 +589,18 @@ public class CmsPsuPisServiceInternalTest {
     }
 
     private PisAuthorization buildFinalisedAuthorisation() {
+        PisAuthorization pisAuthorisation = buildFinalisedAuthorisationNoPsuData();
+        pisAuthorisation.setPsuData(buildPsuData());
+
+        return pisAuthorisation;
+    }
+
+    private PisAuthorization buildFinalisedAuthorisationNoPsuData() {
         PisAuthorization pisAuthorisation = new PisAuthorization();
         pisAuthorisation.setScaStatus(ScaStatus.FINALISED);
         pisAuthorisation.setAuthorizationType(CmsAuthorisationType.CREATED);
         pisAuthorisation.setPaymentData(buildPisCommonPaymentData());
         pisAuthorisation.setExternalId(AUTHORISATION_ID);
-        pisAuthorisation.setPsuData(buildPsuData());
 
         return pisAuthorisation;
     }
