@@ -26,8 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,7 +95,10 @@ public class CmsPsuPisMapper {
         periodicPayment.setEndDate(pisPaymentData.getEndDate());
         periodicPayment.setExecutionRule(pisPaymentData.getExecutionRule());
         periodicPayment.setFrequency(CmsFrequencyCode.valueOf(pisPaymentData.getFrequency()));
-
+        PisCommonPaymentData paymentData = pisPaymentData.getPaymentData();
+        if(Objects.nonNull(paymentData)){
+            periodicPayment.setPaymentStatus(paymentData.getTransactionStatus());
+        }
         return periodicPayment;
     }
 
@@ -129,7 +131,10 @@ public class CmsPsuPisMapper {
         singlePayment.setRemittanceInformationUnstructured(pisPaymentData.getRemittanceInformationUnstructured());
         singlePayment.setRequestedExecutionDate(pisPaymentData.getRequestedExecutionDate());
         singlePayment.setRequestedExecutionTime(pisPaymentData.getRequestedExecutionTime());
-
+        PisCommonPaymentData paymentData = pisPaymentData.getPaymentData();
+        if(Objects.nonNull(paymentData)){
+            singlePayment.setPaymentStatus(paymentData.getTransactionStatus());
+        }
         return singlePayment;
     }
 
