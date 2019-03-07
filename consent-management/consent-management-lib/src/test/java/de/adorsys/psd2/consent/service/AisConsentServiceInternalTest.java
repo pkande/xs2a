@@ -612,7 +612,7 @@ public class AisConsentServiceInternalTest {
                                      null, false,
                                      null, 0,
                                      null, null,
-                                     false, false, null, null, null, false, Collections.emptyList(), OffsetDateTime.now());
+                                     false, false, null, null, null, false, Collections.emptyList(), 0, OffsetDateTime.now());
     }
 
     private AisConsent buildFinalisedConsent() {

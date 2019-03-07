@@ -253,7 +253,7 @@ public class CmsAspspAisExportServiceInternalTest {
                                      null, false,
                                      null, 0,
                                      null, null,
-                                     false, false, null, null, null, false, Collections.emptyList(), CREATION_DATE_TIME);
+                                     false, false, null, null, null, false, Collections.emptyList(), 0, CREATION_DATE_TIME);
     }
 
     private AisConsent buildAisConsent() {
