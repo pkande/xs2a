@@ -79,7 +79,7 @@ public class CmsPsuPisServiceInternalTest {
     private final PsuIdData PSU_ID_DATA = buildPsuIdData();
     private static final String PAYMENT_ID = "payment id";
     private static final String DEFAULT_SERVICE_INSTANCE_ID = "UNDEFINED";
-    private static final String AUTHORISATION_TYPE_CREATED = "CREATED";
+    private static final CmsAuthorisationType AUTHORISATION_TYPE_CREATED = CmsAuthorisationType.CREATED;
 
     @InjectMocks
     private CmsPsuPisServiceInternal cmsPsuPisServiceInternal;

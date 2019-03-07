@@ -186,7 +186,7 @@ public class CmsPsuAisServiceInternal implements CmsPsuAisService {
                    .map(auth -> new CmsAisPsuDataAuthorisation(psuDataMapper.mapToPsuIdData(auth.getPsuData()),
                                                                auth.getExternalId(),
                                                                auth.getScaStatus(),
-                                                               CmsAuthorisationType.CREATED.name()))
+                                                               CmsAuthorisationType.CREATED))
                    .collect(Collectors.toList());
     }
 
