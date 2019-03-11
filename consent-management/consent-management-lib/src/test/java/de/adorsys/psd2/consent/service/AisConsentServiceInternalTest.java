@@ -152,6 +152,7 @@ public class AisConsentServiceInternalTest {
         // When
         when(aisConsentRepository.save(any(AisConsent.class))).thenReturn(aisConsent);
         when(psuDataMapper.mapToPsuData(PSU_ID_DATA)).thenReturn(PSU_DATA);
+        when(aspspProfileService.getAspspSettings()).thenReturn(getAspspSettings());
 
         // Then
         Optional<String> externalId = aisConsentService.createConsent(buildCorrectCreateAisConsentRequest());
@@ -159,6 +160,66 @@ public class AisConsentServiceInternalTest {
         // Assert
         assertTrue(externalId.isPresent());
         assertThat(externalId.get(), is(equalTo(aisConsent.getExternalId())));
+    }
+
+    @Test
+    public void createConsent_AdjustValidUntil_ZeroLifeTime() {
+        // When
+        when(aisConsentRepository.save(any(AisConsent.class))).thenReturn(aisConsent);
+        when(psuDataMapper.mapToPsuData(PSU_ID_DATA)).thenReturn(PSU_DATA);
+        ArgumentCaptor<AisConsent> argument = ArgumentCaptor.forClass(AisConsent.class);
+
+        int consentLifeTime = 0;
+        when(aspspProfileService.getAspspSettings()).thenReturn(getAspspSettings(consentLifeTime));
+        int validDays = 5;
+        LocalDate validUntil = LocalDate.now().plusDays(validDays);
+
+        // Then
+        aisConsentService.createConsent(buildCorrectCreateAisConsentRequest(validUntil));
+
+        // Assert
+        verify(aisConsentRepository).save(argument.capture());
+        assertEquals(argument.getValue().getExpireDate(), validUntil);
+    }
+
+    @Test
+    public void createConsent_AdjustValidUntil_NoAdjustment() {
+        // When
+        when(aisConsentRepository.save(any(AisConsent.class))).thenReturn(aisConsent);
+        when(psuDataMapper.mapToPsuData(PSU_ID_DATA)).thenReturn(PSU_DATA);
+        ArgumentCaptor<AisConsent> argument = ArgumentCaptor.forClass(AisConsent.class);
+
+        int consentLifeTime = 10;
+        when(aspspProfileService.getAspspSettings()).thenReturn(getAspspSettings(consentLifeTime));
+        int validDays = 5;
+        LocalDate validUntil = LocalDate.now().plusDays(validDays);
+
+        // Then
+        aisConsentService.createConsent(buildCorrectCreateAisConsentRequest(validUntil));
+
+        // Assert
+        verify(aisConsentRepository).save(argument.capture());
+        assertEquals(argument.getValue().getExpireDate(), validUntil);
+    }
+
+    @Test
+    public void createConsent_AdjustValidUntil_AdjustmentToLifeTime() {
+        // When
+        when(aisConsentRepository.save(any(AisConsent.class))).thenReturn(aisConsent);
+        when(psuDataMapper.mapToPsuData(PSU_ID_DATA)).thenReturn(PSU_DATA);
+        ArgumentCaptor<AisConsent> argument = ArgumentCaptor.forClass(AisConsent.class);
+
+        int consentLifeTime = 5;
+        when(aspspProfileService.getAspspSettings()).thenReturn(getAspspSettings(consentLifeTime));
+        int validDays = 10;
+        LocalDate validUntil = LocalDate.now().plusDays(validDays);
+
+        // Then
+        aisConsentService.createConsent(buildCorrectCreateAisConsentRequest(validUntil));
+
+        // Assert
+        verify(aisConsentRepository).save(argument.capture());
+        assertEquals(argument.getValue().getExpireDate(), LocalDate.now().plusDays(consentLifeTime));
     }
 
     @Test
@@ -551,8 +612,13 @@ public class AisConsentServiceInternalTest {
 
     @NotNull
     private AspspSettings getAspspSettings() {
+        return getAspspSettings(1);
+    }
+
+    @NotNull
+    private AspspSettings getAspspSettings(int consentLifeTime) {
         return new AspspSettings(1, false, false, null, null,
-                                 null, false, null, null, 1, 1, false,
+                                 null, false, null, null, consentLifeTime, 1, false,
                                  false, false, false, false, false, 1,
                                  null, 1, 1, null, 1, false, false, false, null);
     }
@@ -579,6 +645,10 @@ public class AisConsentServiceInternalTest {
     }
 
     private CreateAisConsentRequest buildCorrectCreateAisConsentRequest() {
+        return buildCorrectCreateAisConsentRequest(LocalDate.now());
+    }
+
+    private CreateAisConsentRequest buildCorrectCreateAisConsentRequest(LocalDate validUntil) {
         CreateAisConsentRequest request = new CreateAisConsentRequest();
         request.setAccess(buildAccess());
         request.setCombinedServiceIndicator(true);
@@ -587,7 +657,7 @@ public class AisConsentServiceInternalTest {
         request.setPsuData(PSU_ID_DATA);
         request.setRecurringIndicator(true);
         request.setTppInfo(buildTppInfo());
-        request.setValidUntil(LocalDate.now());
+        request.setValidUntil(validUntil);
         request.setTppRedirectPreferred(true);
         return request;
     }

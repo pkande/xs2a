@@ -91,8 +91,7 @@ public class CreateConsentRequestValidator {
     }
 
     private boolean isValidExpirationDate(LocalDate validUntil) {
-        int consentLifetime = Math.abs(aspspProfileService.getConsentLifetime());
-        return validUntil.isAfter(LocalDate.now()) && isValidConsentLifetime(consentLifetime, validUntil);
+        return validUntil.isAfter(LocalDate.now());
     }
 
     private boolean isConsentGlobal(CreateConsentReq request) {
