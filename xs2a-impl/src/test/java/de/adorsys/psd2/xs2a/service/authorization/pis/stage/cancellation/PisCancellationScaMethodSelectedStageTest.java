@@ -24,11 +24,11 @@ import de.adorsys.psd2.xs2a.core.consent.AspspConsentData;
 import de.adorsys.psd2.xs2a.core.pis.TransactionStatus;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
+import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.domain.ErrorHolder;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataRequest;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.authorization.pis.stage.cancellation.PisCancellationScaMethodSelectedStage;
 import de.adorsys.psd2.xs2a.service.consent.PisAspspDataService;
 import de.adorsys.psd2.xs2a.service.context.SpiContextDataProvider;
 import de.adorsys.psd2.xs2a.service.mapper.consent.CmsToXs2aPaymentMapper;
@@ -36,6 +36,7 @@ import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ServiceType;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.SpiErrorMapper;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiSinglePaymentMapper;
+import de.adorsys.psd2.xs2a.service.payment.Xs2aUpdatePaymentStatusAfterSpiService;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponseStatus;
 import de.adorsys.psd2.xs2a.spi.service.PaymentCancellationSpi;
@@ -89,6 +90,8 @@ public class PisCancellationScaMethodSelectedStageTest {
     private Xs2aToSpiSinglePaymentMapper xs2aToSpiSinglePaymentMapper;
     @Mock
     private ApplicationContext applicationContext;
+    @Mock
+    private Xs2aUpdatePaymentStatusAfterSpiService updatePaymentStatusAfterSpiService;
 
     @Before
     public void setUp() {
@@ -124,6 +127,25 @@ public class PisCancellationScaMethodSelectedStageTest {
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getErrorHolder().getErrorCode()).isEqualTo(MessageErrorCode.FORMAT_ERROR);
         assertThat(actualResponse.getErrorHolder().getMessage()).isEqualTo(errorMessagesString);
+    }
+
+    @Test
+    public void apply_paymentCancellationSpi_verifyScaAuthorisationAndCancelPayment_success() {
+        // Given
+        SpiResponse<SpiResponse.VoidResponse> spiSuccessResponse = SpiResponse.<SpiResponse.VoidResponse>builder()
+                                                                           .aspspConsentData(ASPSP_CONSENT_DATA)
+                                                                           .payload(SpiResponse.voidResponse())
+                                                                           .success();
+
+        when(paymentCancellationSpi.verifyScaAuthorisationAndCancelPayment(any(), any(), any(), any())).thenReturn(spiSuccessResponse);
+        when(updatePaymentStatusAfterSpiService.updatePaymentStatus(any(), any())).thenReturn(true);
+
+        // When
+        Xs2aUpdatePisCommonPaymentPsuDataResponse actualResponse = pisCancellationScaMethodSelectedStage.apply(buildXs2aUpdatePisPsuDataRequest(), buildResponse(PAYMENT_ID));
+
+        // Then
+        assertThat(actualResponse.hasError()).isFalse();
+        assertThat(actualResponse.getScaStatus()).isEqualTo(ScaStatus.FINALISED);
     }
 
     private Xs2aUpdatePisCommonPaymentPsuDataRequest buildXs2aUpdatePisPsuDataRequest() {

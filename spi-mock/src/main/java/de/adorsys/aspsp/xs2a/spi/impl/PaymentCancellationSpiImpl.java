@@ -126,7 +126,7 @@ public class PaymentCancellationSpiImpl implements PaymentCancellationSpi {
 
             return SpiResponse.<SpiResponse.VoidResponse>builder()
                        .aspspConsentData(aspspConsentData.respondWith(TEST_ASPSP_DATA.getBytes()))
-                       .fail(SpiResponseStatus.LOGICAL_FAILURE);
+                       .fail(SpiResponseStatus.UNAUTHORIZED_FAILURE);
         }
     }
 

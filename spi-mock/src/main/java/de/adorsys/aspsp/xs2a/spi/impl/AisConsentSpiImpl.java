@@ -227,7 +227,7 @@ public class AisConsentSpiImpl implements AisConsentSpi {
 
             return SpiResponse.<SpiVerifyScaAuthorisationResponse>builder()
                        .aspspConsentData(aspspConsentData.respondWith(TEST_ASPSP_DATA.getBytes()))            // added for test purposes TODO remove if some requirements will be received https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/394
-                       .fail(SpiResponseStatus.LOGICAL_FAILURE);
+                       .fail(SpiResponseStatus.UNAUTHORIZED_FAILURE);
         }
     }
 
