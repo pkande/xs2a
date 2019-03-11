@@ -190,8 +190,3 @@ table was limited to `VARCHAR(255)`.
 columns will be retained, all exceeding characters will be lost.
 Also for `PostgreSQL` the assumption is made that all existing values in the aforementioned columns that contain only 
 numerical symbols are stored as large objects.
-
-## Added authorisation type to response for getting PSU data authorisations
-
-Now these endpoints: `/v1/payment/{payment-id}/authorisation/psus` and `/v1/ais/consent/{consent-id}/authorisation/psus` have enriched
-responses with new field added - `authorisationType`. The value can be `CREATED` or `CANCELLED` by now.
