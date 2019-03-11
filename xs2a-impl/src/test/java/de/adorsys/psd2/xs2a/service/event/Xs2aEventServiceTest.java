@@ -20,6 +20,7 @@ import de.adorsys.psd2.consent.api.service.EventServiceEncrypted;
 import de.adorsys.psd2.xs2a.core.event.Event;
 import de.adorsys.psd2.xs2a.core.event.EventOrigin;
 import de.adorsys.psd2.xs2a.core.event.EventType;
+import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.RequestData;
 import de.adorsys.psd2.xs2a.service.RequestProviderService;
@@ -48,9 +49,8 @@ public class Xs2aEventServiceTest {
     private static final UUID REQUEST_ID = UUID.fromString("0d7f200e-09b4-46f5-85bd-f4ea89fccace");
     private static final String TPP_IP = "1.2.3.4";
     private static final EventType EVENT_TYPE = EventType.PAYMENT_INITIATION_REQUEST_RECEIVED;
-    private static final String PSU_ID = "777";
-    private static final String PSU_CORPORATE_ID = "888";
     private static final String AUTHORISATION_NUMBER = "999";
+    private static PsuIdData PSU_ID_DATA;
 
     @Mock
     private TppService tppService;
@@ -64,6 +64,7 @@ public class Xs2aEventServiceTest {
 
     @Before
     public void setUp() {
+        PSU_ID_DATA = buildPsuIdData();
         when(eventService.recordEvent(any(Event.class))).thenReturn(true);
         when(requestProviderService.getRequestData()).thenReturn(buildRequestData());
         when(tppService.getTppInfo()).thenReturn(buildTppInfo());
@@ -84,10 +85,9 @@ public class Xs2aEventServiceTest {
         assertThat(capturedEvent.getEventOrigin()).isEqualTo(EventOrigin.TPP);
         assertThat(capturedEvent.getEventType()).isEqualTo(EVENT_TYPE);
         assertThat(capturedEvent.getPayload()).isNotNull();
-        assertThat(capturedEvent.getPsuId()).isEqualTo(PSU_ID);
-        assertThat(capturedEvent.getPsuCorporateId()).isEqualTo(PSU_CORPORATE_ID);
-        assertThat(capturedEvent.getAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
-        assertThat(capturedEvent.getRequestId()).isEqualTo(REQUEST_ID);
+        assertThat(capturedEvent.getPsuIdData()).isEqualTo(PSU_ID_DATA);
+        assertThat(capturedEvent.getTppAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
+        assertThat(capturedEvent.getXRequestId()).isEqualTo(REQUEST_ID);
     }
 
     @Test
@@ -105,10 +105,9 @@ public class Xs2aEventServiceTest {
         assertThat(capturedEvent.getEventOrigin()).isEqualTo(EventOrigin.TPP);
         assertThat(capturedEvent.getEventType()).isEqualTo(EVENT_TYPE);
         assertThat(capturedEvent.getPayload()).isNotNull();
-        assertThat(capturedEvent.getPsuId()).isEqualTo(PSU_ID);
-        assertThat(capturedEvent.getPsuCorporateId()).isEqualTo(PSU_CORPORATE_ID);
-        assertThat(capturedEvent.getAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
-        assertThat(capturedEvent.getRequestId()).isEqualTo(REQUEST_ID);
+        assertThat(capturedEvent.getPsuIdData()).isEqualTo(PSU_ID_DATA);
+        assertThat(capturedEvent.getTppAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
+        assertThat(capturedEvent.getXRequestId()).isEqualTo(REQUEST_ID);
     }
 
     @Test
@@ -126,14 +125,20 @@ public class Xs2aEventServiceTest {
         assertThat(capturedEvent.getEventOrigin()).isEqualTo(EventOrigin.TPP);
         assertThat(capturedEvent.getEventType()).isEqualTo(EVENT_TYPE);
         assertThat(capturedEvent.getPayload()).isNotNull();
-        assertThat(capturedEvent.getPsuId()).isEqualTo(PSU_ID);
-        assertThat(capturedEvent.getPsuCorporateId()).isEqualTo(PSU_CORPORATE_ID);
-        assertThat(capturedEvent.getAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
-        assertThat(capturedEvent.getRequestId()).isEqualTo(REQUEST_ID);
+        assertThat(capturedEvent.getPsuIdData()).isEqualTo(PSU_ID_DATA);
+        assertThat(capturedEvent.getTppAuthorisationNumber()).isEqualTo(AUTHORISATION_NUMBER);
+        assertThat(capturedEvent.getXRequestId()).isEqualTo(REQUEST_ID);
     }
 
     private RequestData buildRequestData() {
-        return new RequestData(URI, REQUEST_ID, TPP_IP, Collections.emptyMap(), PSU_ID, PSU_CORPORATE_ID);
+        return new RequestData(URI, REQUEST_ID, TPP_IP, Collections.emptyMap(), buildPsuIdData());
+    }
+
+    private PsuIdData buildPsuIdData() {
+        return new PsuIdData("ID",
+                             "TYPE",
+                             "CORPORATE_ID",
+                             "CORPORATE_ID_TYPE");
     }
 
     private TppInfo buildTppInfo() {

@@ -16,9 +16,11 @@
 
 package de.adorsys.psd2.consent.service.mapper;
 
+import de.adorsys.psd2.consent.domain.PsuDataEmbeddable;
 import de.adorsys.psd2.consent.domain.event.EventEntity;
 import de.adorsys.psd2.consent.service.JsonConverterService;
 import de.adorsys.psd2.xs2a.core.event.Event;
+import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -57,10 +59,9 @@ public class EventMapper {
         eventEntity.setPayload(payload);
         eventEntity.setEventOrigin(event.getEventOrigin());
         eventEntity.setEventType(event.getEventType());
-        eventEntity.setPsuId(event.getPsuId());
-        eventEntity.setPsuCorporateId(event.getPsuCorporateId());
-        eventEntity.setAuthorisationNumber(event.getAuthorisationNumber());
-        eventEntity.setRequestId(Optional.ofNullable(event.getRequestId()).map(UUID::toString).orElse(null));
+        eventEntity.setPsuData(mapToPsuDataEmbeddable(event.getPsuIdData()));
+        eventEntity.setTppAuthorisationNumber(event.getTppAuthorisationNumber());
+        eventEntity.setXRequestId(event.getXRequestId() != null ? event.getXRequestId().toString() : null);
         return eventEntity;
     }
 
@@ -75,10 +76,27 @@ public class EventMapper {
                    .eventOrigin(eventEntity.getEventOrigin())
                    .eventType(eventEntity.getEventType())
                    .instanceId(eventEntity.getInstanceId())
-                   .psuId(eventEntity.getPsuId())
-                   .psuCorporateId(eventEntity.getPsuCorporateId())
-                   .authorisationNumber(eventEntity.getAuthorisationNumber())
-                   .requestId(Optional.ofNullable(eventEntity.getRequestId()).map(UUID::fromString).orElse(null))
+                   .psuIdData(mapToPsuIdData(eventEntity.getPsuData()))
+                   .tppAuthorisationNumber(eventEntity.getTppAuthorisationNumber())
+                   .xRequestId(eventEntity.getXRequestId() != null ? UUID.fromString(eventEntity.getXRequestId()) : null)
                    .build();
+    }
+
+    private PsuDataEmbeddable mapToPsuDataEmbeddable(PsuIdData psuIdData) {
+        return Optional.ofNullable(psuIdData)
+                   .map(psu -> new PsuDataEmbeddable(psu.getPsuId(),
+                                                     psu.getPsuIdType(),
+                                                     psu.getPsuCorporateId(),
+                                                     psu.getPsuCorporateIdType()))
+                   .orElse(null);
+    }
+
+    private PsuIdData mapToPsuIdData(PsuDataEmbeddable psuDataEmbeddable) {
+        return Optional.ofNullable(psuDataEmbeddable)
+                   .map(psu -> new PsuIdData(psu.getPsuId(),
+                                             psu.getPsuIdType(),
+                                             psu.getPsuCorporateId(),
+                                             psu.getPsuCorporateIdType()))
+                   .orElse(null);
     }
 }

@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.core.event;
 
+import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import lombok.Data;
 
 import java.time.OffsetDateTime;
@@ -59,24 +60,19 @@ public class Event {
     private String instanceId;
 
     /**
-     * Client ID of the PSU
+     * PSU data
      */
-    private String psuId;
-
-    /**
-     * Corporate ID of the PSU
-     */
-    private String psuCorporateId;
+    private PsuIdData psuIdData;
 
     /**
      * Authorization number of the TPP
      */
-    private String authorisationNumber;
+    private String tppAuthorisationNumber;
 
     /**
      * ID of the request
      */
-    private UUID requestId;
+    private UUID xRequestId;
 
     /**
      * Object that may contain additional information about the event.
@@ -99,10 +95,9 @@ public class Event {
         private EventOrigin eventOrigin;
         private EventType eventType;
         private String instanceId;
-        private String psuId;
-        private String psuCorporateId;
-        private String authorisationNumber;
-        private UUID requestId;
+        private String tppAuthorisationNumber;
+        private UUID xRequestId;
+        private PsuIdData psuIdData;
 
         private EventBuilder() {
         }
@@ -142,23 +137,18 @@ public class Event {
             return this;
         }
 
-        public EventBuilder psuId(String psuId) {
-            this.psuId = psuId;
+        public EventBuilder psuIdData(PsuIdData psuIdData) {
+            this.psuIdData = psuIdData;
             return this;
         }
 
-        public EventBuilder psuCorporateId(String psuCorporateId) {
-            this.psuCorporateId = psuCorporateId;
+        public EventBuilder tppAuthorisationNumber(String tppAuthorisationNumber) {
+            this.tppAuthorisationNumber = tppAuthorisationNumber;
             return this;
         }
 
-        public EventBuilder authorisationNumber(String authorisationNumber) {
-            this.authorisationNumber = authorisationNumber;
-            return this;
-        }
-
-        public EventBuilder requestId(UUID requestId) {
-            this.requestId = requestId;
+        public EventBuilder xRequestId(UUID xRequestId) {
+            this.xRequestId = xRequestId;
             return this;
         }
 
@@ -171,10 +161,9 @@ public class Event {
             event.setEventOrigin(eventOrigin);
             event.setEventType(eventType);
             event.setInstanceId(instanceId);
-            event.setPsuId(psuId);
-            event.setPsuCorporateId(psuCorporateId);
-            event.setAuthorisationNumber(authorisationNumber);
-            event.setRequestId(requestId);
+            event.setPsuIdData(psuIdData);
+            event.setTppAuthorisationNumber(tppAuthorisationNumber);
+            event.setXRequestId(xRequestId);
             return event;
         }
     }

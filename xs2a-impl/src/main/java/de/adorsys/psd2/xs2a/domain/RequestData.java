@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.domain;
 
+import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import lombok.Value;
 
 import java.util.Map;
@@ -48,12 +49,7 @@ public class RequestData {
     private Map<String, String> headers;
 
     /**
-     * Client ID of the PSU
+     * PSU data
      */
-    private String psuId;
-
-    /**
-     * Corporate ID of the PSU
-     */
-    private String psuCorporateId;
+    private PsuIdData psuIdData;
 }

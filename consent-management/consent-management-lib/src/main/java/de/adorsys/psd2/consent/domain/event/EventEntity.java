@@ -17,6 +17,7 @@
 package de.adorsys.psd2.consent.domain.event;
 
 import de.adorsys.psd2.consent.domain.InstanceDependableEntity;
+import de.adorsys.psd2.consent.domain.PsuDataEmbeddable;
 import de.adorsys.psd2.xs2a.core.event.EventOrigin;
 import de.adorsys.psd2.xs2a.core.event.EventType;
 import lombok.Data;
@@ -53,15 +54,13 @@ public class EventEntity extends InstanceDependableEntity {
     @Enumerated(value = EnumType.STRING)
     private EventType eventType;
 
-    @Column(name = "psu_id")
-    private String psuId;
+    @Embedded
+    private PsuDataEmbeddable psuData;
 
-    @Column(name = "psu_corporate_id")
-    private String psuCorporateId;
+    @Column(name = "tpp_authorisation_number")
+    private String tppAuthorisationNumber;
 
-    @Column(name = "authorisation_number")
-    private String authorisationNumber;
+    @Column(name = "x_request_id")
+    private String xRequestId;
 
-    @Column(name = "request_id")
-    private String requestId;
 }

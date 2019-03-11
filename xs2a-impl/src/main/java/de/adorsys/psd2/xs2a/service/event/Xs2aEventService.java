@@ -123,10 +123,9 @@ public class Xs2aEventService {
                           .timestamp(OffsetDateTime.now())
                           .eventOrigin(EventOrigin.TPP)
                           .eventType(eventType)
-                          .psuId(requestData.getPsuId())
-                          .psuCorporateId(requestData.getPsuCorporateId())
-                          .requestId(requestData.getRequestId())
-                          .authorisationNumber(tppService.getTppInfo().getAuthorisationNumber())
+                          .psuIdData(requestData.getPsuIdData())
+                          .xRequestId(requestData.getRequestId())
+                          .tppAuthorisationNumber(tppService.getTppInfo().getAuthorisationNumber())
                           .build();
         RequestEventPayload payload = buildRequestEventPayload(requestData, body);
         event.setPayload(payload);
