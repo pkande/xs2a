@@ -338,6 +338,24 @@ public class AisScaStartAuthorisationStageTest {
     }
 
     @Test
+    public void apply_OneAvailableScaMethod_Failure_WrongSpiResponse() {
+        when(aisConsentSpi.authorisePsu(SPI_CONTEXT_DATA, SPI_PSU_DATA, PASSWORD, spiAccountConsent, ASPSP_CONSENT_DATA))
+            .thenReturn(buildSuccessSpiResponse(SpiAuthorisationStatus.SUCCESS));
+
+        when(aisConsentSpi.requestAvailableScaMethods(SPI_CONTEXT_DATA, spiAccountConsent, ASPSP_CONSENT_DATA))
+            .thenReturn(buildErrorSpiResponse(ONE_SPI_SCA_METHOD));
+
+        when(spiErrorMapper.mapToErrorHolder(any(), any()))
+            .thenReturn(ErrorHolder.builder(FORMAT_ERROR_CODE).errorType(ErrorType.AIS_400).build());
+
+        UpdateConsentPsuDataResponse actualResponse = scaStartAuthorisationStage.apply(request);
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.getScaStatus()).isEqualTo(ScaStatus.FAILED);
+        assertThat(actualResponse.getMessageError().getErrorType()).isEqualTo(ErrorType.AIS_400);
+    }
+
+    @Test
     public void apply_NoneAvailableScaMethods_Failure_WrongScenarioAccordingToSpecification() {
         when(request.getPsuData())
             .thenReturn(PSU_ID_DATA);
