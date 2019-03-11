@@ -188,6 +188,7 @@ public class CmsPsuAisServiceInternal implements CmsPsuAisService {
                    .map(auth -> new CmsAisPsuDataAuthorisation(psuDataMapper.mapToPsuIdData(auth.getPsuData()),
                                                                auth.getExternalId(),
                                                                auth.getScaStatus(),
+                                                               // Here we use hardcoded value of enum, because AIS consent can not be in any other status than 'CREATED'.
                                                                CmsAuthorisationType.CREATED))
                    .collect(Collectors.toList());
     }
