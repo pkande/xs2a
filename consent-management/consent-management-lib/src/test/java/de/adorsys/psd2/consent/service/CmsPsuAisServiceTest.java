@@ -24,6 +24,7 @@ import de.adorsys.psd2.consent.domain.PsuData;
 import de.adorsys.psd2.consent.domain.TppInfoEntity;
 import de.adorsys.psd2.consent.domain.account.AisConsent;
 import de.adorsys.psd2.consent.domain.account.AisConsentAuthorization;
+import de.adorsys.psd2.consent.domain.account.AisConsentUsage;
 import de.adorsys.psd2.consent.domain.account.AspspAccountAccess;
 import de.adorsys.psd2.consent.psu.api.ais.CmsAisConsentAccessRequest;
 import de.adorsys.psd2.consent.psu.api.ais.CmsAisConsentResponse;
@@ -90,6 +91,8 @@ public class CmsPsuAisServiceTest {
     private AisConsentSpecification aisConsentSpecification;
     @Mock
     private AisConsentService aisConsentService;
+    @Mock
+    private AisConsentUsageService aisConsentUsageService;
 
     private AisConsent aisConsent;
     private List<AisConsent> aisConsents;
@@ -519,8 +522,18 @@ public class CmsPsuAisServiceTest {
         assertSame(aspspAccountAccessesChecked.get(0).getCurrency(), currency);
         assertSame(argument.getValue().getExpireDate(), validUntil);
         assertEquals(argument.getValue().getAllowedFrequencyPerDay(), frequencyPerDay);
-        assertEquals(argument.getValue().getUsageCounter(), frequencyPerDay);
+        assertEquals(getUsageCounter(argument.getValue()), frequencyPerDay);
         assertTrue(saved);
+    }
+
+    private int getUsageCounter(AisConsent aisConsent) {
+        Integer usage = aisConsent.getUsages().stream()
+                            .filter(consent -> LocalDate.now().isEqual(consent.getUsageDate()))
+                            .findFirst()
+                            .map(AisConsentUsage::getUsage)
+                            .orElse(0);
+
+        return Math.max(aisConsent.getAllowedFrequencyPerDay() - usage, 0);
     }
 
     @Test
@@ -672,7 +685,7 @@ public class CmsPsuAisServiceTest {
                                      null, false,
                                      null, 0,
                                      null, null,
-                                     false, false, null, null, null, false, Collections.emptyList());
+                                     false, false, null, null, null, false, Collections.emptyList(), 0);
     }
 
     private TppInfoEntity buildTppInfoEntity() {

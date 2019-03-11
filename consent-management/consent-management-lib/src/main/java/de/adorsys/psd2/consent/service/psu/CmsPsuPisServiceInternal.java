@@ -61,6 +61,7 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
     private final PsuDataMapper psuDataMapper;
     private final PisAuthorisationSpecification pisAuthorisationSpecification;
     private final PisPaymentDataSpecification pisPaymentDataSpecification;
+    private final CmsPsuService cmsPsuService;
 
     @Override
     @Transactional
@@ -69,7 +70,6 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
             pisAuthorisationRepository.findOne(
                 pisAuthorisationSpecification.byExternalIdAndInstanceId(authorisationId, instanceId)
             );
-
         return Optional.ofNullable(authorisation)
                    .map(auth -> updatePsuData(auth, psuIdData))
                    .orElse(false);
@@ -202,6 +202,14 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
         if (optionalPsuData.isPresent()) {
             newPsuData.setId(optionalPsuData.get().getId());
         } else {
+            List<PsuData> paymentPsuList = authorisation.getPaymentData().getPsuDataList();
+            Optional<PsuData> psuDataOptional = cmsPsuService.definePsuDataForAuthorisation(newPsuData, paymentPsuList);
+
+            if (psuDataOptional.isPresent()) {
+                newPsuData = psuDataOptional.get();
+                authorisation.getPaymentData().setPsuDataList(cmsPsuService.enrichPsuData(newPsuData, paymentPsuList));
+            }
+
             log.info("Authorisation ID [{}]. Update PSU in payment failed in updatePsuData method because authorisation contains no psu data.", authorisation.getId());
         }
 
