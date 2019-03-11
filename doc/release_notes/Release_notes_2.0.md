@@ -190,3 +190,8 @@ table was limited to `VARCHAR(255)`.
 columns will be retained, all exceeding characters will be lost.
 Also for `PostgreSQL` the assumption is made that all existing values in the aforementioned columns that contain only 
 numerical symbols are stored as large objects.
+
+## Bugfix: changed response codes for wrong TAN
+
+Now the response for AIS authorisation and Payment Cancellation authorisation when XS2A receives wrong PSU password or wrong TAN is
+`PSU_CREDENTIALS_INVALID` instead of `FORMAT_ERROR`.
