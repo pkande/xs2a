@@ -27,7 +27,7 @@
             <column name="psu_corporate_id" type="VARCHAR(50)"/>
             <column name="psu_corporate_id_type" type="VARCHAR(50)"/>
             <column name="tpp_authorisation_number" type="VARCHAR(50)"/>
-            <column name="x_request_id" type="VARCHAR(36)"/>
+            <column name="x_request_id" type="VARCHAR(50)"/>
         </addColumn>
 
     </changeSet>

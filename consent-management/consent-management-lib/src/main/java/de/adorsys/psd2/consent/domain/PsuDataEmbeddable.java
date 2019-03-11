@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
@@ -27,8 +28,12 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PsuDataEmbeddable {
+    @Column(name = "psu_id")
     private String psuId;
+    @Column(name = "psu_id_type")
     private String psuIdType;
+    @Column(name = "psu_corporate_id")
     private String psuCorporateId;
+    @Column(name = "psu_corporate_id_type")
     private String psuCorporateIdType;
 }
