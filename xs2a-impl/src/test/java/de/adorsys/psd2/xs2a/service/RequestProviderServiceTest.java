@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RequestProviderServiceTest {
     private static final String URI = "http://www.adorsys.de";
-    private static final String IP = "http://www.adorsys.de";
+    private static final String IP = "192.168.0.26";
     private static final String X_REQUEST_ID = "0d7f200e-09b4-46f5-85bd-f4ea89fccace";
 
     private static final String PSU_ID_HEADER = "psu-id";
@@ -73,11 +73,11 @@ public class RequestProviderServiceTest {
         //When
         RequestData requestData = requestProviderService.getRequestData();
         //Then
-        assertEquals(requestData.getIp(), IP);
-        assertEquals(requestData.getUri(), URI);
-        assertEquals(requestData.getRequestId().toString(), X_REQUEST_ID);
-        assertEquals(requestData.getPsuIdData(), PSU_ID_DATA);
-        assertEquals(requestData.getHeaders(), HEADERS);
+        assertEquals(IP, requestData.getIp());
+        assertEquals(URI, requestData.getUri());
+        assertEquals(X_REQUEST_ID, requestData.getRequestId().toString());
+        assertEquals(PSU_ID_DATA, requestData.getPsuIdData());
+        assertEquals(HEADERS, requestData.getHeaders());
     }
 
     private void buildHeaders() {
