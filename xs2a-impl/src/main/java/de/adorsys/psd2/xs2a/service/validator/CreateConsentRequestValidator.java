@@ -105,10 +105,6 @@ public class CreateConsentRequestValidator {
                    .orElse(false);
     }
 
-    private boolean isValidConsentLifetime(int consentLifetime, LocalDate validUntil) {
-        return consentLifetime == 0 || validUntil.isBefore(LocalDate.now().plusDays(consentLifetime));
-    }
-
     private boolean isNotValidFrequencyPerDay(boolean recurringIndicator, int frequencyPerDay) {
         return recurringIndicator
                    ? frequencyPerDay <= 0
