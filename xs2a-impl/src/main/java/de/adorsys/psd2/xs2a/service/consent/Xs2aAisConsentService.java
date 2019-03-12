@@ -47,7 +47,7 @@ public class Xs2aAisConsentService {
     private final ScaApproachResolver scaApproachResolver;
 
     /**
-     * Sends a POST request to CMS to store created AISconsent
+     * Sends a POST request to CMS to store created json.json.aisconsent
      *
      * @param request Request body storing main consent details
      * @param psuData PsuIdData container of authorisation data about PSU

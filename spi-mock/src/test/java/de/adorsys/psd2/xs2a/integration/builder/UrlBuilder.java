@@ -36,4 +36,8 @@ public class UrlBuilder {
     public static String buildGetTransactionsUrlWithSlash(String accountId) {
         return "/v1/accounts/" + accountId + "/transactions/" + "?bookingStatus=booked";
     }
+
+    public static String buildConsentCreation() {
+        return "/v1/consents/";
+    }
 }
