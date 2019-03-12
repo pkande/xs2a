@@ -137,7 +137,6 @@ public class Xs2aEventService {
         RequestEventPayload requestPayload = new RequestEventPayload();
         requestPayload.setTppInfo(tppService.getTppInfo());
         requestPayload.setTppIp(requestData.getIp());
-        requestPayload.setRequestId(requestData.getRequestId());
         requestPayload.setUri(requestData.getUri());
         requestPayload.setHeaders(requestData.getHeaders());
         requestPayload.setBody(body);
