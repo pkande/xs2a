@@ -59,7 +59,7 @@ public class CreateConsentRequestValidator {
         if (isNotSupportedBankOfferedConsent(request)) {
             return ValidationResult.invalid(ErrorType.AIS_405, SERVICE_INVALID_405);
         }
-        if (!isValidExpirationDate(request.getValidUntil())) {
+        if (isNotValidExpirationDate(request.getValidUntil())) {
             return ValidationResult.invalid(ErrorType.AIS_400, PERIOD_INVALID);
         }
 
@@ -90,8 +90,8 @@ public class CreateConsentRequestValidator {
         return !aspspProfileService.isBankOfferedConsentSupported();
     }
 
-    private boolean isValidExpirationDate(LocalDate validUntil) {
-        return validUntil.isAfter(LocalDate.now());
+    private boolean isNotValidExpirationDate(LocalDate validUntil) {
+        return validUntil.isBefore(LocalDate.now());
     }
 
     private boolean isConsentGlobal(CreateConsentReq request) {

@@ -485,7 +485,7 @@ public class AisConsentServiceInternal implements AisConsentService {
             return validUntil;
         }
 
-        LocalDate lifeTimeDate = LocalDate.now().plusDays(lifetime);
+        LocalDate lifeTimeDate = LocalDate.now().plusDays(lifetime - 1);
         return lifeTimeDate.isBefore(validUntil) ? lifeTimeDate : validUntil;
     }
 
