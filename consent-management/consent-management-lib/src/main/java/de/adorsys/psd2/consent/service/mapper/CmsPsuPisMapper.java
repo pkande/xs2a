@@ -103,6 +103,7 @@ public class CmsPsuPisMapper {
         if (Objects.nonNull(paymentData)) {
             periodicPayment.setTppInfo(tppInfoMapper.mapToTppInfo(paymentData.getTppInfo()));
             periodicPayment.setPsuIdDatas(psuDataMapper.mapToPsuIdDataList(paymentData.getPsuDataList()));
+            periodicPayment.setPaymentStatus(paymentData.getTransactionStatus());
         }
         return periodicPayment;
     }
@@ -140,6 +141,7 @@ public class CmsPsuPisMapper {
         if (Objects.nonNull(paymentData)) {
             singlePayment.setTppInfo(tppInfoMapper.mapToTppInfo(paymentData.getTppInfo()));
             singlePayment.setPsuIdDatas(psuDataMapper.mapToPsuIdDataList(paymentData.getPsuDataList()));
+            singlePayment.setPaymentStatus(paymentData.getTransactionStatus());
         }
 
         return singlePayment;
@@ -148,12 +150,12 @@ public class CmsPsuPisMapper {
     private CmsAccountReference mapToCmsAccountReference(AccountReferenceEntity pisAccountReference) {
         return Optional.ofNullable(pisAccountReference)
                    .map(ref -> new CmsAccountReference(null,
-                       ref.getIban(),
-                       ref.getBban(),
-                       ref.getPan(),
-                       ref.getMaskedPan(),
-                       ref.getMsisdn(),
-                       ref.getCurrency())
+                                                       ref.getIban(),
+                                                       ref.getBban(),
+                                                       ref.getPan(),
+                                                       ref.getMaskedPan(),
+                                                       ref.getMsisdn(),
+                                                       ref.getCurrency())
                    ).orElse(null);
     }
 }
