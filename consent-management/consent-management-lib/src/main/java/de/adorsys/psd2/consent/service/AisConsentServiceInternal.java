@@ -485,6 +485,7 @@ public class AisConsentServiceInternal implements AisConsentService {
             return validUntil;
         }
 
+        //Expire date is inclusive and TPP can access AIS consent from current date
         LocalDate lifeTimeDate = LocalDate.now().plusDays(lifetime - 1);
         return lifeTimeDate.isBefore(validUntil) ? lifeTimeDate : validUntil;
     }
