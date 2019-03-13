@@ -78,13 +78,13 @@ public class CreateConsentRequestValidator {
     private boolean areFlagsAndAccountsValid(CreateConsentReq request) {
         Xs2aAccountAccess access = request.getAccess();
         if (access.isNotEmpty()) {
-            return CollectionUtils.isEmpty(request.getAccountReferences()) || (areFlagsEmpty(access));
+            return CollectionUtils.isEmpty(request.getAccountReferences()) || areFlagsEmpty(access);
         }
         return true;
     }
 
     private boolean areFlagsEmpty(Xs2aAccountAccess access) {
-        return (Objects.isNull(access.getAvailableAccounts()) && Objects.isNull(access.getAllPsd2()));
+        return Objects.isNull(access.getAvailableAccounts()) && Objects.isNull(access.getAllPsd2());
     }
 
     private boolean isNotSupportedGlobalConsentForAllPsd2(CreateConsentReq request) {

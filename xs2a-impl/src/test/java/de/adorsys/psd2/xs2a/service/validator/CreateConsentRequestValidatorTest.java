@@ -175,7 +175,7 @@ public class CreateConsentRequestValidatorTest {
         //When
         ValidationResult validationResult = createConsentRequestValidator.validateRequest(createConsentReq);
         //Then
-        assertValidationResultNotValid(validationResult);
+        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
     }
 
     @NotNull
