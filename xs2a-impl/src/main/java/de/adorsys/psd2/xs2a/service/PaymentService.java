@@ -28,7 +28,6 @@ import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.ErrorHolder;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
-import de.adorsys.psd2.xs2a.domain.consent.CreateConsentResponse;
 import de.adorsys.psd2.xs2a.domain.pis.*;
 import de.adorsys.psd2.xs2a.service.consent.PisAspspDataService;
 import de.adorsys.psd2.xs2a.service.consent.PisPsuDataService;
@@ -38,11 +37,10 @@ import de.adorsys.psd2.xs2a.service.event.Xs2aEventService;
 import de.adorsys.psd2.xs2a.service.mapper.consent.CmsToXs2aPaymentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiPaymentInfoMapper;
 import de.adorsys.psd2.xs2a.service.payment.*;
-import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
-import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
 import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
+import de.adorsys.psd2.xs2a.service.validator.pis.PaymentServiceValidator;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.service.SpiPayment;
 import lombok.AllArgsConstructor;
@@ -62,8 +60,6 @@ import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.*;
 @Service
 @AllArgsConstructor
 public class PaymentService {
-    private static final String MESSAGE_ERROR_NO_PSU = "Please provide the PSU identification data";
-
     private final ReadPaymentFactory readPaymentFactory;
     private final ReadPaymentStatusFactory readPaymentStatusFactory;
     private final SpiPaymentFactory spiPaymentFactory;
@@ -75,7 +71,6 @@ public class PaymentService {
     private final CreateSinglePaymentService createSinglePaymentService;
     private final CreatePeriodicPaymentService createPeriodicPaymentService;
     private final CreateBulkPaymentService createBulkPaymentService;
-    private final AspspProfileServiceWrapper profileService;
     private final CancelPaymentService cancelPaymentService;
     private final Xs2aEventService xs2aEventService;
     private final CreateCommonPaymentService createCommonPaymentService;
@@ -84,10 +79,10 @@ public class PaymentService {
     private final CmsToXs2aPaymentMapper cmsToXs2aPaymentMapper;
     private final SpiContextDataProvider spiContextDataProvider;
     private final ReadCommonPaymentStatusService readCommonPaymentStatusService;
-    private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
     private final RequestProviderService requestProviderService;
     private final PaymentValidationService paymentValidationService;
     private final StandardPaymentProductsResolver standardPaymentProductsResolver;
+    private final PaymentServiceValidator paymentServiceValidator;
 
     /**
      * Initiates a payment though "payment service" corresponding service method
@@ -99,10 +94,10 @@ public class PaymentService {
     public ResponseObject createPayment(Object payment, PaymentInitiationParameters paymentInitiationParameters) {
         xs2aEventService.recordTppRequest(EventType.PAYMENT_INITIATION_REQUEST_RECEIVED, payment);
 
-        if (profileService.isPsuInInitialRequestMandated()
-                && paymentInitiationParameters.getPsuData().isEmpty()) {
-            return ResponseObject.<CreateConsentResponse>builder()
-                       .fail(PIS_400, of(FORMAT_ERROR, MESSAGE_ERROR_NO_PSU))
+        ValidationResult validationResult = paymentServiceValidator.validateCreatePayment(paymentInitiationParameters);
+        if (validationResult.isNotValid()) {
+            return ResponseObject.builder()
+                       .fail(validationResult.getMessageError())
                        .build();
         }
 
@@ -147,12 +142,12 @@ public class PaymentService {
                        .build();
         }
 
-
         PisCommonPaymentResponse commonPaymentResponse = pisCommonPaymentOptional.get();
-        ValidationResult validationResult = getCommonPaymentByIdResponseValidator.validateRequest(commonPaymentResponse, paymentType, paymentProduct);
-
+        ValidationResult validationResult = paymentServiceValidator.validateGetPaymentById(commonPaymentResponse, paymentType, paymentProduct);
         if (validationResult.isNotValid()) {
-            return ResponseObject.builder().fail(validationResult.getMessageError()).build();
+            return ResponseObject.builder()
+                       .fail(validationResult.getMessageError())
+                       .build();
         }
 
         CommonPayment commonPayment = cmsToXs2aPaymentMapper.mapToXs2aCommonPayment(commonPaymentResponse);
@@ -203,10 +198,11 @@ public class PaymentService {
         }
 
         PisCommonPaymentResponse pisCommonPaymentResponse = pisCommonPaymentOptional.get();
-        ValidationResult validationResult = getCommonPaymentByIdResponseValidator.validateRequest(pisCommonPaymentResponse, paymentType, paymentProduct);
-
+        ValidationResult validationResult = paymentServiceValidator.validateGetPaymentStatusById(pisCommonPaymentResponse, paymentType, paymentProduct);
         if (validationResult.isNotValid()) {
-            return ResponseObject.<TransactionStatus>builder().fail(validationResult.getMessageError()).build();
+            return ResponseObject.<TransactionStatus>builder()
+                       .fail(validationResult.getMessageError())
+                       .build();
         }
 
         // TODO temporary solution: payment initiation workflow should be clarified https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/582
@@ -277,10 +273,11 @@ public class PaymentService {
         }
 
         PisCommonPaymentResponse pisCommonPaymentResponse = pisCommonPaymentOptional.get();
-        ValidationResult validationResult = getCommonPaymentByIdResponseValidator.validateRequest(pisCommonPaymentResponse, paymentType, paymentProduct);
-
+        ValidationResult validationResult = paymentServiceValidator.validateCancelPayment(pisCommonPaymentResponse, paymentType, paymentProduct);
         if (validationResult.isNotValid()) {
-            return ResponseObject.<CancelPaymentResponse>builder().fail(validationResult.getMessageError()).build();
+            return ResponseObject.<CancelPaymentResponse>builder()
+                       .fail(validationResult.getMessageError())
+                       .build();
         }
 
         if (isFinalisedPayment(pisCommonPaymentResponse)) {
@@ -362,5 +359,4 @@ public class PaymentService {
                    ? bulkPaymentValidationResponse
                    : createBulkPaymentService.createPayment(bulkPayment, paymentInitiationParameters, tppInfo);
     }
-
 }
