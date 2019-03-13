@@ -210,8 +210,10 @@ public class ConsentService {
                        .fail(new MessageError(spiErrorMapper.mapToErrorHolder(spiResponse, ServiceType.AIS)))
                        .build();
         }
+        ConsentStatus spiConsentStatus = spiResponse.getPayload().getConsentStatus();
+        aisConsentService.updateConsentStatus(consentId, spiConsentStatus);
 
-        return responseBuilder.body(new ConsentStatusResponse(spiResponse.getPayload().getConsentStatus())).build();
+        return responseBuilder.body(new ConsentStatusResponse(spiConsentStatus)).build();
     }
 
     /**
@@ -286,8 +288,11 @@ public class ConsentService {
                        .build();
         }
 
+        ConsentStatus consentStatus = spiConsentStatus.getPayload().getConsentStatus();
+        aisConsentService.updateConsentStatus(consentId, consentStatus);
+
         return ResponseObject.<AccountConsent>builder()
-                   .body(aisConsentMapper.mapToAccountConsentWithNewStatus(consent, spiConsentStatus.getPayload().getConsentStatus()))
+                   .body(aisConsentMapper.mapToAccountConsentWithNewStatus(consent, consentStatus))
                    .build();
     }
 
