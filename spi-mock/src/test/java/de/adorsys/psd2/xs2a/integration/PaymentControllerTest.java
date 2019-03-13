@@ -175,7 +175,4 @@ public class PaymentControllerTest {
     private PsuIdData getPsuIdData() {
         return new PsuIdData("PSU-123", "Some type", "Some corporate id", "Some corporate id type");
     }
-
-
 }
-
