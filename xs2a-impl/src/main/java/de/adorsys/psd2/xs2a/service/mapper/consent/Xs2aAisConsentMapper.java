@@ -21,6 +21,7 @@ import de.adorsys.psd2.consent.api.ActionStatus;
 import de.adorsys.psd2.consent.api.TypeAccess;
 import de.adorsys.psd2.consent.api.ais.*;
 import de.adorsys.psd2.xs2a.core.ais.AccountAccessType;
+import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.AccountReferenceSelector;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
@@ -194,7 +195,29 @@ public class Xs2aAisConsentMapper {
                        ac.getTppInfo(),
                        ac.getAisConsentRequestType(),
                        ac.isMultilevelScaRequired(),
-                       mapToAccountConsentAuthorisation(ais.getAccountConsentAuthorizations())))
+                       mapToAccountConsentAuthorisation(ais.getAccountConsentAuthorizations()),
+                       ac.getUsageCounter()))
+                   .orElse(null);
+    }
+
+    public AccountConsent mapToAccountConsentWithNewStatus(AccountConsent consent, ConsentStatus consentStatus) {
+        return Optional.ofNullable(consent)
+                   .map(ac -> new AccountConsent(
+                       ac.getId(),
+                       ac.getAccess(),
+                       ac.isRecurringIndicator(),
+                       ac.getValidUntil(),
+                       ac.getFrequencyPerDay(),
+                       ac.getLastActionDate(),
+                       consentStatus,
+                       ac.isWithBalance(),
+                       ac.isTppRedirectPreferred(),
+                       ac.getPsuIdDataList(),
+                       ac.getTppInfo(),
+                       ac.getAisConsentRequestType(),
+                       ac.isMultilevelScaRequired(),
+                       ac.getAuthorisations(),
+                       ac.getUsageCounter()))
                    .orElse(null);
     }
 

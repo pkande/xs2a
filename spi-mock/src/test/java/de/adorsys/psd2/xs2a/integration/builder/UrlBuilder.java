@@ -40,4 +40,8 @@ public class UrlBuilder {
     public static String buildConsentCreation() {
         return "/v1/consents/";
     }
+
+    public static String buildGetAccountList() {
+        return "/v1/accounts";
+    }
 }

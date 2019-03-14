@@ -40,6 +40,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +75,9 @@ public class AisConsentBuilder {
                     Collections.singletonList(PSU_DATA),
                     TPP_INFO,
                     false,
-                    Collections.singletonList(new AisAccountConsentAuthorisation(PSU_DATA, ScaStatus.RECEIVED))
+                    Collections.singletonList(new AisAccountConsentAuthorisation(PSU_DATA, ScaStatus.RECEIVED)),
+                    0,
+                OffsetDateTime.now()
                 )
             )
             .orElse(null);

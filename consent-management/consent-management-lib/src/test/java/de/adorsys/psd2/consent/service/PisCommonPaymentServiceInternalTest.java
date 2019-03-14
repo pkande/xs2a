@@ -206,15 +206,21 @@ public class PisCommonPaymentServiceInternalTest {
         ArgumentCaptor<PisAuthorization> argument = ArgumentCaptor.forClass(PisAuthorization.class);
         UpdatePisCommonPaymentPsuDataRequest updatePisCommonPaymentPsuDataRequest = buildUpdatePisCommonPaymentPsuDataRequest(ScaStatus.STARTED);
         updatePisCommonPaymentPsuDataRequest.setPsuData(psuIdData);
+        PsuData expectedPsu = psuDataMapper.mapToPsuData(psuIdData);
+
         when(pisAuthorisationRepository.findByExternalIdAndAuthorizationType(PAYMENT_ID, CmsAuthorisationType.CREATED))
             .thenReturn(Optional.of(pisAuthorization));
         when(pisAuthorisationRepository.save(pisAuthorization)).thenReturn(pisAuthorization);
+        when(cmsPsuService.definePsuDataForAuthorisation(any(), any())).thenReturn(Optional.ofNullable(expectedPsu));
+        when(cmsPsuService.isPsuDataRequestCorrect(any(), any()))
+            .thenReturn(true);
+
         //When
         Optional<UpdatePisCommonPaymentPsuDataResponse> updatePisCommonPaymentPsuDataResponse = pisCommonPaymentService.updatePisAuthorisation(PAYMENT_ID, updatePisCommonPaymentPsuDataRequest);
         verify(pisAuthorisationRepository).save(argument.capture());
         //Then
         assertTrue(updatePisCommonPaymentPsuDataResponse.isPresent());
-        assertTrue(argument.getValue().getPsuData().contentEquals(psuDataMapper.mapToPsuData(psuIdData)));
+        assertTrue(argument.getValue().getPsuData().contentEquals(expectedPsu));
     }
 
     @Test
@@ -227,6 +233,10 @@ public class PisCommonPaymentServiceInternalTest {
 
         when(cmsPsuService.enrichPsuData(PSU_DATA, Collections.emptyList()))
             .thenReturn(psuDataList);
+        when(cmsPsuService.definePsuDataForAuthorisation(any(), any())).thenReturn(Optional.of(PSU_DATA));
+        when(cmsPsuService.isPsuDataRequestCorrect(any(), any()))
+            .thenReturn(true);
+
         when(pisAuthorisationRepository.findByExternalIdAndAuthorizationType(PAYMENT_ID, CmsAuthorisationType.CREATED))
             .thenReturn(Optional.of(pisAuthorization));
         when(pisAuthorisationRepository.save(pisAuthorization))
@@ -294,7 +304,7 @@ public class PisCommonPaymentServiceInternalTest {
         return new AspspSettings(1, false, false, null, null,
                                  null, false, null, null, 1, 1, false,
                                  false, false, false, false, false, 1, null,
-                                 1, 1, null, 1, false, false, false);
+                                 1, 1, null, 1, false, false, false, false, null);
     }
 
     private UpdatePisCommonPaymentPsuDataRequest buildUpdatePisCommonPaymentPsuDataRequest(ScaStatus status) {

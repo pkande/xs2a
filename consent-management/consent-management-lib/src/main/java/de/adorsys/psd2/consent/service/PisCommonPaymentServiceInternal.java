@@ -86,6 +86,8 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         PisCommonPaymentData saved = pisCommonPaymentDataRepository.save(commonPaymentData);
 
         if (saved.getId() == null) {
+            log.info("Payment ID: [{}]. Pis common payment cannot be created, because when saving to DB got null PisCommonPaymentData ID",
+                     request.getPaymentId());
             return Optional.empty();
         }
 
@@ -180,12 +182,14 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         Optional<PisAuthorization> pisAuthorisationOptional = pisAuthorisationRepository.findByExternalIdAndAuthorizationType(
             authorisationId, CmsAuthorisationType.CREATED);
 
-        if (pisAuthorisationOptional.isPresent()) {
-            ScaStatus scaStatus = doUpdateConsentAuthorisation(request, pisAuthorisationOptional.get());
-            return Optional.of(new UpdatePisCommonPaymentPsuDataResponse(scaStatus));
+        if (!pisAuthorisationOptional.isPresent()) {
+            log.info("Authorisation ID: [{}]. Update pis authorisation failed, because pis authorisation with CmsAuthorisationType.CREATED is not found by id",
+                     authorisationId);
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        ScaStatus scaStatus = doUpdateConsentAuthorisation(request, pisAuthorisationOptional.get());
+        return Optional.of(new UpdatePisCommonPaymentPsuDataResponse(scaStatus));
     }
 
     /**
@@ -201,12 +205,14 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         Optional<PisAuthorization> pisAuthorisationOptional = pisAuthorisationRepository.findByExternalIdAndAuthorizationType(
             cancellationId, CmsAuthorisationType.CANCELLED);
 
-        if (pisAuthorisationOptional.isPresent()) {
-            ScaStatus scaStatus = doUpdateConsentAuthorisation(request, pisAuthorisationOptional.get());
-            return Optional.of(new UpdatePisCommonPaymentPsuDataResponse(scaStatus));
+        if (!pisAuthorisationOptional.isPresent()) {
+            log.info("Cancellation ID: [{}]. Update pis cancellation authorisation failed, because pis authorisation with CmsAuthorisationType.CANCELLED is not found by id",
+                     cancellationId);
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        ScaStatus scaStatus = doUpdateConsentAuthorisation(request, pisAuthorisationOptional.get());
+        return Optional.of(new UpdatePisCommonPaymentPsuDataResponse(scaStatus));
     }
 
     /**
@@ -267,12 +273,16 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         Optional<PisAuthorization> authorisationOptional = pisAuthorisationRepository.findByExternalIdAndAuthorizationType(authorisationId, authorisationType);
 
         if (!authorisationOptional.isPresent()) {
+            log.info("Authorisation ID: [{}], Authorisation Type: [{}]. Get authorisation SCA status failed, because authorisation is not found",
+                     authorisationId, authorisationType);
             return Optional.empty();
         }
 
         PisCommonPaymentData paymentData = authorisationOptional.get().getPaymentData();
         if (pisCommonPaymentConfirmationExpirationService.isPaymentDataOnConfirmationExpired(paymentData)) {
             pisCommonPaymentConfirmationExpirationService.updatePaymentDataOnConfirmationExpiration(paymentData);
+            log.info("Payment ID: [{}]. Get authorisation SCA status failed, because Payment is expired",
+                     paymentId);
             return Optional.of(ScaStatus.FAILED);
         }
 
@@ -302,7 +312,11 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
                                                   .stream()
                                                   .filter(m -> Objects.equals(m.getAuthenticationMethodId(), authenticationMethodId))
                                                   .anyMatch(ScaMethod::isDecoupled))
-                   .orElse(false);
+                   .orElseGet(() -> {
+                       log.info("Authorisation ID: [{}]. Get authorisation method decoupled status failed, because pis authorisation is not found",
+                                authorisationId);
+                       return false;
+                   });
     }
 
     @Override
@@ -311,6 +325,7 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         Optional<PisAuthorization> authorisationOptional = pisAuthorisationRepository.findByExternalId(authorisationId);
 
         if (!authorisationOptional.isPresent()) {
+            log.info(" Authorisation ID: [{}]. Save authentication methods failed, because authorisation is not found", authorisationId);
             return false;
         }
 
@@ -327,6 +342,8 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
         Optional<PisAuthorization> authorisationOptional = pisAuthorisationRepository.findByExternalId(authorisationId);
 
         if (!authorisationOptional.isPresent()) {
+            log.info("Authorisation ID: [{}]. Update SCA approach failed, because pis authorisation is not found",
+                     authorisationId);
             return false;
         }
 
@@ -386,6 +403,7 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
      * Creates PIS consent authorisation entity and stores it into database
      *
      * @param paymentData PIS payment data, for which authorisation is performed
+     * @param request     needed parameters for creating PIS authorisation
      * @return PisAuthorization
      */
     private PisAuthorization saveNewAuthorisation(PisCommonPaymentData paymentData, CreatePisAuthorisationRequest request) {
@@ -425,6 +443,7 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
 
         if (Objects.isNull(psuData)
                 || psuData.isEmpty()) {
+            log.info("Close previous authorisations by psu failed, because psuData is not allowed");
             return;
         }
 
@@ -457,14 +476,35 @@ public class PisCommonPaymentServiceInternal implements PisCommonPaymentService 
             return pisAuthorisation.getScaStatus();
         }
 
-        if (STARTED == pisAuthorisation.getScaStatus()) {
-            PsuData psuData = psuDataMapper.mapToPsuData(request.getPsuData());
-            PisCommonPaymentData paymentData = pisAuthorisation.getPaymentData();
-            List<PsuData> psuDataList = cmsPsuService.enrichPsuData(psuData, paymentData.getPsuDataList());
-            paymentData.setPsuDataList(psuDataList);
+        PsuData psuDataInAuthorisation = pisAuthorisation.getPsuData();
+        PsuData psuDataInRequest = psuDataMapper.mapToPsuData(request.getPsuData());
 
-            if (psuData != null) {
+        if (STARTED == pisAuthorisation.getScaStatus()) {
+
+            if (!cmsPsuService.isPsuDataRequestCorrect(psuDataInRequest, psuDataInAuthorisation)) {
+                log.info("Authorisation ID: [{}], SCA status: [{}]. Update consent authorisation failed, because psu data request does not match stored psu data",
+                         pisAuthorisation.getExternalId(), pisAuthorisation.getScaStatus().getValue());
+                return pisAuthorisation.getScaStatus();
+            }
+
+            PisCommonPaymentData paymentData = pisAuthorisation.getPaymentData();
+            List<PsuData> psuListInPayment = paymentData.getPsuDataList();
+            Optional<PsuData> psuDataOptional = cmsPsuService.definePsuDataForAuthorisation(psuDataInRequest, psuListInPayment);
+
+            if (psuDataOptional.isPresent()) {
+                PsuData psuData = psuDataOptional.get();
+                paymentData.setPsuDataList(cmsPsuService.enrichPsuData(psuData, psuListInPayment));
                 pisAuthorisation.setPsuData(psuData);
+            }
+
+        } else {
+            boolean isPsuCorrect = Objects.nonNull(psuDataInAuthorisation)
+                                       && Objects.nonNull(psuDataInRequest)
+                                       && psuDataInAuthorisation.contentEquals(psuDataInRequest);
+            if (!isPsuCorrect) {
+                log.info("Authorisation ID: [{}], SCA status: [{}]. Update consent authorisation failed, because psu data request does not match stored psu data",
+                         pisAuthorisation.getExternalId(), pisAuthorisation.getScaStatus().getValue());
+                return pisAuthorisation.getScaStatus();
             }
         }
 

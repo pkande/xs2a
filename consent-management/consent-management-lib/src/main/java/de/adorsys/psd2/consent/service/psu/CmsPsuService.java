@@ -68,7 +68,10 @@ public class CmsPsuService {
     public boolean isPsuDataNew(PsuData psuData, List<PsuData> psuDataList) {
         return Optional.ofNullable(psuData)
                    .map(psu -> !isPsuDataInList(psu, psuDataList))
-                   .orElse(false);
+                   .orElseGet(() -> {
+                       log.info("Check is psu data a new instance failed - psuData is null");
+                       return false;
+                   });
     }
 
     /**
@@ -86,6 +89,19 @@ public class CmsPsuService {
         }
         return psuDataList.stream()
                    .allMatch(psuData -> isPsuDataInList(psuData, anotherPsuDataList));
+    }
+
+    /**
+     * Checks if the specified psu in request equals psu in authorisation
+     *
+     * @param psuRequest psu in request
+     * @param psuAuth    psu in authorisation
+     * @return true if psu in authorisation is null or equals psu in request
+     */
+    public boolean isPsuDataRequestCorrect(PsuData psuRequest, PsuData psuAuth) {
+        return Optional.ofNullable(psuRequest)
+                   .map(psu -> psuAuth == null || psu.contentEquals(psuAuth))
+                   .orElse(false);
     }
 
     /**

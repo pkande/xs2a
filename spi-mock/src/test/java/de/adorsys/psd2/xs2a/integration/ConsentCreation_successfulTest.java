@@ -52,10 +52,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -282,8 +279,8 @@ public class ConsentCreation_successfulTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
 
         //Then
-        resultActions.andExpect(status().isOk())
-            //.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+        resultActions.andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(content().json("{\"consentStatus\":\"received\"}"));
     }
 
