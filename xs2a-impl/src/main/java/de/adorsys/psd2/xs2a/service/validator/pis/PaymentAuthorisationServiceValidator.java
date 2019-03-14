@@ -38,7 +38,7 @@ public class PaymentAuthorisationServiceValidator {
     private final PisEndpointAccessCheckerService pisEndpointAccessCheckerService;
 
     public ValidationResult validateCreatePisAuthorisation(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }
@@ -52,7 +52,7 @@ public class PaymentAuthorisationServiceValidator {
     }
 
     public ValidationResult validateUpdatePisCommonPaymentPsuData(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse, String authorisationId) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }
@@ -70,7 +70,7 @@ public class PaymentAuthorisationServiceValidator {
     }
 
     public ValidationResult validateGetPaymentInitiationAuthorisations(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }
@@ -79,7 +79,7 @@ public class PaymentAuthorisationServiceValidator {
     }
 
     public ValidationResult validateGetPaymentInitiationAuthorisationScaStatus(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }

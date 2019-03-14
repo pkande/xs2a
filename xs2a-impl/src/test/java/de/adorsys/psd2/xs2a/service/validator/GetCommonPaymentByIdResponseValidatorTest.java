@@ -19,28 +19,18 @@ package de.adorsys.psd2.xs2a.service.validator;
 import de.adorsys.psd2.consent.api.pis.proto.PisCommonPaymentResponse;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
-import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
-import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
-import de.adorsys.psd2.xs2a.service.validator.tpp.PisTppInfoValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.UNAUTHORIZED;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GetCommonPaymentByIdResponseValidatorTest {
     private static final PaymentType PAYMENT_TYPE = PaymentType.SINGLE;
     private static final String PAYMENT_PRODUCT = "payment product";
     private static final String TPP_AUTHORISATION_NUMBER = "authorisation number";
-
-    @Mock
-    private PisTppInfoValidator pisTppInfoValidator;
 
     @InjectMocks
     private GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
@@ -49,10 +39,8 @@ public class GetCommonPaymentByIdResponseValidatorTest {
     public void validateRequest_withValidPayment_shouldReturnValid() {
         // Given
         PisCommonPaymentResponse commonPaymentResponse = buildPisCommonPaymentResponse();
-        when(pisTppInfoValidator.validateTpp(commonPaymentResponse))
-            .thenReturn(ValidationResult.valid());
 
-        // When        
+        // When
         ValidationResult validationResult = getCommonPaymentByIdResponseValidator.validateRequest(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then

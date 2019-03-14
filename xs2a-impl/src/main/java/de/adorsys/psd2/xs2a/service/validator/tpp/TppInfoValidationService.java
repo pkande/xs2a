@@ -19,6 +19,7 @@ package de.adorsys.psd2.xs2a.service.validator.tpp;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.service.TppService;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,16 +36,13 @@ public class TppInfoValidationService {
      * If passed TppInfo is <code>null</code> or doesn't contain either authorisation number or authority ID,
      * <code>true</code> will be returned.
      */
-    public boolean differsFromTppInRequest(TppInfo tppInfo) {
+    public boolean differsFromTppInRequest(@Nullable TppInfo tppInfo) {
         if (tppInfo == null
-                || tppInfo.getAuthorisationNumber() == null
-                || tppInfo.getAuthorityId() == null) {
+                || tppInfo.isNotValid()) {
             return true;
         }
 
         TppInfo tppInRequest = tppService.getTppInfo();
-
-        return !tppInfo.getAuthorisationNumber().equalsIgnoreCase(tppInRequest.getAuthorisationNumber())
-                   || !tppInfo.getAuthorityId().equalsIgnoreCase(tppInRequest.getAuthorityId());
+        return tppInfo.notEqualsByIds(tppInRequest);
     }
 }

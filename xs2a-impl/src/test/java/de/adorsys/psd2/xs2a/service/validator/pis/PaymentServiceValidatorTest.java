@@ -73,9 +73,9 @@ public class PaymentServiceValidatorTest {
 
     @Before
     public void setUp() {
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(TPP_INFO))
             .thenReturn(ValidationResult.valid());
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(INVALID_TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(INVALID_TPP_INFO))
             .thenReturn(ValidationResult.invalid(TPP_VALIDATION_ERROR));
 
         when(getCommonPaymentByIdResponseValidator.validateRequest(buildPisCommonPaymentResponse(TPP_INFO), PAYMENT_TYPE, PAYMENT_PRODUCT))
@@ -150,7 +150,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentById(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
         verify(getCommonPaymentByIdResponseValidator).validateRequest(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         assertNotNull(validationResult);
@@ -167,7 +167,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentById(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
 
         assertNotNull(validationResult);
         assertTrue(validationResult.isNotValid());
@@ -183,7 +183,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentById(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
         verify(getCommonPaymentByIdResponseValidator).validateRequest(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         assertNotNull(validationResult);
@@ -200,7 +200,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentById(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
 
         assertNotNull(validationResult);
         assertTrue(validationResult.isNotValid());
@@ -216,7 +216,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentStatusById(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
         verify(getCommonPaymentByIdResponseValidator).validateRequest(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         assertNotNull(validationResult);
@@ -233,7 +233,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentStatusById(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
 
         assertNotNull(validationResult);
         assertTrue(validationResult.isNotValid());
@@ -249,7 +249,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentStatusById(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
         verify(getCommonPaymentByIdResponseValidator).validateRequest(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         assertNotNull(validationResult);
@@ -266,7 +266,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateGetPaymentStatusById(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
 
         assertNotNull(validationResult);
         assertTrue(validationResult.isNotValid());
@@ -282,7 +282,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateCancelPayment(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
         verify(getCommonPaymentByIdResponseValidator).validateRequest(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         assertNotNull(validationResult);
@@ -299,7 +299,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateCancelPayment(commonPaymentResponse, PAYMENT_TYPE, PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
 
         assertNotNull(validationResult);
         assertTrue(validationResult.isNotValid());
@@ -315,7 +315,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateCancelPayment(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
         verify(getCommonPaymentByIdResponseValidator).validateRequest(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         assertNotNull(validationResult);
@@ -332,7 +332,7 @@ public class PaymentServiceValidatorTest {
         ValidationResult validationResult = paymentServiceValidator.validateCancelPayment(commonPaymentResponse, INVALID_PAYMENT_TYPE, INVALID_PAYMENT_PRODUCT);
 
         // Then
-        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse);
+        verify(pisTppInfoValidator).validateTpp(commonPaymentResponse.getTppInfo());
 
         assertNotNull(validationResult);
         assertTrue(validationResult.isNotValid());

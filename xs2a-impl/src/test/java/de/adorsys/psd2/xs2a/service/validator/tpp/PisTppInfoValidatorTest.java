@@ -16,7 +16,6 @@
 
 package de.adorsys.psd2.xs2a.service.validator.tpp;
 
-import de.adorsys.psd2.consent.api.pis.proto.PisCommonPaymentResponse;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
@@ -58,11 +57,8 @@ public class PisTppInfoValidatorTest {
 
     @Test
     public void validateTpp_withSameTppInCommonPaymentAsInRequest_shouldReturnValid() {
-        // Given
-        PisCommonPaymentResponse commonPaymentResponse = buildPisCommonPaymentResponse(TPP_INFO);
-
         // When
-        ValidationResult validationResult = pisTppInfoValidator.validateTpp(commonPaymentResponse);
+        ValidationResult validationResult = pisTppInfoValidator.validateTpp(TPP_INFO);
 
         // Then
         assertNotNull(validationResult);
@@ -72,11 +68,8 @@ public class PisTppInfoValidatorTest {
 
     @Test
     public void validateTpp_withDifferentTppInCommonPayment_shouldReturnError() {
-        // Given
-        PisCommonPaymentResponse commonPaymentResponse = buildPisCommonPaymentResponse(DIFFERENT_TPP_INFO);
-
         // When
-        ValidationResult validationResult = pisTppInfoValidator.validateTpp(commonPaymentResponse);
+        ValidationResult validationResult = pisTppInfoValidator.validateTpp(DIFFERENT_TPP_INFO);
 
         // Then
         assertNotNull(validationResult);
@@ -91,11 +84,5 @@ public class PisTppInfoValidatorTest {
         tppInfo.setAuthorisationNumber(authorisationNumber);
         tppInfo.setAuthorityId(TPP_AUTHORITY_ID);
         return tppInfo;
-    }
-
-    private PisCommonPaymentResponse buildPisCommonPaymentResponse(TppInfo tppInfo) {
-        PisCommonPaymentResponse pisCommonPaymentResponse = new PisCommonPaymentResponse();
-        pisCommonPaymentResponse.setTppInfo(tppInfo);
-        return pisCommonPaymentResponse;
     }
 }

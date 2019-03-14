@@ -50,7 +50,7 @@ public class PaymentServiceValidator {
     }
 
     public ValidationResult validateGetPaymentById(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse, PaymentType paymentType, String paymentProduct) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }
@@ -64,7 +64,7 @@ public class PaymentServiceValidator {
     }
 
     public ValidationResult validateGetPaymentStatusById(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse, PaymentType paymentType, String paymentProduct) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }
@@ -78,7 +78,7 @@ public class PaymentServiceValidator {
     }
 
     public ValidationResult validateCancelPayment(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse, PaymentType paymentType, String paymentProduct) {
-        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse);
+        ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
             return tppValidationResult;
         }

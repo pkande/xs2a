@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 public class TppInfo {
@@ -72,5 +73,32 @@ public class TppInfo {
     public boolean isValid() {
         return StringUtils.isNotBlank(authorisationNumber)
                    && StringUtils.isNotBlank(authorityId);
+    }
+
+    /**
+     * Compares two TppInfo instances, returning <code>true</code> if they contain different authorisation numbers or authority IDs.
+     *
+     * @param tppInfo TppInfo object with which to compare
+     * @return <code>true</code> if TppInfo instances have different IDs, <code>false</code>
+     */
+    @JsonIgnore
+    public boolean notEqualsByIds(TppInfo tppInfo) {
+        return !equalsByIds(tppInfo);
+    }
+
+    /**
+     * Compares two TppInfo instances, returning <code>true</code> if they contain equal authorisation numbers and authority IDs.
+     *
+     * @param tppInfo TppInfo object with which to compare
+     * @return <code>true</code> if TppInfo instances have equal IDs, <code>false</code>
+     */
+    @JsonIgnore
+    private boolean equalsByIds(TppInfo tppInfo) {
+        if (Objects.isNull(tppInfo)) {
+            return false;
+        }
+
+        return StringUtils.equalsIgnoreCase(this.getAuthorisationNumber(), tppInfo.getAuthorisationNumber())
+                   && StringUtils.equalsIgnoreCase(this.getAuthorityId(), tppInfo.getAuthorityId());
     }
 }

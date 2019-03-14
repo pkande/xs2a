@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.service.validator.pis;
 
 import de.adorsys.psd2.consent.api.pis.proto.PisCommonPaymentResponse;
-import de.adorsys.psd2.xs2a.core.pis.TransactionStatus;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
@@ -69,13 +68,13 @@ public class PaymentCancellationAuthorisationServiceValidatorTest {
 
     @Before
     public void setUp() {
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(TPP_INFO))
             .thenReturn(ValidationResult.valid());
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(TPP_INFO))
             .thenReturn(ValidationResult.valid());
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(INVALID_TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(INVALID_TPP_INFO))
             .thenReturn(ValidationResult.invalid(TPP_VALIDATION_ERROR));
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(INVALID_TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(INVALID_TPP_INFO))
             .thenReturn(ValidationResult.invalid(TPP_VALIDATION_ERROR));
 
         when(pisEndpointAccessCheckerService.isEndpointAccessible(AUTHORISATION_ID, PaymentAuthorisationType.CANCELLATION))

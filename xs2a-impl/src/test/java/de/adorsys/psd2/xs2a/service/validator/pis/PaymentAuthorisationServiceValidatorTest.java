@@ -37,8 +37,6 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
 import static de.adorsys.psd2.xs2a.domain.TppMessageInformation.of;
 import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.PIS_403;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -65,13 +63,9 @@ public class PaymentAuthorisationServiceValidatorTest {
 
     @Before
     public void setUp() {
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(TRANSACTION_STATUS, TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(TPP_INFO))
             .thenReturn(ValidationResult.valid());
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(REJECTED_TRANSACTION_STATUS, TPP_INFO)))
-            .thenReturn(ValidationResult.valid());
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(TRANSACTION_STATUS, INVALID_TPP_INFO)))
-            .thenReturn(ValidationResult.invalid(TPP_VALIDATION_ERROR));
-        when(pisTppInfoValidator.validateTpp(buildPisCommonPaymentResponse(REJECTED_TRANSACTION_STATUS, INVALID_TPP_INFO)))
+        when(pisTppInfoValidator.validateTpp(INVALID_TPP_INFO))
             .thenReturn(ValidationResult.invalid(TPP_VALIDATION_ERROR));
 
         when(pisEndpointAccessCheckerService.isEndpointAccessible(AUTHORISATION_ID, PaymentAuthorisationType.INITIATION))
