@@ -31,12 +31,28 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.SERVICE_BLOCKED;
 import static de.adorsys.psd2.xs2a.domain.TppMessageInformation.of;
 import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.PIS_403;
 
+/**
+ * Validator to be used for validating parameters, passed to the methods of
+ * {@link de.adorsys.psd2.xs2a.service.PaymentAuthorisationService}
+ */
 @Component
 @RequiredArgsConstructor
 public class PaymentAuthorisationServiceValidator {
     private final PisTppInfoValidator pisTppInfoValidator;
     private final PisEndpointAccessCheckerService pisEndpointAccessCheckerService;
 
+    /**
+     * Validates payment used in
+     * {@link de.adorsys.psd2.xs2a.service.PaymentAuthorisationService#createPisAuthorization}
+     * by checking whether:
+     * <ul>
+     * <li>current TPP is valid for the payment</li>
+     * <li>payment is not expired</li>
+     * </ul>
+     *
+     * @param pisCommonPaymentResponse payment object, associated with paymentId passed to the method
+     * @return valid result if the payment is valid, invalid result with appropriate error otherwise
+     */
     public ValidationResult validateCreatePisAuthorisation(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse) {
         ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
@@ -51,6 +67,18 @@ public class PaymentAuthorisationServiceValidator {
         return ValidationResult.valid();
     }
 
+    /**
+     * Validates payment used in
+     * {@link de.adorsys.psd2.xs2a.service.PaymentAuthorisationService#updatePisCommonPaymentPsuData}
+     * by checking whether:
+     * <ul>
+     * <li>current TPP is valid for the payment</li>
+     * <li>payment is not expired</li>
+     * </ul>
+     *
+     * @param pisCommonPaymentResponse payment object, associated with paymentId passed to the method
+     * @return valid result if the payment is valid, invalid result with appropriate error otherwise
+     */
     public ValidationResult validateUpdatePisCommonPaymentPsuData(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse, String authorisationId) {
         ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
@@ -69,6 +97,17 @@ public class PaymentAuthorisationServiceValidator {
         return ValidationResult.valid();
     }
 
+    /**
+     * Validates payment used in
+     * {@link de.adorsys.psd2.xs2a.service.PaymentAuthorisationService#getPaymentInitiationAuthorisations}
+     * by checking whether:
+     * <ul>
+     * <li>current TPP is valid for the payment</li>
+     * </ul>
+     *
+     * @param pisCommonPaymentResponse payment object, associated with paymentId passed to the method
+     * @return valid result if the payment is valid, invalid result with appropriate error otherwise
+     */
     public ValidationResult validateGetPaymentInitiationAuthorisations(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse) {
         ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
@@ -78,6 +117,17 @@ public class PaymentAuthorisationServiceValidator {
         return ValidationResult.valid();
     }
 
+    /**
+     * Validates payment used in
+     * {@link de.adorsys.psd2.xs2a.service.PaymentAuthorisationService#getPaymentInitiationAuthorisationScaStatus}
+     * by checking whether:
+     * <ul>
+     * <li>current TPP is valid for the payment</li>
+     * </ul>
+     *
+     * @param pisCommonPaymentResponse payment object, associated with paymentId passed to the method
+     * @return valid result if the payment is valid, invalid result with appropriate error otherwise
+     */
     public ValidationResult validateGetPaymentInitiationAuthorisationScaStatus(@NotNull PisCommonPaymentResponse pisCommonPaymentResponse) {
         ValidationResult tppValidationResult = pisTppInfoValidator.validateTpp(pisCommonPaymentResponse.getTppInfo());
         if (tppValidationResult.isNotValid()) {
