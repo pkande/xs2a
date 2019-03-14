@@ -69,18 +69,18 @@ public class CreateConsentRequestValidator {
         if (isNotSupportedAvailableAccounts(request)) {
             return ValidationResult.invalid(ErrorType.AIS_405, SERVICE_INVALID_405);
         }
-        if (!areFlagsAndAccountsValid(request)) {
+        if (areFlagsAndAccountsInvalid(request)) {
             return ValidationResult.invalid(ErrorType.AIS_400, FORMAT_ERROR);
         }
         return ValidationResult.valid();
     }
 
-    private boolean areFlagsAndAccountsValid(CreateConsentReq request) {
+    private boolean areFlagsAndAccountsInvalid(CreateConsentReq request) {
         Xs2aAccountAccess access = request.getAccess();
         if (access.isNotEmpty()) {
-            return CollectionUtils.isEmpty(request.getAccountReferences()) || areFlagsEmpty(access);
+            return !(CollectionUtils.isEmpty(request.getAccountReferences()) || areFlagsEmpty(access));
         }
-        return true;
+        return false;
     }
 
     private boolean areFlagsEmpty(Xs2aAccountAccess access) {
