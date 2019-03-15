@@ -84,6 +84,24 @@ public class PisCommonPaymentData extends InstanceDependableEntity {
     @Column(name = "aspsp_account_id", length = 100)
     private String aspspAccountId;
 
+    @Column(name = "status_change_timestamp")
+    private OffsetDateTime statusChangeTimestamp;
+
+    @Transient
+    private TransactionStatus previousTransactionStatus;
+
+    @PostLoad
+    public void setPreviousTransactionStatus() {
+        previousTransactionStatus = transactionStatus;
+    }
+
+    @PreUpdate
+    public void compareTransactionStatuses() {
+        if (previousTransactionStatus != transactionStatus) {
+            statusChangeTimestamp = OffsetDateTime.now();
+        }
+    }
+
     public boolean isConfirmationExpired(long expirationPeriodMs) {
         if (isNotConfirmed()) {
             return creationTimestamp.plus(expirationPeriodMs, ChronoUnit.MILLIS)

@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +61,7 @@ public class PisCommonPaymentMapper {
         commonPaymentData.setPsuDataList(psuDataMapper.mapToPsuDataList(paymentInfo.getPsuDataList()));
         commonPaymentData.setMultilevelScaRequired(paymentInfo.isMultilevelScaRequired());
         commonPaymentData.setAspspAccountId(paymentInfo.getAspspAccountId());
+        commonPaymentData.setStatusChangeTimestamp(OffsetDateTime.now());
         return commonPaymentData;
     }
 
