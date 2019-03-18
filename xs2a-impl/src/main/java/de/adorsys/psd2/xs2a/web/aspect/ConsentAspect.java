@@ -75,19 +75,22 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
     }
 
     private Links buildLinksForConsentResponse(CreateConsentResponse response, boolean explicitPreferred, PsuIdData psuData) {
+        String consentId = response.getConsentId();
+
         Links links = new Links();
+        links.setSelf(buildPath("/v1/consents/{consentId}", consentId));
 
         if (EnumSet.of(ScaApproach.EMBEDDED, ScaApproach.DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
             buildLinkForEmbeddedAndDecoupledScaApproach(response, links, explicitPreferred, psuData);
         } else if (ScaApproach.REDIRECT == scaApproachResolver.resolveScaApproach()) {
             // TODO add actual value during imlementation of multilevel sca https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/515
             if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, response.isMultilevelScaRequired())) {
-                links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", response.getConsentId()));
+                links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
             } else {
-                links.setScaRedirect(redirectLinkBuilder.buildConsentScaRedirectLink(response.getConsentId(), response.getAuthorizationId()));
-                links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", response.getConsentId(), response.getAuthorizationId()));
+                links.setScaRedirect(redirectLinkBuilder.buildConsentScaRedirectLink(consentId, response.getAuthorizationId()));
+                links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
             }
-            links.setStatus(buildPath("/v1/consents/{consentId}/status", response.getConsentId()));
+            links.setStatus(buildPath("/v1/consents/{consentId}/status", consentId));
         }
 
         return links;
