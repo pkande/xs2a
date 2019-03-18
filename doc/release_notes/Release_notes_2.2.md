@@ -1,5 +1,6 @@
 # Release notes v.2.2
 
-## Bugfix: Add `Location` header and `self` link to the AIS consent creation response
-From now on, response to the AIS consent creation request(`POST /v1/consents`) contains `Location` header and `self` 
-link. The value of this header and link points to the resource that was created by this request.
+## Bugfix: Add missing links and `Location` header to the AIS consent creation response
+From now on, response to the AIS consent creation request(`POST /v1/consents`) contains previously missing `Location` 
+header and the `self` link. Also this response now contains `status` and `scaStatus`(in case of `implicit` start of the 
+authorisation process) links that were missing in `EMBEDDED` approach.

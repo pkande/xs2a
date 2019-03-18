@@ -79,6 +79,7 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
 
         Links links = new Links();
         links.setSelf(buildPath("/v1/consents/{consentId}", consentId));
+        links.setStatus(buildPath("/v1/consents/{consentId}/status", consentId));
 
         if (EnumSet.of(ScaApproach.EMBEDDED, ScaApproach.DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
             buildLinkForEmbeddedAndDecoupledScaApproach(response, links, explicitPreferred, psuData);
@@ -90,24 +91,25 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
                 links.setScaRedirect(redirectLinkBuilder.buildConsentScaRedirectLink(consentId, response.getAuthorizationId()));
                 links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
             }
-            links.setStatus(buildPath("/v1/consents/{consentId}/status", consentId));
         }
 
         return links;
     }
 
-
     private void buildLinkForEmbeddedAndDecoupledScaApproach(CreateConsentResponse response, Links links, boolean explicitPreferred, PsuIdData psuData) {
+        String consentId = response.getConsentId();
+
         // TODO add actual value during imlementation of multilevel sca https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/515
         if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, false)) {
-            links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", response.getConsentId()));
+            links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
         } else {
-            String path = buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", response.getConsentId(), response.getAuthorizationId());
+            String path = buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId());
             if (psuData.isEmpty()) {
                 links.setStartAuthorisationWithPsuIdentification(path);
             } else {
                 links.setStartAuthorisationWithPsuAuthentication(path);
             }
+            links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
         }
     }
 

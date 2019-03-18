@@ -402,8 +402,14 @@ public class ConsentAspectTest {
         String expectedSelfLink = String.format("%s/v1/consents/%s", baseUrl, CONSENT_ID);
         assertEquals(expectedSelfLink, links.getSelf());
 
+        String expectedStatusLink = String.format("%s/v1/consents/%s/status", baseUrl, CONSENT_ID);
+        assertEquals(expectedStatusLink, links.getStatus());
+
         String expectedStartAuthorisationWithPsuIdentificationLink = String.format("%s/v1/consents/%s/authorisations/%s", baseUrl, CONSENT_ID, AUTHORISATION_ID);
         assertEquals(expectedStartAuthorisationWithPsuIdentificationLink, links.getStartAuthorisationWithPsuIdentification());
+
+        String expectedScaStatusLink = String.format("%s/v1/consents/%s/authorisations/%s", baseUrl, CONSENT_ID, AUTHORISATION_ID);
+        assertEquals(expectedScaStatusLink, links.getScaStatus());
 
         assertNull(links.getStartAuthorisationWithPsuAuthentication());
         assertNull(links.getScaRedirect());
@@ -415,8 +421,14 @@ public class ConsentAspectTest {
         String expectedSelfLink = String.format("%s/v1/consents/%s", baseUrl, CONSENT_ID);
         assertEquals(expectedSelfLink, links.getSelf());
 
+        String expectedStatusLink = String.format("%s/v1/consents/%s/status", baseUrl, CONSENT_ID);
+        assertEquals(expectedStatusLink, links.getStatus());
+
         String expectedStartAuthorisationWithPsuAuthenticationLink = String.format("%s/v1/consents/%s/authorisations/%s", baseUrl, CONSENT_ID, AUTHORISATION_ID);
         assertEquals(expectedStartAuthorisationWithPsuAuthenticationLink, links.getStartAuthorisationWithPsuAuthentication());
+
+        String expectedScaStatusLink = String.format("%s/v1/consents/%s/authorisations/%s", baseUrl, CONSENT_ID, AUTHORISATION_ID);
+        assertEquals(expectedScaStatusLink, links.getScaStatus());
 
         assertNull(links.getStartAuthorisationWithPsuIdentification());
         assertNull(links.getScaRedirect());
@@ -427,6 +439,9 @@ public class ConsentAspectTest {
 
         String expectedSelfLink = String.format("%s/v1/consents/%s", baseUrl, CONSENT_ID);
         assertEquals(expectedSelfLink, links.getSelf());
+
+        String expectedStatusLink = String.format("%s/v1/consents/%s/status", baseUrl, CONSENT_ID);
+        assertEquals(expectedStatusLink, links.getStatus());
 
         String expectedStartAuthorisationLink = String.format("%s/v1/consents/%s/authorisations", baseUrl, CONSENT_ID);
         assertEquals(expectedStartAuthorisationLink, links.getStartAuthorisation());
