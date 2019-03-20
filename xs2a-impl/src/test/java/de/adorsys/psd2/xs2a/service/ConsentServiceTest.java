@@ -216,9 +216,9 @@ public class ConsentServiceTest {
 
         //GetStatusById
         when(aisConsentService.getAccountConsentStatusById(CONSENT_ID))
-            .thenReturn(ConsentStatus.RECEIVED);
+            .thenReturn(Optional.of(ConsentStatus.RECEIVED));
         when(aisConsentService.getAccountConsentStatusById(WRONG_CONSENT_ID))
-            .thenReturn(null);
+            .thenReturn(Optional.empty());
 
         when(aspspProfileService.getConsentLifetime())
             .thenReturn(0);
@@ -731,6 +731,8 @@ public class ConsentServiceTest {
     @Test
     public void updateConsentPsuData_Success_ShouldRecordEvent() {
         when(aisScaAuthorisationServiceResolver.getService()).thenReturn(redirectAisAuthorizationService);
+        when(redirectAisAuthorizationService.getAccountConsentAuthorizationById(AUTHORISATION_ID, CONSENT_ID))
+            .thenReturn(Optional.of(new AccountConsentAuthorization()));
         when(redirectAisAuthorizationService.createConsentAuthorization(any(), anyString()))
             .thenReturn(Optional.of(new CreateConsentAuthorizationResponse()));
         when(endpointAccessCheckerService.isEndpointAccessible(AUTHORISATION_ID, CONSENT_ID))

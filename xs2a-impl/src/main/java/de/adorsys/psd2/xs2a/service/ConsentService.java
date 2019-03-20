@@ -369,7 +369,7 @@ public class ConsentService {
                        .build();
         }
 
-        return Optional.ofNullable(aisScaAuthorisationServiceResolver.getService().getAccountConsentAuthorizationById(updatePsuData.getAuthorizationId(), updatePsuData.getConsentId()))
+        return aisScaAuthorisationServiceResolver.getService().getAccountConsentAuthorizationById(updatePsuData.getAuthorizationId(), updatePsuData.getConsentId())
                    .map(conAuth -> getUpdateConsentPsuDataResponse(updatePsuData, conAuth))
                    .orElseGet(ResponseObject.<UpdateConsentPsuDataResponse>builder()
                                   .fail(AIS_404, of(RESOURCE_UNKNOWN_404))
