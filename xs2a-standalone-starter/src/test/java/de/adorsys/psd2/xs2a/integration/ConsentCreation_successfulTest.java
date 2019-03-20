@@ -84,6 +84,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 public class ConsentCreation_successfulTest {
     private static final Charset UTF_8 = Charset.forName("utf-8");
+    private static final String HREF = "href";
     private static final String DEDICATED_CONSENT_REQUEST_JSON_PATH = "/json/account/req/DedicatedConsent.json";
     private static final String BANK_OFFERED_CONSENT_REQUEST_JSON_PATH = "/json/account/req/BankOfferedConsent.json";
     private static final String GLOBAL_CONSENT_REQUEST_JSON_PATH = "/json/account/req/GlobalConsent.json";
@@ -253,6 +254,19 @@ public class ConsentCreation_successfulTest {
         //Then
         resultActions.andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().json("{\"consentStatus\":\"received\"}"))
+            .andExpect(content().json("{\"consentId\":\"DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI\"}"))
+            .andExpect(content().json("{\"_links\":{\"self\":{" + HREF + ":\"http://localhost/v1/consents/DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI\"}}}"))
+            .andExpect(content().json("{\"_links\":{\"status\":{" + HREF + ":\"http://localhost/v1/consents/DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI/status\"}}}"));
+    }
+
+    private AisConsentAuthorizationResponse getAisConsentAuthorizationResponse(ScaApproach scaApproach) {
+        AisConsentAuthorizationResponse aisConsentAuthorizationResponse = new AisConsentAuthorizationResponse();
+        aisConsentAuthorizationResponse.setAuthorizationId(AUTHORISATION_ID);
+        aisConsentAuthorizationResponse.setConsentId(ENCRYPT_CONSENT_ID);
+        aisConsentAuthorizationResponse.setScaStatus(ScaStatus.RECEIVED);
+        aisConsentAuthorizationResponse.setChosenScaApproach(scaApproach);
+        return aisConsentAuthorizationResponse;
             .andExpect(content().json(IOUtils.resourceToString(responseJsonPath, UTF_8)));
     }
 
