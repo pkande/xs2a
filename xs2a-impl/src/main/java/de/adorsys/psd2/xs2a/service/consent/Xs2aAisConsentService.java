@@ -67,11 +67,9 @@ public class Xs2aAisConsentService {
      * @param consentId String representation of identifier of stored consent
      * @return Response containing AIS Consent
      */
-    // TODO return Optional instead of orElse(null) https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/585
-    public AccountConsent getAccountConsentById(String consentId) {
-        AisAccountConsent aisAccountConsent = aisConsentService.getAisAccountConsentById(consentId)
-                                                  .orElse(null);
-        return aisConsentMapper.mapToAccountConsent(aisAccountConsent);
+    public Optional<AccountConsent> getAccountConsentById(String consentId) {
+        return aisConsentService.getAisAccountConsentById(consentId)
+                                                  .map(aisConsentMapper::mapToAccountConsent);
     }
 
     /**

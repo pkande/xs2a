@@ -58,6 +58,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static de.adorsys.psd2.xs2a.domain.consent.ConsentAuthorizationResponseLinkType.START_AUTHORISATION_WITH_TRANSACTION_AUTHORISATION;
@@ -69,6 +70,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AisScaMethodSelectedStageTest {
     private static final String CONSENT_ID = "Test consentId";
+    private static final String WRONG_CONSENT_ID = "wrong consent id";
     private static final String AUTHORISATION_ID = "Test authorisation id";
     private static final String TEST_AUTHENTICATION_METHOD_ID = "sms";
     private static final ScaStatus METHOD_SELECTED_SCA_STATUS = ScaStatus.SCAMETHODSELECTED;
@@ -118,6 +120,9 @@ public class AisScaMethodSelectedStageTest {
         when(request.getConsentId())
             .thenReturn(CONSENT_ID);
 
+        when(aisConsentService.getAccountConsentById(WRONG_CONSENT_ID))
+            .thenReturn(Optional.empty());
+
         when(request.getAuthenticationMethodId())
             .thenReturn(TEST_AUTHENTICATION_METHOD_ID);
 
@@ -125,7 +130,7 @@ public class AisScaMethodSelectedStageTest {
             .thenReturn(AUTHORISATION_ID);
 
         when(aisConsentService.getAccountConsentById(CONSENT_ID))
-            .thenReturn(accountConsent);
+            .thenReturn(Optional.of(accountConsent));
 
         when(aisConsentMapper.mapToSpiAccountConsent(accountConsent))
             .thenReturn(spiAccountConsent);
@@ -205,6 +210,20 @@ public class AisScaMethodSelectedStageTest {
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.getScaStatus()).isEqualTo(FAILED_SCA_STATUS);
         assertThat(actualResponse.getMessageError().getErrorType()).isEqualTo(ErrorType.AIS_400);
+    }
+
+    @Test
+    public void apply_Identification_wrongId_Failure() {
+        //Given
+        when(request.getConsentId()).thenReturn(WRONG_CONSENT_ID);
+
+        //When
+        UpdateConsentPsuDataResponse actualResponse = scaMethodSelectedStage.apply(request);
+
+        //Then
+        assertThat(actualResponse.getScaStatus()).isEqualTo(ScaStatus.FAILED);
+        assertThat(actualResponse.getMessageError().getErrorType()).isEqualTo(ErrorType.AIS_400);
+        assertThat(actualResponse.getMessageError().getTppMessage().getMessageErrorCode()).isEqualTo(MessageErrorCode.CONSENT_UNKNOWN_400);
     }
 
     private SpiAuthenticationObject buildSpiAuthenticationObject() {

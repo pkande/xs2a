@@ -28,7 +28,6 @@ import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aAisConsentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.config.factory.AisScaStageAuthorisationFactory.SEPARATOR;
@@ -53,8 +52,8 @@ public class DecoupledAisAuthorizationService implements AisAuthorizationService
      */
     @Override
     public Optional<CreateConsentAuthorizationResponse> createConsentAuthorization(PsuIdData psuData, String consentId) {
-        AccountConsent consent = aisConsentService.getAccountConsentById(consentId);
-        if (Objects.isNull(consent)) {
+        Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
+        if (!accountConsentOptional.isPresent()) {
             return Optional.empty();
         }
 
