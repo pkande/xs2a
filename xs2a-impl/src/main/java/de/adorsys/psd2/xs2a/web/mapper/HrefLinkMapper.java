@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -39,11 +40,16 @@ public class HrefLinkMapper {
      * Returned Map with added 'href' to link value.
      */
     public Map mapToLinksMap(Links links) {
-        return mapper.convertValue(links, Map.class);
+
+        Map<String, String> linksMap = mapper.convertValue(links, Map.class);
+        return linksMap
+                   .entrySet().stream().collect(Collectors.toMap(
+                e -> e.getKey(),
+                e -> Collections.singletonMap("href", e.getValue())
+            ));
     }
 
-
     public Map mapToLinksMap(String name, String link) {
-        return Collections.singletonMap(name, link);
+        return Collections.singletonMap(name, Collections.singletonMap("href", link));
     }
 }
