@@ -32,7 +32,6 @@ import de.adorsys.psd2.xs2a.config.*;
 import de.adorsys.psd2.xs2a.core.consent.AspspConsentData;
 import de.adorsys.psd2.xs2a.core.event.Event;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
-import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
@@ -88,15 +87,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 public class ConsentCreation_successfulTest {
     private static final Charset UTF_8 = Charset.forName("utf-8");
-    private static final String DEDICATED_CONSENT_REQUEST_JSON_PATH = "/aisconsent/DedicatedConsent_request.json";
-    private static final String BANK_OFFERED_CONSENT_REQUEST_JSON_PATH = "/aisconsent/BankOfferedConsent_request.json";
-    private static final String GLOBAL_CONSENT_REQUEST_JSON_PATH = "/aisconsent/GlobalConsent_request.json";
-    private static final String ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH = "/aisconsent/AllAvailableAccountConsent_request.json";
-
+    private static final String DEDICATED_CONSENT_REQUEST_JSON_PATH = "/json/account/req/DedicatedConsent.json";
+    private static final String BANK_OFFERED_CONSENT_REQUEST_JSON_PATH = "/json/account/req/BankOfferedConsent.json";
+    private static final String GLOBAL_CONSENT_REQUEST_JSON_PATH = "/json/account/req/GlobalConsent.json";
+    private static final String ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH = "/json/account/req/AllAvailableAccountConsent.json";
 
 
     private static final String ENCRYPT_CONSENT_ID = "DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI";
-    
+
     private static final String AUTHORISATION_ID = "e8356ea7-8e3e-474f-b5ea-2b89346cb2dc";
 
     private static final TppInfo TPP_INFO = TppInfoBuilder.buildTppInfo();
@@ -108,7 +106,6 @@ public class ConsentCreation_successfulTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper mapper;
-
     @MockBean
     private AspspProfileService aspspProfileService;
     @MockBean
@@ -125,7 +122,6 @@ public class ConsentCreation_successfulTest {
     @Qualifier("aspspRestTemplate")
     private RestTemplate aspspRestTemplate;
 
-
     @Before
     public void init() {
         HashMap<String, String> headerMap = new HashMap<>();
@@ -141,7 +137,6 @@ public class ConsentCreation_successfulTest {
         httpHeadersImplicit.setAll(headerMap);
         // when Implicit auth mode we need to set 'false'
         httpHeadersImplicit.add("TPP-Implicit-Authorisation-Preferred", "false");
-
         httpHeadersExplicit.setAll(headerMap);
         // when we use Explicit auth mode we need to set 'true' and value 'signingBasketSupported' in profile also should be 'true'
         httpHeadersExplicit.add("TPP-Explicit-Authorisation-Preferred", "true");
@@ -160,7 +155,7 @@ public class ConsentCreation_successfulTest {
 
     // =============== IMPLICIT MODE
     //
-   @Test
+    @Test
     public void creation_dedicated_consent_implicit_embedded_successful() throws Exception {
         consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, DEDICATED_CONSENT_REQUEST_JSON_PATH);
     }
@@ -170,7 +165,7 @@ public class ConsentCreation_successfulTest {
         consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, DEDICATED_CONSENT_REQUEST_JSON_PATH);
     }
 
-     @Test
+    @Test
     public void creation_global_consent_implicit_embedded_successful() throws Exception {
         consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, GLOBAL_CONSENT_REQUEST_JSON_PATH);
     }
@@ -234,31 +229,21 @@ public class ConsentCreation_successfulTest {
         consentCreation_successful(httpHeadersExplicit, ScaApproach.REDIRECT, ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH);
     }
 
-    
-
-    
-
     private void consentCreation_successful(HttpHeaders headers, ScaApproach scaApproach, String requestJsonPath) throws Exception {
-        
         // Given
         given(aspspProfileService.getScaApproaches()).willReturn(Collections.singletonList(scaApproach));
         given(aisConsentServiceEncrypted.createAuthorization(any(String.class), any(AisConsentAuthorizationRequest.class)))
             .willReturn(Optional.of(AUTHORISATION_ID));
         given(aisConsentServiceEncrypted.createConsent(any(CreateAisConsentRequest.class)))
             .willReturn(Optional.of(ENCRYPT_CONSENT_ID));
-
         given(aisConsentServiceEncrypted.getInitialAisAccountConsentById(any(String.class)))
             .willReturn(Optional.of(buildAisAccountConsent(requestJsonPath, scaApproach)));
-
         given(aisConsentServiceEncrypted.getAisAccountConsentById(any(String.class)))
             .willReturn(Optional.of(buildAisAccountConsent(requestJsonPath, scaApproach)));
-
         given(aisConsentServiceEncrypted.getAccountConsentAuthorizationById(any(String.class), any(String.class)))
             .willReturn(Optional.of(getAisConsentAuthorizationResponse(scaApproach)));
-
         given(aisConsentDataService.getAspspConsentDataByConsentId(any(String.class)))
             .willReturn(new AspspConsentData(null, ENCRYPT_CONSENT_ID));
-
         given(aspspRestTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(ParameterizedTypeReference.class), any(String.class)))
             .willReturn(ResponseEntity.ok(new ArrayList<SpiAccountDetails>()));
 
@@ -266,26 +251,16 @@ public class ConsentCreation_successfulTest {
         requestBuilder.headers(headers);
         requestBuilder.content(resourceToString(requestJsonPath, UTF_8));
 
-
         // When
         ResultActions resultActions = mockMvc.perform(requestBuilder);
 
         //Then
         resultActions.andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(content().json("{\"consentStatus\":\"received\"}"));
-    }
-
-
-    private AisConsentAuthorizationRequest getAisAuthorisationRequest(ScaApproach scaApproach) {
-        AisConsentAuthorizationRequest aisConsentAuthorizationRequest = new AisConsentAuthorizationRequest();
-        aisConsentAuthorizationRequest.setPsuData(getPsuIdData());
-        aisConsentAuthorizationRequest.setScaApproach(scaApproach);
-        return aisConsentAuthorizationRequest;
-    }
-
-    private PsuIdData getPsuIdData() {
-        return new PsuIdData("PSU-123", "Some type", "Some corporate id", "Some corporate id type");
+            .andExpect(content().json("{\"consentStatus\":\"received\"}"))
+            .andExpect(content().json("{\"consentId\":\"DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI\"}"))
+            .andExpect(content().json("{\"_links\":{\"self\":\"http://localhost/v1/consents/DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI\"}}"))
+            .andExpect(content().json("{\"_links\":{\"status\":\"http://localhost/v1/consents/DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI/status\"}}"));
     }
 
     private AisConsentAuthorizationResponse getAisConsentAuthorizationResponse(ScaApproach scaApproach) {
@@ -298,16 +273,13 @@ public class ConsentCreation_successfulTest {
     }
 
     private AisAccountConsent buildAisAccountConsent(String jsonPath, ScaApproach scaApproach) throws Exception {
-
         CreateConsentReq consentReq = mapper.readValue(
             resourceToString(jsonPath, UTF_8),
-            new TypeReference<CreateConsentReq>() {});
+            new TypeReference<CreateConsentReq>() {
+            });
 
         AisAccountConsent aisAccountConsent = AisConsentBuilder.buildAisConsent(consentReq, ENCRYPT_CONSENT_ID, scaApproach);
-
         return aisAccountConsent;
-
     }
-
 }
 
