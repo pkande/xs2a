@@ -92,19 +92,19 @@ public class PisCommonPaymentData extends InstanceDependableEntity {
     private TransactionStatus previousTransactionStatus;
 
     @PostLoad
-    public void setPreviousTransactionStatus() {
+    public void pisCommonPaymentDataPostLoad() {
         previousTransactionStatus = transactionStatus;
     }
 
     @PreUpdate
-    public void compareTransactionStatuses() {
+    public void pisCommonPaymentDataPreUpdate() {
         if (previousTransactionStatus != transactionStatus) {
             statusChangeTimestamp = OffsetDateTime.now();
         }
     }
 
     @PrePersist
-    public void beforeSavingEntity() {
+    public void pisCommonPaymentDataPrePersist() {
         if (Objects.isNull(statusChangeTimestamp)) {
             statusChangeTimestamp = creationTimestamp;
         }

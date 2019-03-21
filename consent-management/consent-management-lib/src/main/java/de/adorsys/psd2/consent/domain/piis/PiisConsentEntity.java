@@ -113,19 +113,19 @@ public class PiisConsentEntity extends InstanceDependableEntity {
     private ConsentStatus previousConsentStatus;
 
     @PostLoad
-    public void setPreviousTransactionStatus() {
+    public void piisConsentPostLoad() {
         previousConsentStatus = consentStatus;
     }
 
     @PreUpdate
-    public void compareTransactionStatuses() {
+    public void piisConsentPreUpdate() {
         if (previousConsentStatus != consentStatus) {
             statusChangeTimestamp = OffsetDateTime.now();
         }
     }
 
     @PrePersist
-    public void beforeSavingEntity() {
+    public void piisConsentPrePersist() {
         if (Objects.isNull(statusChangeTimestamp)) {
             statusChangeTimestamp = creationTimestamp;
         }

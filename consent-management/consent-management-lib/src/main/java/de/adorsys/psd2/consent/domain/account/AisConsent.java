@@ -159,19 +159,19 @@ public class AisConsent extends InstanceDependableEntity {
     private ConsentStatus previousConsentStatus;
 
     @PostLoad
-    public void setPreviousTransactionStatus() {
+    public void aisConsentPostLoad() {
         previousConsentStatus = consentStatus;
     }
 
     @PreUpdate
-    public void compareTransactionStatuses() {
+    public void aisConsentPreUpdate() {
         if (previousConsentStatus != consentStatus) {
             statusChangeTimestamp = OffsetDateTime.now();
         }
     }
 
     @PrePersist
-    public void beforeSavingEntity() {
+    public void aisConsentPrePersist() {
         if (Objects.isNull(statusChangeTimestamp)) {
             statusChangeTimestamp = creationTimestamp;
         }

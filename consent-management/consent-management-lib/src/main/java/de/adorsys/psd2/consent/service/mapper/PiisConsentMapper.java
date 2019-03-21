@@ -48,8 +48,7 @@ public class PiisConsentMapper {
                                piisConsentEntity.getCardNumber(),
                                piisConsentEntity.getCardExpiryDate(),
                                piisConsentEntity.getCardInformation(),
-                               piisConsentEntity.getRegistrationInformation());
-                               piisConsentEntity.getInstanceId(),
+                               piisConsentEntity.getRegistrationInformation(),
                                piisConsentEntity.getStatusChangeTimestamp());
     }
 
