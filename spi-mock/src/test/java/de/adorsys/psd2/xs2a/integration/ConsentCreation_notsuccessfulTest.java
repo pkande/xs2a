@@ -52,7 +52,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -71,7 +74,6 @@ import static org.apache.commons.io.IOUtils.resourceToString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles({"integration-test", "mockspi"})
@@ -86,14 +88,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     Xs2aEndpointPathConstant.class,
     Xs2aInterfaceConfig.class
 })
-public class ConsentCreation_successfulTest {
+public class ConsentCreation_notsuccessfulTest {
     private static final Charset UTF_8 = Charset.forName("utf-8");
-    private static final String DEDICATED_CONSENT_REQUEST_JSON_PATH = "/aisconsent/DedicatedConsent_request.json";
     private static final String BANK_OFFERED_CONSENT_REQUEST_JSON_PATH = "/aisconsent/BankOfferedConsent_request.json";
-    private static final String GLOBAL_CONSENT_REQUEST_JSON_PATH = "/aisconsent/GlobalConsent_request.json";
-    private static final String ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH = "/aisconsent/AllAvailableAccountConsent_request.json";
-
-
 
     private static final String ENCRYPT_CONSENT_ID = "DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI";
     
@@ -160,81 +157,20 @@ public class ConsentCreation_successfulTest {
 
     // =============== IMPLICIT MODE
     //
-   @Test
-    public void creation_dedicated_consent_implicit_embedded_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, DEDICATED_CONSENT_REQUEST_JSON_PATH);
-    }
 
     @Test
-    public void creation_dedicated_consent_implicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, DEDICATED_CONSENT_REQUEST_JSON_PATH);
-    }
-
-     @Test
-    public void creation_global_consent_implicit_embedded_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, GLOBAL_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_global_consent_implicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, GLOBAL_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_bank_offered_consent_implicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
-    }
-
-
-    @Test
-    public void creation_all_available_account_consent_implicit_embedded_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_all_available_account_consent_implicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH);
+    public void creation_bank_offered_consent_implicit_embedded_successful() throws Exception {
+        consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
     }
 
 
     // =============== EXPLICIT MODE
     //
-    @Test
-    public void creation_dedicated_consent_explicit_embedded_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.EMBEDDED, DEDICATED_CONSENT_REQUEST_JSON_PATH);
-    }
 
     @Test
-    public void creation_dedicated_consent_explicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.REDIRECT, DEDICATED_CONSENT_REQUEST_JSON_PATH);
+    public void creation_bank_offered_consent_explicit_embedded_successful() throws Exception {
+        consentCreation_successful(httpHeadersExplicit, ScaApproach.EMBEDDED, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
     }
-
-    @Test
-    public void creation_global_consent_explicit_embedded_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.EMBEDDED, GLOBAL_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_global_consent_explicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.REDIRECT, GLOBAL_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_bank_offered_consent_explicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.REDIRECT, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_all_available_account_consent_explicit_embedded_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.EMBEDDED, ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    @Test
-    public void creation_all_available_account_consent_explicit_redirect_successful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.REDIRECT, ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH);
-    }
-
-    
 
     
 
@@ -271,9 +207,8 @@ public class ConsentCreation_successfulTest {
         ResultActions resultActions = mockMvc.perform(requestBuilder);
 
         //Then
-        resultActions.andExpect(status().isCreated())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-            .andExpect(content().json("{\"consentStatus\":\"received\"}"));
+        resultActions.andExpect(status().isMethodNotAllowed());
+
     }
 
 
