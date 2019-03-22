@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.aspsp.xs2a.spi.ASPSPXs2aApplication;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
+import de.adorsys.psd2.consent.api.AspspDataService;
 import de.adorsys.psd2.consent.api.ais.AisAccountConsent;
 import de.adorsys.psd2.consent.api.ais.AisConsentAuthorizationRequest;
 import de.adorsys.psd2.consent.api.ais.AisConsentAuthorizationResponse;
@@ -40,7 +41,6 @@ import de.adorsys.psd2.xs2a.integration.builder.AspspSettingsBuilder;
 import de.adorsys.psd2.xs2a.integration.builder.TppInfoBuilder;
 import de.adorsys.psd2.xs2a.integration.builder.UrlBuilder;
 import de.adorsys.psd2.xs2a.service.TppService;
-import de.adorsys.psd2.xs2a.service.consent.AisConsentDataService;
 import de.adorsys.psd2.xs2a.spi.domain.account.SpiAccountDetails;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +92,6 @@ public class ConsentCreation_successfulTest {
     private static final String GLOBAL_CONSENT_REQUEST_JSON_PATH = "/json/account/req/GlobalConsent.json";
     private static final String ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH = "/json/account/req/AllAvailableAccountConsent.json";
 
-
     private static final String ENCRYPT_CONSENT_ID = "DfLtDOgo1tTK6WQlHlb-TMPL2pkxRlhZ4feMa5F4tOWwNN45XLNAVfWwoZUKlQwb_=_bS6p6XvTWI";
 
     private static final String AUTHORISATION_ID = "e8356ea7-8e3e-474f-b5ea-2b89346cb2dc";
@@ -117,7 +116,7 @@ public class ConsentCreation_successfulTest {
     @MockBean
     private AisConsentServiceEncrypted aisConsentServiceEncrypted;
     @MockBean
-    private AisConsentDataService aisConsentDataService;
+    private AspspDataService aspspDataService;
     @MockBean
     @Qualifier("aspspRestTemplate")
     private RestTemplate aspspRestTemplate;
@@ -242,8 +241,8 @@ public class ConsentCreation_successfulTest {
             .willReturn(Optional.of(buildAisAccountConsent(requestJsonPath, scaApproach)));
         given(aisConsentServiceEncrypted.getAccountConsentAuthorizationById(any(String.class), any(String.class)))
             .willReturn(Optional.of(getAisConsentAuthorizationResponse(scaApproach)));
-        given(aisConsentDataService.getAspspConsentDataByConsentId(any(String.class)))
-            .willReturn(new AspspConsentData(null, ENCRYPT_CONSENT_ID));
+        given(aspspDataService.readAspspConsentData(any(String.class)))
+            .willReturn(Optional.of(new AspspConsentData(null, ENCRYPT_CONSENT_ID)));
         given(aspspRestTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(ParameterizedTypeReference.class), any(String.class)))
             .willReturn(ResponseEntity.ok(new ArrayList<SpiAccountDetails>()));
 
@@ -282,4 +281,3 @@ public class ConsentCreation_successfulTest {
         return aisAccountConsent;
     }
 }
-

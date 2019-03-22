@@ -16,11 +16,11 @@
 
 package de.adorsys.psd2.xs2a.integration;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.aspsp.xs2a.spi.ASPSPXs2aApplication;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
+import de.adorsys.psd2.consent.api.AspspDataService;
 import de.adorsys.psd2.consent.api.ais.AisAccountConsent;
 import de.adorsys.psd2.consent.api.ais.AisConsentAuthorizationRequest;
 import de.adorsys.psd2.consent.api.ais.AisConsentAuthorizationResponse;
@@ -40,7 +40,6 @@ import de.adorsys.psd2.xs2a.integration.builder.AspspSettingsBuilder;
 import de.adorsys.psd2.xs2a.integration.builder.TppInfoBuilder;
 import de.adorsys.psd2.xs2a.integration.builder.UrlBuilder;
 import de.adorsys.psd2.xs2a.service.TppService;
-import de.adorsys.psd2.xs2a.service.consent.AisConsentDataService;
 import de.adorsys.psd2.xs2a.spi.domain.account.SpiAccountDetails;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -115,7 +114,7 @@ public class ConsentCreation_notsuccessfulTest {
     @MockBean
     private AisConsentServiceEncrypted aisConsentServiceEncrypted;
     @MockBean
-    private AisConsentDataService aisConsentDataService;
+    private AspspDataService aspspDataService;
     @MockBean
     @Qualifier("aspspRestTemplate")
     private RestTemplate aspspRestTemplate;
@@ -156,17 +155,17 @@ public class ConsentCreation_notsuccessfulTest {
     //
     @Test
     public void creation_bank_offered_consent_implicit_embedded_notsuccessful() throws Exception {
-        consentCreation_successful(httpHeadersImplicit, ScaApproach.EMBEDDED, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
+        consentCreation_notsuccessful(httpHeadersImplicit, ScaApproach.EMBEDDED, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
     }
 
     // =============== EXPLICIT MODE
     //
     @Test
     public void creation_bank_offered_consent_explicit_embedded_notsuccessful() throws Exception {
-        consentCreation_successful(httpHeadersExplicit, ScaApproach.EMBEDDED, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
+        consentCreation_notsuccessful(httpHeadersExplicit, ScaApproach.EMBEDDED, BANK_OFFERED_CONSENT_REQUEST_JSON_PATH);
     }
 
-    private void consentCreation_successful(HttpHeaders headers, ScaApproach scaApproach, String requestJsonPath) throws Exception {
+    private void consentCreation_notsuccessful(HttpHeaders headers, ScaApproach scaApproach, String requestJsonPath) throws Exception {
         // Given
         given(aspspProfileService.getScaApproaches()).willReturn(Collections.singletonList(scaApproach));
         given(aisConsentServiceEncrypted.createAuthorization(any(String.class), any(AisConsentAuthorizationRequest.class)))
@@ -179,8 +178,8 @@ public class ConsentCreation_notsuccessfulTest {
             .willReturn(Optional.of(buildAisAccountConsent(requestJsonPath, scaApproach)));
         given(aisConsentServiceEncrypted.getAccountConsentAuthorizationById(any(String.class), any(String.class)))
             .willReturn(Optional.of(getAisConsentAuthorizationResponse(scaApproach)));
-        given(aisConsentDataService.getAspspConsentDataByConsentId(any(String.class)))
-            .willReturn(new AspspConsentData(null, ENCRYPT_CONSENT_ID));
+        given(aspspDataService.readAspspConsentData(any(String.class)))
+            .willReturn(Optional.of(new AspspConsentData(null, ENCRYPT_CONSENT_ID)));
         given(aspspRestTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(ParameterizedTypeReference.class), any(String.class)))
             .willReturn(ResponseEntity.ok(new ArrayList<SpiAccountDetails>()));
 
@@ -216,4 +215,3 @@ public class ConsentCreation_notsuccessfulTest {
         return aisAccountConsent;
     }
 }
-
