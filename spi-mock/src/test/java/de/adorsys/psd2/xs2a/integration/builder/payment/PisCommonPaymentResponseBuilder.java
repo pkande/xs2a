@@ -23,7 +23,6 @@ import de.adorsys.psd2.xs2a.integration.builder.TppInfoBuilder;
 
 import java.util.Collections;
 
-
 public class PisCommonPaymentResponseBuilder {
     private static final TransactionStatus TRANSACTION_STATUS = TransactionStatus.RCVD;
 
