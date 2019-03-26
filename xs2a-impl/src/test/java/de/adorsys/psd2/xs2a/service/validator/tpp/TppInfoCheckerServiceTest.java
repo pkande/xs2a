@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TppInfoValidationServiceTest {
+public class TppInfoCheckerServiceTest {
     private static final String AUTHORISATION_NUMBER = "authorisation number";
     private static final String AUTHORITY_ID = "authority id";
     private static final String DIFFERENT_AUTHORISATION_NUMBER = "different authorisation number";
@@ -38,7 +38,7 @@ public class TppInfoValidationServiceTest {
     private TppService tppService;
 
     @InjectMocks
-    private TppInfoValidationService tppInfoValidationService;
+    private TppInfoCheckerService tppInfoCheckerService;
 
     @Test
     public void differsFromTppInRequest_withDifferentTppInRequest_shouldReturnTrue() {
@@ -49,7 +49,7 @@ public class TppInfoValidationServiceTest {
         TppInfo tppInfo = buildTppInfo(DIFFERENT_AUTHORISATION_NUMBER, DIFFERENT_AUTHORITY_ID);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertTrue(result);
@@ -64,7 +64,7 @@ public class TppInfoValidationServiceTest {
         TppInfo tppInfo = buildTppInfo(AUTHORISATION_NUMBER, DIFFERENT_AUTHORITY_ID);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertTrue(result);
@@ -79,7 +79,7 @@ public class TppInfoValidationServiceTest {
         TppInfo tppInfo = buildTppInfo(DIFFERENT_AUTHORISATION_NUMBER, AUTHORITY_ID);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertTrue(result);
@@ -94,7 +94,7 @@ public class TppInfoValidationServiceTest {
         TppInfo tppInfo = buildTppInfo(DIFFERENT_AUTHORISATION_NUMBER, DIFFERENT_AUTHORITY_ID);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertTrue(result);
@@ -107,7 +107,7 @@ public class TppInfoValidationServiceTest {
         when(tppService.getTppInfo()).thenReturn(tppInfo);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertFalse(result);
@@ -120,7 +120,7 @@ public class TppInfoValidationServiceTest {
         when(tppService.getTppInfo()).thenReturn(tppInfoInRequest);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(null);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(null);
 
         // Then
         assertTrue(result);
@@ -135,7 +135,7 @@ public class TppInfoValidationServiceTest {
         TppInfo tppInfo = buildTppInfo(null, DIFFERENT_AUTHORITY_ID);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertTrue(result);
@@ -150,7 +150,7 @@ public class TppInfoValidationServiceTest {
         TppInfo tppInfo = buildTppInfo(DIFFERENT_AUTHORISATION_NUMBER, null);
 
         // When
-        boolean result = tppInfoValidationService.differsFromTppInRequest(tppInfo);
+        boolean result = tppInfoCheckerService.differsFromTppInRequest(tppInfo);
 
         // Then
         assertTrue(result);

@@ -75,30 +75,22 @@ public class TppInfo {
                    && StringUtils.isNotBlank(authorityId);
     }
 
-    /**
-     * Compares two TppInfo instances, returning <code>true</code> if they contain different authorisation numbers or authority IDs.
-     *
-     * @param tppInfo TppInfo object with which to compare
-     * @return <code>true</code> if TppInfo instances have different IDs, <code>false</code>
-     */
-    @JsonIgnore
-    public boolean notEqualsByIds(TppInfo tppInfo) {
-        return !equalsByIds(tppInfo);
-    }
-
-    /**
-     * Compares two TppInfo instances, returning <code>true</code> if they contain equal authorisation numbers and authority IDs.
-     *
-     * @param tppInfo TppInfo object with which to compare
-     * @return <code>true</code> if TppInfo instances have equal IDs, <code>false</code>
-     */
-    @JsonIgnore
-    private boolean equalsByIds(TppInfo tppInfo) {
-        if (Objects.isNull(tppInfo)) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        return StringUtils.equalsIgnoreCase(this.getAuthorisationNumber(), tppInfo.getAuthorisationNumber())
-                   && StringUtils.equalsIgnoreCase(this.getAuthorityId(), tppInfo.getAuthorityId());
+        TppInfo tppInfo = (TppInfo) o;
+        return Objects.equals(authorisationNumber, tppInfo.authorisationNumber) &&
+                   Objects.equals(authorityId, tppInfo.authorityId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(authorisationNumber, authorityId);
     }
 }

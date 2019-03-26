@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TppInfoValidationService {
+public class TppInfoCheckerService {
     private final TppService tppService;
 
     /**
@@ -43,6 +43,6 @@ public class TppInfoValidationService {
         }
 
         TppInfo tppInRequest = tppService.getTppInfo();
-        return tppInfo.notEqualsByIds(tppInRequest);
+        return !tppInfo.equals(tppInRequest);
     }
 }

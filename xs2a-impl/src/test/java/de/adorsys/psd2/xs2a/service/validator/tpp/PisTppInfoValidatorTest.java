@@ -20,6 +20,7 @@ import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
+import de.adorsys.psd2.xs2a.service.RequestProviderService;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import org.junit.Before;
@@ -28,6 +29,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -41,18 +44,24 @@ public class PisTppInfoValidatorTest {
     private static final TppInfo TPP_INFO = buildTppInfo(TPP_AUTHORISATION_NUMBER);
     private static final TppInfo DIFFERENT_TPP_INFO = buildTppInfo(DIFFERENT_TPP_AUTHORISATION_NUMBER);
 
+    private static final UUID X_REQUEST_ID = UUID.fromString("1af360bc-13cb-40ab-9aa0-cc0d6af4510c");
+
     @Mock
-    private TppInfoValidationService tppInfoValidationService;
+    private TppInfoCheckerService tppInfoCheckerService;
+    @Mock
+    private RequestProviderService requestProviderService;
 
     @InjectMocks
     private PisTppInfoValidator pisTppInfoValidator;
 
     @Before
     public void setUp() {
-        when(tppInfoValidationService.differsFromTppInRequest(TPP_INFO))
+        when(tppInfoCheckerService.differsFromTppInRequest(TPP_INFO))
             .thenReturn(false);
-        when(tppInfoValidationService.differsFromTppInRequest(DIFFERENT_TPP_INFO))
+        when(tppInfoCheckerService.differsFromTppInRequest(DIFFERENT_TPP_INFO))
             .thenReturn(true);
+
+        when(requestProviderService.getRequestId()).thenReturn(X_REQUEST_ID);
     }
 
     @Test

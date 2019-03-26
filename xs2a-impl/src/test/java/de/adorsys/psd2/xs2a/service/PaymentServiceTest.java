@@ -45,20 +45,18 @@ import de.adorsys.psd2.xs2a.service.event.Xs2aEventService;
 import de.adorsys.psd2.xs2a.service.mapper.consent.CmsToXs2aPaymentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
-import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiPaymentInfoMapper;
 import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiPsuDataMapper;
 import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
-import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
 import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.PaymentServiceValidator;
+import de.adorsys.psd2.xs2a.service.validator.pis.*;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
-import de.adorsys.psd2.xs2a.spi.domain.payment.SpiSinglePayment;
 import de.adorsys.psd2.xs2a.spi.domain.psu.SpiPsuData;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
-import de.adorsys.psd2.xs2a.spi.service.*;
+import de.adorsys.psd2.xs2a.spi.service.SinglePaymentSpi;
+import de.adorsys.psd2.xs2a.spi.service.SpiPayment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +75,8 @@ import java.util.Optional;
 import static de.adorsys.psd2.xs2a.core.pis.TransactionStatus.*;
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
 import static de.adorsys.psd2.xs2a.domain.TppMessageInformation.of;
-import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.*;
+import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.PIS_400;
+import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.PIS_404;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -87,21 +86,14 @@ public class PaymentServiceTest {
     private static final String PAYMENT_ID = "12345";
     private static final String WRONG_PAYMENT_ID = "777";
     private static final String PAYMENT_PRODUCT = "sepa-credit-transfers";
-    private static final String WRONG_PAYMENT_PRODUCT = "instant-sepa-credit-transfers";
     private static final String IBAN = "DE123456789";
     private static final String AMOUNT = "100";
-    private static final String WRONG_PAYMENT_TYPE_TEXT = "Service invalid for addressed payment";
-    private static final String WRONG_PAYMENT_PRODUCT_TEXT = "Payment product invalid for addressed payment";
     private static final String WRONG_PAYMENT_ID_TEXT = "Payment not found";
     private static final String FINALISED_TRANSACTION_STATUS_ERROR_TEXT = "Payment is finalised already and cannot be cancelled";
     private static final Currency CURRENCY = Currency.getInstance("EUR");
     private static final AspspConsentData ASPSP_CONSENT_DATA = new AspspConsentData(new byte[0], PAYMENT_ID);
     private static final PsuIdData PSU_ID_DATA = new PsuIdData(null, null, null, null);
     private static final SpiPsuData SPI_PSU_DATA = new SpiPsuData(null, null, null, null);
-    private static final ValidationResult VALIDATION_RESULT_SUCCESS = ValidationResult.valid();
-    private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_TYPE = ValidationResult.invalid(new MessageError(PIS_405, TppMessageInformation.of(SERVICE_INVALID_405, "Service invalid for adressed payment")));
-    private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_PRODUCT = ValidationResult.invalid(new MessageError(PIS_403, TppMessageInformation.of(PRODUCT_INVALID, "Payment product invalid for addressed payment")));
-    private static final ValidationResult VALIDATION_RESULT_WRONG_PAYMENT_ID = ValidationResult.invalid(new MessageError(PIS_404, TppMessageInformation.of(RESOURCE_UNKNOWN_404, "Payment not found")));
     private static final MessageError VALIDATION_ERROR = new MessageError(ErrorType.PIS_401, TppMessageInformation.of(UNAUTHORIZED));
 
     private final SinglePayment SINGLE_PAYMENT_OK = getSinglePayment(IBAN, AMOUNT);
@@ -133,10 +125,6 @@ public class PaymentServiceTest {
     @Mock
     private SinglePaymentSpi singlePaymentSpi;
     @Mock
-    private PeriodicPaymentSpi periodicPaymentSpi;
-    @Mock
-    private BulkPaymentSpi bulkPaymentSpi;
-    @Mock
     private AspspProfileServiceWrapper aspspProfileService;
     @Mock
     private Xs2aToSpiPsuDataMapper psuDataMapper;
@@ -163,22 +151,21 @@ public class PaymentServiceTest {
     @Mock
     private SpiPayment spiPayment;
     @Mock
-    private SpiSinglePayment spiSinglePayment;
-    @Mock
     private Xs2aUpdatePaymentStatusAfterSpiService updatePaymentStatusAfterSpiService;
     @Mock
     private StandardPaymentProductsResolver standardPaymentProductsResolver;
-    @Mock
-    private Xs2aToSpiPaymentInfoMapper xs2aToSpiPaymentInfoMapper;
-    @Mock
-    private CommonPaymentSpi commonPaymentSpi;
     @Mock
     private AccountReferenceValidationService referenceValidationService;
     @Mock
     private PaymentValidationService paymentValidationService;
     @Mock
-    private PaymentServiceValidator paymentServiceValidator;
-    private GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
+    private CreatePaymentValidator createPaymentValidator;
+    @Mock
+    private GetPaymentByIdValidator getPaymentByIdValidator;
+    @Mock
+    private GetPaymentStatusByIdValidator getPaymentStatusByIdValidator;
+    @Mock
+    private CancelPaymentValidator cancelPaymentValidator;
 
     @Before
     public void setUp() {
@@ -201,31 +188,14 @@ public class PaymentServiceTest {
         when(standardPaymentProductsResolver.isRawPaymentProduct(anyString()))
             .thenReturn(false);
 
-        when(paymentServiceValidator.validateCreatePayment(buildPaymentInitiationParameters(PaymentType.SINGLE)))
+        when(createPaymentValidator.validate(any(PaymentInitiationParameters.class)))
             .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateCreatePayment(buildPaymentInitiationParameters(PaymentType.PERIODIC)))
+        when(getPaymentByIdValidator.validate(any(GetPaymentByIdPO.class)))
             .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateCreatePayment(buildPaymentInitiationParameters(PaymentType.BULK)))
+        when(getPaymentStatusByIdValidator.validate(any(GetPaymentStatusByIdPO.class)))
             .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateCreatePayment(buildInvalidPaymentInitiationParameters()))
-            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
-
-        when(paymentServiceValidator.validateGetPaymentById(eq(pisCommonPaymentResponse), any(), anyString()))
+        when(cancelPaymentValidator.validate(any(CancelPaymentPO.class)))
             .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateGetPaymentById(eq(invalidPisCommonPaymentResponse), any(), anyString()))
-            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
-
-        when(paymentServiceValidator.validateGetPaymentStatusById(eq(pisCommonPaymentResponse), any(), anyString()))
-            .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateGetPaymentStatusById(eq(invalidPisCommonPaymentResponse), any(), anyString()))
-            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
-
-        when(paymentServiceValidator.validateCancelPayment(eq(pisCommonPaymentResponse), any(), anyString()))
-            .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateCancelPayment(eq(getFinalisedPisCommonPayment()), any(), anyString()))
-            .thenReturn(ValidationResult.valid());
-        when(paymentServiceValidator.validateCancelPayment(eq(invalidPisCommonPaymentResponse), any(), anyString()))
-            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
     }
 
     @Test
@@ -298,13 +268,15 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
+        when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
+            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
         PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, invalidPaymentInitiationParameters);
 
         // Then
-        verify(paymentServiceValidator).validateCreatePayment(invalidPaymentInitiationParameters);
+        verify(createPaymentValidator).validate(invalidPaymentInitiationParameters);
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -312,7 +284,7 @@ public class PaymentServiceTest {
 
     @Test
     public void createPeriodicPayment_Failure_ShouldReturnError() {
-        // When
+        // Given
         when(referenceValidationService.validateAccountReferences(any()))
             .thenReturn(buildFailedPeriodicPaymentInitiationResponse());
         when(createPeriodicPaymentService.createPayment(any(), any(), any()))
@@ -322,6 +294,7 @@ public class PaymentServiceTest {
         when(paymentValidationService.validatePeriodicPayment(any()))
             .thenReturn(buildFailedPeriodicPaymentInitiationResponse());
 
+        // When
         ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
         // Then
@@ -337,13 +310,15 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
+        when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
+            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
         PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, invalidPaymentInitiationParameters);
 
         // Then
-        verify(paymentServiceValidator).validateCreatePayment(invalidPaymentInitiationParameters);
+        verify(createPaymentValidator).validate(invalidPaymentInitiationParameters);
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -351,6 +326,7 @@ public class PaymentServiceTest {
 
     @Test
     public void createBulkPayments() {
+        // Given
         when(referenceValidationService.validateAccountReferences(any()))
             .thenReturn(getValidResponse());
         when(paymentValidationService.validateBulkPayment(any()))
@@ -367,12 +343,16 @@ public class PaymentServiceTest {
 
     @Test
     public void createBulkPayments_withInvalidInitiationParameters_shouldReturnValidationError() {
-        // When
+        // Given
         PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
+        when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
+            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
+
+        // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(BULK_PAYMENT_OK, invalidPaymentInitiationParameters);
 
         // Then
-        verify(paymentServiceValidator).validateCreatePayment(invalidPaymentInitiationParameters);
+        verify(createPaymentValidator).validate(invalidPaymentInitiationParameters);
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -418,6 +398,8 @@ public class PaymentServiceTest {
     @Test
     public void getPaymentById_withInvalidPaymentResponse_shouldReturnValidationError() {
         // Given
+        when(getPaymentByIdValidator.validate(any(GetPaymentByIdPO.class)))
+            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
         when(xs2aPisCommonPaymentService.getPisCommonPaymentById(anyString())).thenReturn(Optional.of(invalidPisCommonPaymentResponse));
         PaymentType paymentType = PaymentType.SINGLE;
 
@@ -425,7 +407,7 @@ public class PaymentServiceTest {
         ResponseObject actualResponse = paymentService.getPaymentById(paymentType, PAYMENT_PRODUCT, PAYMENT_ID);
 
         // Then
-        verify(paymentServiceValidator).validateGetPaymentById(invalidPisCommonPaymentResponse, paymentType, PAYMENT_PRODUCT);
+        verify(getPaymentByIdValidator).validate(new GetPaymentByIdPO(invalidPisCommonPaymentResponse, paymentType, PAYMENT_PRODUCT));
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -474,6 +456,8 @@ public class PaymentServiceTest {
     @Test
     public void getPaymentStatusById_withInvalidPaymentResponse_shouldReturnValidationError() {
         // Given
+        when(getPaymentStatusByIdValidator.validate(any(GetPaymentStatusByIdPO.class)))
+            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
         when(xs2aPisCommonPaymentService.getPisCommonPaymentById(anyString())).thenReturn(Optional.of(invalidPisCommonPaymentResponse));
         PaymentType paymentType = PaymentType.SINGLE;
 
@@ -481,7 +465,7 @@ public class PaymentServiceTest {
         ResponseObject actualResponse = paymentService.getPaymentStatusById(paymentType, PAYMENT_PRODUCT, PAYMENT_ID);
 
         // Then
-        verify(paymentServiceValidator).validateGetPaymentStatusById(invalidPisCommonPaymentResponse, paymentType, PAYMENT_PRODUCT);
+        verify(getPaymentStatusByIdValidator).validate(new GetPaymentStatusByIdPO(invalidPisCommonPaymentResponse, paymentType, PAYMENT_PRODUCT));
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -555,6 +539,8 @@ public class PaymentServiceTest {
     @Test
     public void cancelPayment_withInvalidPaymentResponse_shouldReturnValidationError() {
         // Given
+        when(cancelPaymentValidator.validate(any(CancelPaymentPO.class)))
+            .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
         when(xs2aPisCommonPaymentService.getPisCommonPaymentById(anyString())).thenReturn(Optional.of(invalidPisCommonPaymentResponse));
         PaymentType paymentType = PaymentType.SINGLE;
 
@@ -562,7 +548,7 @@ public class PaymentServiceTest {
         ResponseObject actualResponse = paymentService.cancelPayment(paymentType, PAYMENT_PRODUCT, PAYMENT_ID);
 
         // Then
-        verify(paymentServiceValidator).validateCancelPayment(invalidPisCommonPaymentResponse, paymentType, PAYMENT_PRODUCT);
+        verify(cancelPaymentValidator).validate(new CancelPaymentPO(invalidPisCommonPaymentResponse, paymentType, PAYMENT_PRODUCT));
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);

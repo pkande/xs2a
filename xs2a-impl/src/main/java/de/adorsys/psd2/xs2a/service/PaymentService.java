@@ -40,7 +40,7 @@ import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.PaymentServiceValidator;
+import de.adorsys.psd2.xs2a.service.validator.pis.*;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.service.SpiPayment;
 import lombok.AllArgsConstructor;
@@ -82,7 +82,10 @@ public class PaymentService {
     private final RequestProviderService requestProviderService;
     private final PaymentValidationService paymentValidationService;
     private final StandardPaymentProductsResolver standardPaymentProductsResolver;
-    private final PaymentServiceValidator paymentServiceValidator;
+    private final CreatePaymentValidator createPaymentValidator;
+    private final GetPaymentByIdValidator getPaymentByIdValidator;
+    private final GetPaymentStatusByIdValidator getPaymentStatusByIdValidator;
+    private final CancelPaymentValidator cancelPaymentValidator;
 
     /**
      * Initiates a payment though "payment service" corresponding service method
@@ -94,9 +97,9 @@ public class PaymentService {
     public ResponseObject createPayment(Object payment, PaymentInitiationParameters paymentInitiationParameters) {
         xs2aEventService.recordTppRequest(EventType.PAYMENT_INITIATION_REQUEST_RECEIVED, payment);
 
-        ValidationResult validationResult = paymentServiceValidator.validateCreatePayment(paymentInitiationParameters);
+        ValidationResult validationResult = createPaymentValidator.validate(paymentInitiationParameters);
         if (validationResult.isNotValid()) {
-            return ResponseObject.builder()
+            return ResponseObject.<TransactionStatus>builder()
                        .fail(validationResult.getMessageError())
                        .build();
         }
@@ -143,7 +146,7 @@ public class PaymentService {
         }
 
         PisCommonPaymentResponse commonPaymentResponse = pisCommonPaymentOptional.get();
-        ValidationResult validationResult = paymentServiceValidator.validateGetPaymentById(commonPaymentResponse, paymentType, paymentProduct);
+        ValidationResult validationResult = getPaymentByIdValidator.validate(new GetPaymentByIdPO(commonPaymentResponse, paymentType, paymentProduct));
         if (validationResult.isNotValid()) {
             return ResponseObject.builder()
                        .fail(validationResult.getMessageError())
@@ -198,7 +201,7 @@ public class PaymentService {
         }
 
         PisCommonPaymentResponse pisCommonPaymentResponse = pisCommonPaymentOptional.get();
-        ValidationResult validationResult = paymentServiceValidator.validateGetPaymentStatusById(pisCommonPaymentResponse, paymentType, paymentProduct);
+        ValidationResult validationResult = getPaymentStatusByIdValidator.validate(new GetPaymentStatusByIdPO(pisCommonPaymentResponse, paymentType, paymentProduct));
         if (validationResult.isNotValid()) {
             return ResponseObject.<TransactionStatus>builder()
                        .fail(validationResult.getMessageError())
@@ -273,7 +276,7 @@ public class PaymentService {
         }
 
         PisCommonPaymentResponse pisCommonPaymentResponse = pisCommonPaymentOptional.get();
-        ValidationResult validationResult = paymentServiceValidator.validateCancelPayment(pisCommonPaymentResponse, paymentType, paymentProduct);
+        ValidationResult validationResult = cancelPaymentValidator.validate(new CancelPaymentPO(pisCommonPaymentResponse, paymentType, paymentProduct));
         if (validationResult.isNotValid()) {
             return ResponseObject.<CancelPaymentResponse>builder()
                        .fail(validationResult.getMessageError())

@@ -18,18 +18,22 @@ package de.adorsys.psd2.xs2a.service.validator.tpp;
 
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
+import de.adorsys.psd2.xs2a.service.RequestProviderService;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.UNAUTHORIZED;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PisTppInfoValidator {
-    private final TppInfoValidationService tppInfoValidationService;
+    private final TppInfoCheckerService tppInfoCheckerService;
+    private final RequestProviderService requestProviderService;
 
     /**
      * Validates the TPP object contained in the payment by checking whether it matches current TPP
@@ -38,7 +42,9 @@ public class PisTppInfoValidator {
      * @return validation result
      */
     public ValidationResult validateTpp(@Nullable TppInfo tppInfoInPayment) {
-        if (tppInfoValidationService.differsFromTppInRequest(tppInfoInPayment)) {
+        if (tppInfoCheckerService.differsFromTppInRequest(tppInfoInPayment)) {
+            log.info("X-Request-ID: [{}], TPP: [{}]. TPP validation has failed: TPP in payment is invalid",
+                     requestProviderService.getRequestId(), tppInfoInPayment);
             return ValidationResult.invalid(ErrorType.PIS_401, TppMessageInformation.of(UNAUTHORIZED, "TPP certificate doesn’t match the initial request"));
         }
 

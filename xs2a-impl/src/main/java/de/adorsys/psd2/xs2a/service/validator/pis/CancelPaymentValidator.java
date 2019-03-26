@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.service.validator.pis;
 
+import de.adorsys.psd2.consent.api.pis.proto.PisCommonPaymentResponse;
 import de.adorsys.psd2.xs2a.service.validator.GetCommonPaymentByIdResponseValidator;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Validator to be used for validating get payment by ID request according to some business rules
+ * Validator to be used for validating cancel payment request according to some business rules
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GetPaymentByIdValidator extends AbstractPisTppValidator<GetPaymentByIdPO> {
+public class CancelPaymentValidator extends AbstractPisTppValidator<CancelPaymentPO> {
     private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
 
     /**
-     * Validates get payment by ID request by checking whether:
+     * Validates cancel payment request by checking whether:
      * <ul>
      * <li>given payment's type and product are valid for the payment</li>
      * </ul>
@@ -41,16 +42,16 @@ public class GetPaymentByIdValidator extends AbstractPisTppValidator<GetPaymentB
      * @return valid result if the payment is valid, invalid result with appropriate error otherwise
      */
     @Override
-    protected ValidationResult executeBusinessValidation(GetPaymentByIdPO paymentObject) {
-        ValidationResult getCommonPaymentValidationResult =
-            getCommonPaymentByIdResponseValidator.validateRequest(paymentObject.getPisCommonPaymentResponse(),
-                                                                  paymentObject.getPaymentType(),
-                                                                  paymentObject.getPaymentProduct());
+    protected ValidationResult executeBusinessValidation(CancelPaymentPO paymentObject) {
+        PisCommonPaymentResponse pisCommonPaymentResponse = paymentObject.getPisCommonPaymentResponse();
+
+        ValidationResult getCommonPaymentValidationResult = getCommonPaymentByIdResponseValidator.validateRequest(pisCommonPaymentResponse,
+                                                                                                                  paymentObject.getPaymentType(),
+                                                                                                                  paymentObject.getPaymentProduct());
         if (getCommonPaymentValidationResult.isNotValid()) {
             return getCommonPaymentValidationResult;
         }
 
         return ValidationResult.valid();
-
     }
 }

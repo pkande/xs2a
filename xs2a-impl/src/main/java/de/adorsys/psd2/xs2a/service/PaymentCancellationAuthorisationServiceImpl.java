@@ -29,11 +29,11 @@ import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuData
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.authorization.pis.PisScaAuthorisationService;
 import de.adorsys.psd2.xs2a.service.authorization.pis.PisScaAuthorisationServiceResolver;
-import de.adorsys.psd2.xs2a.service.consent.PisPsuDataService;
 import de.adorsys.psd2.xs2a.service.consent.Xs2aPisCommonPaymentService;
 import de.adorsys.psd2.xs2a.service.event.Xs2aEventService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.PaymentCancellationAuthorisationServiceValidator;
+import de.adorsys.psd2.xs2a.service.validator.pis.*;
+import de.adorsys.psd2.xs2a.service.validator.pis.authorisation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -49,10 +49,12 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
     private static final String PAYMENT_NOT_FOUND_MESSAGE = "Payment not found";
 
     private final PisScaAuthorisationServiceResolver pisScaAuthorisationServiceResolver;
-    private final PisPsuDataService pisPsuDataService;
     private final Xs2aEventService xs2aEventService;
     private final Xs2aPisCommonPaymentService xs2aPisCommonPaymentService;
-    private final PaymentCancellationAuthorisationServiceValidator paymentCancellationAuthorisationServiceValidator;
+    private final CreatePisCancellationAuthorisationValidator createPisCancellationAuthorisationValidator;
+    private final UpdatePisCancellationPsuDataValidator updatePisCancellationPsuDataValidator;
+    private final GetPaymentCancellationAuthorisationsValidator getPaymentAuthorisationsValidator;
+    private final GetPaymentCancellationAuthorisationScaStatusValidator getPaymentAuthorisationScaStatusValidator;
 
     /**
      * Creates authorisation for payment cancellation request if given psu data is valid
@@ -74,7 +76,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        ValidationResult validationResult = paymentCancellationAuthorisationServiceValidator.validateCreatePisCancellationAuthorisation(pisCommonPaymentResponse.get(), psuData);
+        ValidationResult validationResult = createPisCancellationAuthorisationValidator.validate(new CreatePisCancellationAuthorisationPO(pisCommonPaymentResponse.get(), psuData));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aCreatePisCancellationAuthorisationResponse>builder()
                        .fail(validationResult.getMessageError())
@@ -109,7 +111,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        ValidationResult validationResult = paymentCancellationAuthorisationServiceValidator.validateUpdatePisCancellationPsuData(pisCommonPaymentResponse.get(), request.getAuthorisationId());
+        ValidationResult validationResult = updatePisCancellationPsuDataValidator.validate(new UpdatePisCancellationPsuDataPO(pisCommonPaymentResponse.get(), request.getAuthorisationId()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aUpdatePisCommonPaymentPsuDataResponse>builder()
                        .fail(validationResult.getMessageError())
@@ -146,7 +148,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        ValidationResult validationResult = paymentCancellationAuthorisationServiceValidator.validateGetPaymentInitiationCancellationAuthorisationInformation(pisCommonPaymentResponse.get());
+        ValidationResult validationResult = getPaymentAuthorisationsValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aPaymentCancellationAuthorisationSubResource>builder()
                        .fail(validationResult.getMessageError())
@@ -179,7 +181,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        ValidationResult validationResult = paymentCancellationAuthorisationServiceValidator.validateGetPaymentCancellationAuthorisationScaStatus(pisCommonPaymentResponse.get());
+        ValidationResult validationResult = getPaymentAuthorisationScaStatusValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<ScaStatus>builder()
                        .fail(validationResult.getMessageError())

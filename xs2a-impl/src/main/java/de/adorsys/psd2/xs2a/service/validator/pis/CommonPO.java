@@ -16,8 +16,22 @@
 
 package de.adorsys.psd2.xs2a.service.validator.pis;
 
+import de.adorsys.psd2.consent.api.pis.proto.PisCommonPaymentResponse;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
+import de.adorsys.psd2.xs2a.service.validator.TppInfoProvider;
+import lombok.Value;
+import org.jetbrains.annotations.NotNull;
 
-public interface TppInfoProvider {
-    TppInfo getTppInfo();
+/**
+ * Common payment object that contains necessary information for validating payment
+ */
+@Value
+public class CommonPO implements TppInfoProvider {
+    @NotNull
+    private PisCommonPaymentResponse pisCommonPaymentResponse;
+
+    @Override
+    public TppInfo getTppInfo() {
+        return pisCommonPaymentResponse.getTppInfo();
+    }
 }

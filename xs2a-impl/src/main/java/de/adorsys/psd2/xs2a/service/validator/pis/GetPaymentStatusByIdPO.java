@@ -24,10 +24,10 @@ import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Payment object that contains necessary information for validating payment in {@link GetPaymentByIdValidator}
+ * Payment object that contains necessary information for validating payment in {@link GetPaymentStatusByIdValidator}
  */
 @Value
-public class GetPaymentByIdPO implements TppInfoProvider {
+public class GetPaymentStatusByIdPO implements TppInfoProvider {
     @NotNull
     private final PisCommonPaymentResponse pisCommonPaymentResponse;
     private final PaymentType paymentType;

@@ -32,7 +32,8 @@ import de.adorsys.psd2.xs2a.service.authorization.pis.PisScaAuthorisationService
 import de.adorsys.psd2.xs2a.service.consent.Xs2aPisCommonPaymentService;
 import de.adorsys.psd2.xs2a.service.event.Xs2aEventService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.PaymentAuthorisationServiceValidator;
+import de.adorsys.psd2.xs2a.service.validator.pis.*;
+import de.adorsys.psd2.xs2a.service.validator.pis.authorisation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,10 @@ public class PaymentAuthorisationServiceImpl implements PaymentAuthorisationServ
     private final Xs2aEventService xs2aEventService;
     private final PisScaAuthorisationServiceResolver pisScaAuthorisationServiceResolver;
     private final Xs2aPisCommonPaymentService pisCommonPaymentService;
-    private final PaymentAuthorisationServiceValidator paymentAuthorisationServiceValidator;
+    private final CreatePisAuthorisationValidator createPisAuthorisationValidator;
+    private final UpdatePisCommonPaymentPsuDataValidator updatePisCommonPaymentPsuDataValidator;
+    private final GetPaymentInitiationAuthorisationsValidator getPaymentAuthorisationsValidator;
+    private final GetPaymentInitiationAuthorisationScaStatusValidator getPaymentAuthorisationScaStatusValidator;
 
     /**
      * Creates authorisation for payment request if given psu data is valid
@@ -72,7 +76,7 @@ public class PaymentAuthorisationServiceImpl implements PaymentAuthorisationServ
                        .build();
         }
 
-        ValidationResult validationResult = paymentAuthorisationServiceValidator.validateCreatePisAuthorisation(pisCommonPaymentResponse.get());
+        ValidationResult validationResult = createPisAuthorisationValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aCreatePisAuthorisationResponse>builder()
                        .fail(validationResult.getMessageError())
@@ -106,7 +110,7 @@ public class PaymentAuthorisationServiceImpl implements PaymentAuthorisationServ
                        .build();
         }
 
-        ValidationResult validationResult = paymentAuthorisationServiceValidator.validateUpdatePisCommonPaymentPsuData(pisCommonPaymentResponse.get(), request.getAuthorisationId());
+        ValidationResult validationResult = updatePisCommonPaymentPsuDataValidator.validate(new UpdatePisCommonPaymentPsuDataPO(pisCommonPaymentResponse.get(), request.getAuthorisationId()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aUpdatePisCommonPaymentPsuDataResponse>builder()
                        .fail(validationResult.getMessageError())
@@ -143,7 +147,7 @@ public class PaymentAuthorisationServiceImpl implements PaymentAuthorisationServ
                        .build();
         }
 
-        ValidationResult validationResult = paymentAuthorisationServiceValidator.validateGetPaymentInitiationAuthorisations(pisCommonPaymentResponse.get());
+        ValidationResult validationResult = getPaymentAuthorisationsValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aAuthorisationSubResources>builder()
                        .fail(validationResult.getMessageError())
@@ -176,7 +180,7 @@ public class PaymentAuthorisationServiceImpl implements PaymentAuthorisationServ
                        .build();
         }
 
-        ValidationResult validationResult = paymentAuthorisationServiceValidator.validateGetPaymentInitiationAuthorisationScaStatus(pisCommonPaymentResponse.get());
+        ValidationResult validationResult = getPaymentAuthorisationScaStatusValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<ScaStatus>builder()
                        .fail(validationResult.getMessageError())

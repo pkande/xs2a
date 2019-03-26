@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.service.validator.pis;
+package de.adorsys.psd2.xs2a.service.validator;
 
-import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import org.jetbrains.annotations.NotNull;
+import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 
-public interface BusinessValidator<T> {
-    ValidationResult validate(@NotNull T object);
+public interface TppInfoProvider {
+    TppInfo getTppInfo();
 }

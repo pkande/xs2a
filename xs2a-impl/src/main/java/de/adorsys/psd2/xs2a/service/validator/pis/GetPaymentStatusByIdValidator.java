@@ -23,16 +23,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Validator to be used for validating get payment by ID request according to some business rules
+ * Validator to be used for validating get payment status by ID request according to some business rules
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GetPaymentByIdValidator extends AbstractPisTppValidator<GetPaymentByIdPO> {
+public class GetPaymentStatusByIdValidator extends AbstractPisTppValidator<GetPaymentStatusByIdPO> {
     private final GetCommonPaymentByIdResponseValidator getCommonPaymentByIdResponseValidator;
 
     /**
-     * Validates get payment by ID request by checking whether:
+     * Validates get payment status by ID request by checking whether:
      * <ul>
      * <li>given payment's type and product are valid for the payment</li>
      * </ul>
@@ -41,7 +41,7 @@ public class GetPaymentByIdValidator extends AbstractPisTppValidator<GetPaymentB
      * @return valid result if the payment is valid, invalid result with appropriate error otherwise
      */
     @Override
-    protected ValidationResult executeBusinessValidation(GetPaymentByIdPO paymentObject) {
+    protected ValidationResult executeBusinessValidation(GetPaymentStatusByIdPO paymentObject) {
         ValidationResult getCommonPaymentValidationResult =
             getCommonPaymentByIdResponseValidator.validateRequest(paymentObject.getPisCommonPaymentResponse(),
                                                                   paymentObject.getPaymentType(),
@@ -51,6 +51,5 @@ public class GetPaymentByIdValidator extends AbstractPisTppValidator<GetPaymentB
         }
 
         return ValidationResult.valid();
-
     }
 }
