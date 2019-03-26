@@ -19,13 +19,14 @@ package de.adorsys.psd2.xs2a.core.tpp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 @Data
+@EqualsAndHashCode(of = {"authorisationNumber", "authorityId"})
 public class TppInfo {
     @ApiModelProperty(value = "Authorization number", required = true, example = "12345987")
     private String authorisationNumber;
@@ -73,24 +74,5 @@ public class TppInfo {
     public boolean isValid() {
         return StringUtils.isNotBlank(authorisationNumber)
                    && StringUtils.isNotBlank(authorityId);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TppInfo tppInfo = (TppInfo) o;
-        return Objects.equals(authorisationNumber, tppInfo.authorisationNumber) &&
-                   Objects.equals(authorityId, tppInfo.authorityId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(authorisationNumber, authorityId);
     }
 }
