@@ -43,7 +43,7 @@ public class PisTppInfoValidator {
      */
     public ValidationResult validateTpp(@Nullable TppInfo tppInfoInPayment) {
         if (tppInfoCheckerService.differsFromTppInRequest(tppInfoInPayment)) {
-            log.info("X-Request-ID: [{}]. TPP validation has failed: TPP in payment is invalid",
+            log.info("X-Request-ID: [{}]. TPP validation has failed: TPP in payment doesn't match the TPP in request",
                      requestProviderService.getRequestId());
             return ValidationResult.invalid(ErrorType.PIS_401, TppMessageInformation.of(UNAUTHORIZED, "TPP certificate doesn’t match the initial request"));
         }
