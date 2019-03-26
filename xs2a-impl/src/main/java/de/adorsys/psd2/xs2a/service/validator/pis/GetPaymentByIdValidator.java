@@ -51,6 +51,5 @@ public class GetPaymentByIdValidator extends AbstractPisTppValidator<GetPaymentB
         }
 
         return ValidationResult.valid();
-
     }
 }
