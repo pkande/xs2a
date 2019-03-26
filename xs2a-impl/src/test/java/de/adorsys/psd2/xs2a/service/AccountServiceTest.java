@@ -46,6 +46,7 @@ import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.service.validator.ValueValidatorService;
+import de.adorsys.psd2.xs2a.service.validator.account.*;
 import de.adorsys.psd2.xs2a.service.validator.ais.CommonConsentObject;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.*;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
@@ -125,8 +126,6 @@ public class AccountServiceTest {
     @Mock
     private ValueValidatorService validatorService;
     @Mock
-    private ConsentService consentService;
-    @Mock
     private Xs2aAisConsentService aisConsentService;
     @Mock
     private Xs2aAisConsentMapper consentMapper;
@@ -160,6 +159,16 @@ public class AccountServiceTest {
     private Transactions transactions;
     @Mock
     private SpiErrorMapper spiErrorMapper;
+    @Mock
+    private GetAccountListValidator getAccountListValidator;
+    @Mock
+    private GetAccountDetailsValidator getAccountDetailsValidator;
+    @Mock
+    private GetBalancesReportValidator getBalancesReportValidator;
+    @Mock
+    private GetTransactionsReportByPeriodValidator getTransactionsReportByPeriodValidator;
+    @Mock
+    private GetTransactionDetailsValidator getTransactionDetailsValidator;
 
     @Mock
     private GetAccountListValidator getAccountListValidator;
@@ -197,8 +206,12 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetailsList_Failure_AllowedAccountDataHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(ERROR_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+        when(getAccountListValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Map<String, List<Xs2aAccountDetails>>> actualResponse = accountService.getAccountList(CONSENT_ID, WITH_BALANCE);
 
@@ -209,8 +222,13 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetailsList_Failure_SpiResponseHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getAccountListValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
@@ -237,8 +255,13 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetailsList_Success() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getAccountListValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
@@ -273,10 +296,15 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetailsList_shouldUpdateAccountReferences() {
-        // Given
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
 
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getAccountListValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
+
+        // Given
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
 
@@ -310,8 +338,6 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountList_Success_ShouldRecordEvent() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
         List<SpiAccountDetails> spiAccountDetailsList = Collections.singletonList(spiAccountDetails);
@@ -358,8 +384,13 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetails_Failure_AllowedAccountDataHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(ERROR_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getAccountDetailsValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
@@ -370,8 +401,13 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetails_Failure_SpiResponseHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getAccountDetailsValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
@@ -381,9 +417,6 @@ public class AccountServiceTest {
 
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
@@ -404,8 +437,12 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetails_failure_accountReferenceNotFoundInAccountAccess() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(buildEmptyAllowedAccountDataResponse());
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+        when(getAccountDetailsValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
@@ -416,8 +453,13 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetails_Success() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getAccountDetailsValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
@@ -428,14 +470,8 @@ public class AccountServiceTest {
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
 
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
-
         when(accountDetailsMapper.mapToXs2aAccountDetails(spiAccountDetails))
             .thenReturn(xs2aAccountDetails);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
@@ -453,20 +489,14 @@ public class AccountServiceTest {
 
     @Test
     public void getAccountDetails_Success_ShouldRecordEvent() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
         when(accountSpi.requestAccountDetailForAccount(SPI_CONTEXT_DATA, WITH_BALANCE, SPI_ACCOUNT_REFERENCE, SPI_ACCOUNT_CONSENT, ASPSP_CONSENT_DATA))
             .thenReturn(buildSuccessSpiResponse(spiAccountDetails));
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
         when(accountDetailsMapper.mapToXs2aAccountDetails(spiAccountDetails))
             .thenReturn(xs2aAccountDetails);
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
 
@@ -504,8 +534,12 @@ public class AccountServiceTest {
 
     @Test
     public void getBalancesReport_Failure_AllowedAccountDataHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(ERROR_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+        when(getBalancesReportValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Xs2aBalancesReport> actualResponse = accountService.getBalancesReport(CONSENT_ID, ACCOUNT_ID);
 
@@ -516,17 +550,18 @@ public class AccountServiceTest {
 
     @Test
     public void getBalancesReport_Failure_SpiResponseHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+        when(getBalancesReportValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
 
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(accountSpi.requestBalancesForAccount(SPI_CONTEXT_DATA, SPI_ACCOUNT_REFERENCE, SPI_ACCOUNT_CONSENT, ASPSP_CONSENT_DATA))
             .thenReturn(buildErrorSpiResponse(Collections.emptyList()));
@@ -550,8 +585,12 @@ public class AccountServiceTest {
 
     @Test
     public void getBalancesReport_Failure_ConsentNotContainsAccountReference() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(buildEmptyAllowedAccountDataResponse());
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+        when(getBalancesReportValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
@@ -569,8 +608,12 @@ public class AccountServiceTest {
 
     @Test
     public void getBalancesReport_Success() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+        when(getBalancesReportValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
@@ -586,9 +629,6 @@ public class AccountServiceTest {
 
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
@@ -606,8 +646,6 @@ public class AccountServiceTest {
 
     @Test
     public void getBalancesReport_Success_ShouldRecordEvent() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
             .thenReturn(ASPSP_CONSENT_DATA);
         when(accountSpi.requestBalancesForAccount(SPI_CONTEXT_DATA, SPI_ACCOUNT_REFERENCE, SPI_ACCOUNT_CONSENT, ASPSP_CONSENT_DATA))
@@ -618,8 +656,6 @@ public class AccountServiceTest {
             .thenReturn(XS2A_ACCOUNT_REFERENCE);
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
 
@@ -657,8 +693,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionsReportByPeriod_Failure_AllowedAccountDataHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(ERROR_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionsReportByPeriodValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Xs2aTransactionsReport> actualResponse = accountService.getTransactionsReportByPeriod(CONSENT_ID, ACCOUNT_ID, MediaType.APPLICATION_JSON_VALUE, WITH_BALANCE, DATE_FROM, DATE_TO, BOOKING_STATUS);
 
@@ -669,8 +710,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionsReportByPeriod_Failure_SpiResponseHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionsReportByPeriodValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.valid());
 
         doNothing()
             .when(validatorService).validateAccountIdPeriod(ACCOUNT_ID, DATE_FROM, DATE_TO);
@@ -683,9 +729,6 @@ public class AccountServiceTest {
 
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
@@ -709,8 +752,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionsReportByPeriod_failure_accountReferenceNotFoundInAccountAccess() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(buildEmptyAllowedAccountDataResponse());
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionsReportByPeriodValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Xs2aTransactionsReport> actualResponse = accountService.getTransactionsReportByPeriod(CONSENT_ID, ACCOUNT_ID, MediaType.APPLICATION_JSON_VALUE, WITH_BALANCE, DATE_FROM, DATE_TO, BOOKING_STATUS);
 
@@ -721,11 +769,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionsReportByPeriod_Success() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
 
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionsReportByPeriodValidator.validate(accountConsent, ACCOUNT_ID, WITH_BALANCE))
+            .thenReturn(ValidationResult.valid());
 
         doNothing()
             .when(validatorService).validateAccountIdPeriod(ACCOUNT_ID, DATE_FROM, DATE_TO);
@@ -749,9 +799,6 @@ public class AccountServiceTest {
 
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(balanceMapper.mapToXs2aBalanceList(Collections.emptyList()))
             .thenReturn(Collections.emptyList());
@@ -774,12 +821,6 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionsReportByPeriod_Success_ShouldRecordEvent() {
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
-
-        when(consentService.getValidatedConsent(CONSENT_ID, WITH_BALANCE))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
-
         doNothing()
             .when(validatorService).validateAccountIdPeriod(ACCOUNT_ID, DATE_FROM, DATE_TO);
 
@@ -796,8 +837,6 @@ public class AccountServiceTest {
             .thenReturn(Optional.of(XS2A_ACCOUNT_REFERENCE));
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
         when(balanceMapper.mapToXs2aBalanceList(Collections.emptyList()))
             .thenReturn(Collections.emptyList());
         when(consentMapper.mapToSpiAccountConsent(any()))
@@ -837,8 +876,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionDetails_Failure_AllowedAccountDataHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(ERROR_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionDetailsValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Transactions> actualResponse = accountService.getTransactionDetails(CONSENT_ID, ACCOUNT_ID, TRANSACTION_ID);
 
@@ -849,8 +893,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionDetails_Failure_SpiResponseHasError() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionDetailsValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         doNothing()
             .when(validatorService).validateAccountIdTransactionId(ACCOUNT_ID, TRANSACTION_ID);
@@ -860,9 +909,6 @@ public class AccountServiceTest {
 
         when(xs2aToSpiAccountReferenceMapper.mapToSpiAccountReference(XS2A_ACCOUNT_REFERENCE))
             .thenReturn(SPI_ACCOUNT_REFERENCE);
-
-        when(consentService.isValidAccountByAccess(anyString(), any()))
-            .thenReturn(true);
 
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
@@ -886,8 +932,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionDetails_failure_accountReferenceNotFoundInAccountAccess() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(buildEmptyAllowedAccountDataResponse());
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionDetailsValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Transactions> actualResponse = accountService.getTransactionDetails(CONSENT_ID, ACCOUNT_ID, TRANSACTION_ID);
 
@@ -899,8 +950,13 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionDetails_Success() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
+        AccountConsent accountConsent = createConsent(CONSENT_ID, createAccountAccess(XS2A_ACCOUNT_REFERENCE));
+
+        when(aisConsentService.getAccountConsentById(CONSENT_ID))
+            .thenReturn(accountConsent);
+
+        when(getTransactionDetailsValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         doNothing()
             .when(validatorService).validateAccountIdTransactionId(ACCOUNT_ID, TRANSACTION_ID);
@@ -935,8 +991,6 @@ public class AccountServiceTest {
 
     @Test
     public void getTransactionDetails_Success_ShouldRecordEvent() {
-        when(consentService.getValidatedConsent(CONSENT_ID))
-            .thenReturn(SUCCESS_ALLOWED_ACCOUNT_DATA_RESPONSE);
         doNothing()
             .when(validatorService).validateAccountIdTransactionId(ACCOUNT_ID, TRANSACTION_ID);
         when(aisConsentDataService.getAspspConsentDataByConsentId(CONSENT_ID))
