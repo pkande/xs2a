@@ -99,7 +99,7 @@ public class PaymentService {
 
         ValidationResult validationResult = createPaymentValidator.validate(paymentInitiationParameters);
         if (validationResult.isNotValid()) {
-            return ResponseObject.<TransactionStatus>builder()
+            return ResponseObject.builder()
                        .fail(validationResult.getMessageError())
                        .build();
         }
