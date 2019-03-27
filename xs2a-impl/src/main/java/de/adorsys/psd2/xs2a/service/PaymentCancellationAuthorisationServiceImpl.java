@@ -32,8 +32,8 @@ import de.adorsys.psd2.xs2a.service.authorization.pis.PisScaAuthorisationService
 import de.adorsys.psd2.xs2a.service.consent.Xs2aPisCommonPaymentService;
 import de.adorsys.psd2.xs2a.service.event.Xs2aEventService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.*;
-import de.adorsys.psd2.xs2a.service.validator.pis.authorisation.*;
+import de.adorsys.psd2.xs2a.service.validator.pis.CommonPaymentObject;
+import de.adorsys.psd2.xs2a.service.validator.pis.authorisation.cancellation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -148,7 +148,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        ValidationResult validationResult = getPaymentAuthorisationsValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
+        ValidationResult validationResult = getPaymentAuthorisationsValidator.validate(new CommonPaymentObject(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aPaymentCancellationAuthorisationSubResource>builder()
                        .fail(validationResult.getMessageError())
@@ -181,7 +181,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        ValidationResult validationResult = getPaymentAuthorisationScaStatusValidator.validate(new CommonPO(pisCommonPaymentResponse.get()));
+        ValidationResult validationResult = getPaymentAuthorisationScaStatusValidator.validate(new CommonPaymentObject(pisCommonPaymentResponse.get()));
         if (validationResult.isNotValid()) {
             return ResponseObject.<ScaStatus>builder()
                        .fail(validationResult.getMessageError())

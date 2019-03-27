@@ -21,7 +21,6 @@ import de.adorsys.psd2.xs2a.service.validator.BusinessValidator;
 import de.adorsys.psd2.xs2a.service.validator.TppInfoProvider;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.service.validator.tpp.PisTppInfoValidator;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Component;
  *
  * @param <T> type of object to be checked
  */
-@Slf4j
 @Component
 public abstract class AbstractPisTppValidator<T extends TppInfoProvider> implements BusinessValidator<T> {
     private PisTppInfoValidator pisTppInfoValidator;

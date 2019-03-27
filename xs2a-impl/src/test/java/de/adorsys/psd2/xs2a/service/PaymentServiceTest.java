@@ -51,7 +51,7 @@ import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.*;
+import de.adorsys.psd2.xs2a.service.validator.pis.payment.*;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.domain.psu.SpiPsuData;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;

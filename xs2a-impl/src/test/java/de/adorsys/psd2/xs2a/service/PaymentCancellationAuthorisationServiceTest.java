@@ -37,8 +37,8 @@ import de.adorsys.psd2.xs2a.service.consent.Xs2aPisCommonPaymentService;
 import de.adorsys.psd2.xs2a.service.event.Xs2aEventService;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.pis.CommonPO;
-import de.adorsys.psd2.xs2a.service.validator.pis.authorisation.*;
+import de.adorsys.psd2.xs2a.service.validator.pis.CommonPaymentObject;
+import de.adorsys.psd2.xs2a.service.validator.pis.authorisation.cancellation.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,9 +115,9 @@ public class PaymentCancellationAuthorisationServiceTest {
             .thenReturn(ValidationResult.valid());
         when(updatePisCancellationPsuDataValidator.validate(new UpdatePisCancellationPsuDataPO(buildPisCommonPaymentResponse(), AUTHORISATION_ID)))
             .thenReturn(ValidationResult.valid());
-        when(getPaymentCancellationAuthorisationsValidator.validate(new CommonPO(buildPisCommonPaymentResponse())))
+        when(getPaymentCancellationAuthorisationsValidator.validate(new CommonPaymentObject(buildPisCommonPaymentResponse())))
             .thenReturn(ValidationResult.valid());
-        when(getPaymentCancellationAuthorisationScaStatusValidator.validate(new CommonPO(buildPisCommonPaymentResponse())))
+        when(getPaymentCancellationAuthorisationScaStatusValidator.validate(new CommonPaymentObject(buildPisCommonPaymentResponse())))
             .thenReturn(ValidationResult.valid());
     }
 
@@ -215,7 +215,7 @@ public class PaymentCancellationAuthorisationServiceTest {
         // Given:
         when(pisScaAuthorisationService.getCancellationAuthorisationSubResources(anyString()))
             .thenReturn(Optional.of(new Xs2aPaymentCancellationAuthorisationSubResource(Collections.emptyList())));
-        when(getPaymentCancellationAuthorisationsValidator.validate(new CommonPO(INVALID_PIS_COMMON_PAYMENT_RESPONSE)))
+        when(getPaymentCancellationAuthorisationsValidator.validate(new CommonPaymentObject(INVALID_PIS_COMMON_PAYMENT_RESPONSE)))
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
@@ -223,7 +223,7 @@ public class PaymentCancellationAuthorisationServiceTest {
             paymentCancellationAuthorisationService.getPaymentInitiationCancellationAuthorisationInformation(WRONG_PAYMENT_ID);
 
         // Then
-        verify(getPaymentCancellationAuthorisationsValidator).validate(new CommonPO(INVALID_PIS_COMMON_PAYMENT_RESPONSE));
+        verify(getPaymentCancellationAuthorisationsValidator).validate(new CommonPaymentObject(INVALID_PIS_COMMON_PAYMENT_RESPONSE));
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -272,7 +272,7 @@ public class PaymentCancellationAuthorisationServiceTest {
     @Test
     public void getPaymentCancellationAuthorisationScaStatus_withInvalidPayment_shouldReturnValidationError() {
         // Given
-        when(getPaymentCancellationAuthorisationScaStatusValidator.validate(new CommonPO(INVALID_PIS_COMMON_PAYMENT_RESPONSE)))
+        when(getPaymentCancellationAuthorisationScaStatusValidator.validate(new CommonPaymentObject(INVALID_PIS_COMMON_PAYMENT_RESPONSE)))
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
@@ -281,7 +281,7 @@ public class PaymentCancellationAuthorisationServiceTest {
                                                                                                  WRONG_CANCELLATION_AUTHORISATION_ID);
 
         // Then
-        verify(getPaymentCancellationAuthorisationScaStatusValidator).validate(new CommonPO(INVALID_PIS_COMMON_PAYMENT_RESPONSE));
+        verify(getPaymentCancellationAuthorisationScaStatusValidator).validate(new CommonPaymentObject(INVALID_PIS_COMMON_PAYMENT_RESPONSE));
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
