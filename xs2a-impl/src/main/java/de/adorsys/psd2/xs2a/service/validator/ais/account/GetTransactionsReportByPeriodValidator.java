@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.service.validator.account;
+package de.adorsys.psd2.xs2a.service.validator.ais.account;
 
 import de.adorsys.psd2.xs2a.domain.consent.AccountConsent;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.account.common.AccountConsentValidator;
+import de.adorsys.psd2.xs2a.service.validator.ais.account.common.AccountConsentValidator;
+import de.adorsys.psd2.xs2a.service.validator.ais.account.common.PermittedAccountReferenceValidator;
 import de.adorsys.psd2.xs2a.service.validator.tpp.AisTppInfoValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GetTransactionDetailsValidator {
+public class GetTransactionsReportByPeriodValidator {
     private final AisTppInfoValidator aisTppInfoValidator;
     private final AccountConsentValidator accountConsentValidator;
+    private final PermittedAccountReferenceValidator permittedAccountReferenceValidator;
 
-    public ValidationResult validate(AccountConsent accountConsent) {
+    public ValidationResult validate(AccountConsent accountConsent, String accountId, boolean withBalance) {
+        ValidationResult permittedAccountReferenceValidationResult =
+            permittedAccountReferenceValidator.validate(accountConsent, accountConsent.getAccess().getTransactions(), accountId, withBalance);
+
+        if (permittedAccountReferenceValidationResult.isNotValid()) {
+            return permittedAccountReferenceValidationResult;
+        }
+
         ValidationResult tppValidationResult = aisTppInfoValidator.validateTpp(accountConsent.getTppInfo());
 
         if (tppValidationResult.isNotValid()) {

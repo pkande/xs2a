@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.service.validator.account.common;
+package de.adorsys.psd2.xs2a.service.validator.ais.account.common;
 
 import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;

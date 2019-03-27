@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.service.validator.account.common;
+package de.adorsys.psd2.xs2a.service.validator.ais.account.common;
 
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.consent.AccountConsent;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
-import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiAccountReferenceMapper;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.spi.domain.account.SpiAccountReference;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +35,6 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.CONSENT_INVALID;
 @Component
 @RequiredArgsConstructor
 public class PermittedAccountReferenceValidator {
-    private final Xs2aToSpiAccountReferenceMapper xs2aToSpiAccountReferenceMapper;
 
     public ValidationResult validate(AccountConsent accountConsent, List<AccountReference> references, String accountId, boolean withBalance) {
         if (isNotPermittedAccountReference(findAccountReference(references, accountId), accountConsent.getAccess(), withBalance)) {
@@ -47,15 +44,14 @@ public class PermittedAccountReferenceValidator {
         return ValidationResult.valid();
     }
 
-    private SpiAccountReference findAccountReference(List<AccountReference> references, String accountId) {
+    private AccountReference findAccountReference(List<AccountReference> references, String accountId) {
         return references.stream()
                    .filter(accountReference -> StringUtils.equals(accountReference.getResourceId(), accountId))
                    .findFirst()
-                   .map(xs2aToSpiAccountReferenceMapper::mapToSpiAccountReference)
                    .orElse(null);
     }
 
-    private boolean isNotPermittedAccountReference(SpiAccountReference requestedAccountReference, Xs2aAccountAccess consentAccountAccess, boolean withBalance) {
+    private boolean isNotPermittedAccountReference(AccountReference requestedAccountReference, Xs2aAccountAccess consentAccountAccess, boolean withBalance) {
         if (Objects.isNull(requestedAccountReference)) {
             return true;
         }

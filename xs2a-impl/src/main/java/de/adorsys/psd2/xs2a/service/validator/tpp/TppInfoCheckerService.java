@@ -36,7 +36,7 @@ public class TppInfoCheckerService {
      * If passed TppInfo is <code>null</code> or doesn't contain either authorisation number or authority ID,
      * <code>true</code> will be returned.
      */
-    boolean differsFromTppInRequest(@Nullable TppInfo tppInfo) {
+    public boolean differsFromTppInRequest(@Nullable TppInfo tppInfo) {
         if (tppInfo == null
                 || tppInfo.isNotValid()) {
             return true;

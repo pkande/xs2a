@@ -44,6 +44,7 @@ import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.service.validator.ValueValidatorService;
+import de.adorsys.psd2.xs2a.service.validator.ais.account.*;
 import de.adorsys.psd2.xs2a.service.validator.account.*;
 import de.adorsys.psd2.xs2a.service.validator.ais.CommonConsentObject;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.*;
