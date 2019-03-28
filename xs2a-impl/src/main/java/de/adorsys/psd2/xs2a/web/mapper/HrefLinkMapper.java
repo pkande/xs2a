@@ -43,6 +43,10 @@ public class HrefLinkMapper {
      * Returned Map with added 'href' to link value.
      */
     public Map<String, Map<String, String>> mapToLinksMap(Links links) {
+        if (links == null) {
+            return null;
+        }
+
         Map<String, String> linksMap = mapper.convertValue(links, new TypeReference<Map<String, String>>() {
         });
         return linksMap
