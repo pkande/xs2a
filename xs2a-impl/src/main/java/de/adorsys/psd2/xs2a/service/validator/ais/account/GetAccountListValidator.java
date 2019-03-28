@@ -63,9 +63,9 @@ public class GetAccountListValidator extends AbstractAisTppValidator<GetAccountL
     }
 
     private boolean hasInvalidAccess(GetAccountListConsentObject consentObject) {
-        Xs2aAccountAccess accountAccess = consentObject.getAccountConsent().getAccess();
-
         if (consentObject.isWithBalance()) {
+            Xs2aAccountAccess accountAccess = consentObject.getAccountConsent().getAccess();
+
             return accountAccess == null
                        || CollectionUtils.isEmpty(accountAccess.getBalances());
         }
