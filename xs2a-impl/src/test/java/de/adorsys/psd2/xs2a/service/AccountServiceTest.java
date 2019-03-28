@@ -199,7 +199,7 @@ public class AccountServiceTest {
 
         when(aisConsentService.getAccountConsentById(CONSENT_ID))
             .thenReturn(Optional.of(accountConsent));
-        when(getAccountListValidator.validate(new CommonConsentObject(accountConsent)))
+        when(getAccountListValidator.validate(new GetAccountListConsentObject(accountConsent, WITH_BALANCE)))
             .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
         ResponseObject<Map<String, List<Xs2aAccountDetails>>> actualResponse = accountService.getAccountList(CONSENT_ID, WITH_BALANCE);

@@ -24,7 +24,6 @@ import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.service.validator.ais.CommonConsentObject;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.common.AccountConsentValidator;
 import de.adorsys.psd2.xs2a.service.validator.tpp.AisTppInfoValidator;
 import org.junit.Before;
@@ -94,6 +93,8 @@ public class GetAccountListValidatorTest {
         // Given
         Xs2aAccountAccess accessWithBalances = buildXs2aAccountAccess(true);
         AccountConsent accountConsent = buildAccountConsent(accessWithBalances, TPP_INFO);
+        when(accountConsentValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         // When
         ValidationResult validationResult = getAccountListValidator.validate(new GetAccountListConsentObject(accountConsent, true));
@@ -126,6 +127,8 @@ public class GetAccountListValidatorTest {
         // Given
         Xs2aAccountAccess accountAccess = buildXs2aAccountAccess();
         AccountConsent accountConsent = buildAccountConsent(accountAccess, TPP_INFO);
+        when(accountConsentValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         // When
         ValidationResult validationResult = getAccountListValidator.validate(new GetAccountListConsentObject(accountConsent, true));
@@ -140,6 +143,8 @@ public class GetAccountListValidatorTest {
     public void validate_withBalanceRequestAndNullAccess_shouldReturnAccessValidationError() {
         // Given
         AccountConsent accountConsent = buildAccountConsent(null, TPP_INFO);
+        when(accountConsentValidator.validate(accountConsent))
+            .thenReturn(ValidationResult.valid());
 
         // When
         ValidationResult validationResult = getAccountListValidator.validate(new GetAccountListConsentObject(accountConsent, true));
