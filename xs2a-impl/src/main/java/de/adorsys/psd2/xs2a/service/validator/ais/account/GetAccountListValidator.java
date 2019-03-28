@@ -38,7 +38,10 @@ public class GetAccountListValidator extends AbstractAisTppValidator<GetAccountL
     private final AccountConsentValidator accountConsentValidator;
 
     /**
-     * Validates get account list request
+     * Validates get account list request  by checking whether:
+     * <ul>
+     * <li>consent has access to balances if the balance information was requested</li>
+     * </ul>
      *
      * @param consentObject consent information object
      * @return valid result if the consent is valid, invalid result with appropriate error otherwise
