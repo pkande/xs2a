@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+// TODO Use HrefType instead of HrefLinkMapper https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/777
 @Slf4j
 @Component
 @RequiredArgsConstructor
