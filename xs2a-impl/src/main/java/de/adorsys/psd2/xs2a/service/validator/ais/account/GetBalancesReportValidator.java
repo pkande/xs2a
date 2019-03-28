@@ -16,26 +16,31 @@
 
 package de.adorsys.psd2.xs2a.service.validator.ais.account;
 
-import de.adorsys.psd2.xs2a.domain.consent.AccountConsent;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
+import de.adorsys.psd2.xs2a.service.validator.ais.AbstractAisTppValidator;
+import de.adorsys.psd2.xs2a.service.validator.ais.CommonConsentObject;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.common.AccountConsentValidator;
-import de.adorsys.psd2.xs2a.service.validator.tpp.AisTppInfoValidator;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+/**
+ * Validator to be used for validating get balances report request according to some business rules
+ */
 @Component
 @RequiredArgsConstructor
-public class GetBalancesReportValidator {
-    private final AisTppInfoValidator aisTppInfoValidator;
+public class GetBalancesReportValidator extends AbstractAisTppValidator<CommonConsentObject> {
     private final AccountConsentValidator accountConsentValidator;
 
-    public ValidationResult validate(AccountConsent accountConsent) {
-        ValidationResult tppValidationResult = aisTppInfoValidator.validateTpp(accountConsent.getTppInfo());
-
-        if (tppValidationResult.isNotValid()) {
-            return tppValidationResult;
-        }
-
-        return accountConsentValidator.validate(accountConsent);
+    /**
+     * Validates get balances report request
+     *
+     * @param consentObject consent information object
+     * @return valid result if the consent is valid, invalid result with appropriate error otherwise
+     */
+    @NotNull
+    @Override
+    protected ValidationResult executeBusinessValidation(CommonConsentObject consentObject) {
+        return accountConsentValidator.validate(consentObject.getAccountConsent());
     }
 }

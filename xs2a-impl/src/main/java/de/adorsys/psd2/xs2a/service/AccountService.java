@@ -44,10 +44,9 @@ import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.service.validator.ValueValidatorService;
-import de.adorsys.psd2.xs2a.service.validator.ais.account.*;
-import de.adorsys.psd2.xs2a.service.validator.account.*;
 import de.adorsys.psd2.xs2a.service.validator.ais.CommonConsentObject;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.*;
+import de.adorsys.psd2.xs2a.service.validator.ais.account.dto.CommonAccountRequestObject;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.domain.account.*;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
@@ -113,21 +112,14 @@ public class AccountService {
     public ResponseObject<Map<String, List<Xs2aAccountDetails>>> getAccountList(String consentId, boolean withBalance) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_ACCOUNT_LIST_REQUEST_RECEIVED);
 
-        AccountConsent accountConsent = aisConsentService.getAccountConsentById(consentId);
-        if (accountConsent == null) {
+        Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
+        if (!accountConsentOptional.isPresent()) {
             return ResponseObject.<Map<String, List<Xs2aAccountDetails>>>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
 
-        ValidationResult validationResult = getAccountListValidator.validate(accountConsent);
-        if (validationResult.isNotValid()) {
-            return ResponseObject.<Map<String, List<Xs2aAccountDetails>>>builder()
-                       .fail(validationResult.getMessageError())
-                       .build();
-        }
-
-        AccountConsent accountConsent = accountConsentResponse.getBody();
+        AccountConsent accountConsent = accountConsentOptional.get();
 
         ValidationResult validationResult = getAccountListValidator.validate(new CommonConsentObject(accountConsent));
         if (validationResult.isNotValid()) {
@@ -177,21 +169,16 @@ public class AccountService {
     public ResponseObject<Xs2aAccountDetails> getAccountDetails(String consentId, String accountId, boolean withBalance) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_ACCOUNT_DETAILS_REQUEST_RECEIVED);
 
-        AccountConsent accountConsent = aisConsentService.getAccountConsentById(consentId);
-        if (accountConsent == null) {
+        Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
+        if (!accountConsentOptional.isPresent()) {
             return ResponseObject.<Xs2aAccountDetails>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
 
-        ValidationResult validationResult = getAccountDetailsValidator.validate(accountConsent, accountId, withBalance);
-        if (validationResult.isNotValid()) {
-            return ResponseObject.<Xs2aAccountDetails>builder()
-                       .fail(validationResult.getMessageError())
-                       .build();
-        }
+        AccountConsent accountConsent = accountConsentOptional.get();
 
-        ValidationResult validationResult = getAccountDetailsValidator.validate(new CommonConsentObject(accountConsent));
+        ValidationResult validationResult = getAccountDetailsValidator.validate(new CommonAccountRequestObject(accountConsent, accountId, withBalance));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aAccountDetails>builder()
                        .fail(validationResult.getMessageError())
@@ -248,21 +235,14 @@ public class AccountService {
     public ResponseObject<Xs2aBalancesReport> getBalancesReport(String consentId, String accountId) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_BALANCE_REQUEST_RECEIVED);
 
-        AccountConsent accountConsent = aisConsentService.getAccountConsentById(consentId);
-        if (accountConsent == null) {
+        Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
+        if (!accountConsentOptional.isPresent()) {
             return ResponseObject.<Xs2aBalancesReport>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
 
-        ValidationResult validationResult = getBalancesReportValidator.validate(accountConsent);
-        if (validationResult.isNotValid()) {
-            return ResponseObject.<Xs2aBalancesReport>builder()
-                       .fail(validationResult.getMessageError())
-                       .build();
-        }
-
-        AccountConsent accountConsent = accountConsentResponse.getBody();
+        AccountConsent accountConsent = accountConsentOptional.get();
 
         ValidationResult validationResult = getBalancesReportValidator.validate(new CommonConsentObject(accountConsent));
         if (validationResult.isNotValid()) {
@@ -335,21 +315,16 @@ public class AccountService {
                                                                                 BookingStatus bookingStatus) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_TRANSACTION_LIST_REQUEST_RECEIVED);
 
-        AccountConsent accountConsent = aisConsentService.getAccountConsentById(consentId);
-        if (accountConsent == null) {
+        Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
+        if (!accountConsentOptional.isPresent()) {
             return ResponseObject.<Xs2aTransactionsReport>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
 
-        ValidationResult validationResult = getTransactionsReportByPeriodValidator.validate(accountConsent, accountId, withBalance);
-        if (validationResult.isNotValid()) {
-            return ResponseObject.<Xs2aTransactionsReport>builder()
-                       .fail(validationResult.getMessageError())
-                       .build();
-        }
+        AccountConsent accountConsent = accountConsentOptional.get();
 
-        ValidationResult validationResult = getTransactionsReportValidator.validate(new CommonConsentObject(accountConsent));
+        ValidationResult validationResult = getTransactionsReportValidator.validate(new CommonAccountRequestObject(accountConsent, accountId, withBalance));
         if (validationResult.isNotValid()) {
             return ResponseObject.<Xs2aTransactionsReport>builder()
                        .fail(validationResult.getMessageError())
@@ -433,19 +408,14 @@ public class AccountService {
                                                               String transactionId) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_TRANSACTION_DETAILS_REQUEST_RECEIVED);
 
-        AccountConsent accountConsent = aisConsentService.getAccountConsentById(consentId);
-        if (accountConsent == null) {
+        Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
+        if (!accountConsentOptional.isPresent()) {
             return ResponseObject.<Transactions>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
 
-        ValidationResult validationResult = getTransactionDetailsValidator.validate(accountConsent);
-        if (validationResult.isNotValid()) {
-            return ResponseObject.<Transactions>builder()
-                       .fail(validationResult.getMessageError())
-                       .build();
-        }
+        AccountConsent accountConsent = accountConsentOptional.get();
 
         ValidationResult validationResult = getTransactionDetailsValidator.validate(new CommonConsentObject(accountConsent));
         if (validationResult.isNotValid()) {

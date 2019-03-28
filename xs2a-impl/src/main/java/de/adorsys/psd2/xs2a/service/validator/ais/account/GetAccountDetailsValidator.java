@@ -18,31 +18,39 @@ package de.adorsys.psd2.xs2a.service.validator.ais.account;
 
 import de.adorsys.psd2.xs2a.domain.consent.AccountConsent;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
+import de.adorsys.psd2.xs2a.service.validator.ais.AbstractAisTppValidator;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.common.AccountConsentValidator;
 import de.adorsys.psd2.xs2a.service.validator.ais.account.common.PermittedAccountReferenceValidator;
-import de.adorsys.psd2.xs2a.service.validator.tpp.AisTppInfoValidator;
+import de.adorsys.psd2.xs2a.service.validator.ais.account.dto.CommonAccountRequestObject;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+/**
+ * Validator to be used for validating get account details request according to some business rules
+ */
 @Component
 @RequiredArgsConstructor
-public class GetAccountDetailsValidator {
-    private final AisTppInfoValidator aisTppInfoValidator;
-    private final AccountConsentValidator accountConsentValidator;
+public class GetAccountDetailsValidator extends AbstractAisTppValidator<CommonAccountRequestObject> {
     private final PermittedAccountReferenceValidator permittedAccountReferenceValidator;
+    private final AccountConsentValidator accountConsentValidator;
 
-    public ValidationResult validate(AccountConsent accountConsent, String accountId, boolean withBalance) {
+    /**
+     * Validates get account details request
+     *
+     * @param commonAccountRequestObject account request object
+     * @return valid result if the consent is valid, invalid result with appropriate error otherwise
+     */
+    @NotNull
+    @Override
+    protected ValidationResult executeBusinessValidation(CommonAccountRequestObject commonAccountRequestObject) {
+        AccountConsent accountConsent = commonAccountRequestObject.getAccountConsent();
+
         ValidationResult permittedAccountReferenceValidationResult =
-            permittedAccountReferenceValidator.validate(accountConsent, accountConsent.getAccess().getAccounts(), accountId, withBalance);
+            permittedAccountReferenceValidator.validate(accountConsent, commonAccountRequestObject.getAccounts(), commonAccountRequestObject.getAccountId(), commonAccountRequestObject.isWithBalance());
 
         if (permittedAccountReferenceValidationResult.isNotValid()) {
             return permittedAccountReferenceValidationResult;
-        }
-
-        ValidationResult tppValidationResult = aisTppInfoValidator.validateTpp(accountConsent.getTppInfo());
-
-        if (tppValidationResult.isNotValid()) {
-            return tppValidationResult;
         }
 
         return accountConsentValidator.validate(accountConsent);
