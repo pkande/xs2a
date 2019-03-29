@@ -70,3 +70,18 @@ endpoint.
 From now on XS2A will validate Read account list request (`GET /v1/accounts`) with query parameter `withBalance` set to 
 `true` by checking whether given consent has access to balances. If the consent has no such access (i. e. consent's `access` 
 property doesn't contain `balances`), `401 CONSENT_INVALID` error will be returned in the response.
+
+## Feature: Added new parameter for new Redirect SCA Approach
+A new `scaRedirectFlow` parameter has been added to ASPSP profile.
+
+| Option          | Meaning                                                             | Default value | Possible values |
+|-----------------|---------------------------------------------------------------------|---------------|-----------------|
+| scaRedirectFlow | This field indicates what variant of Redirect approach will be used | REDIRECT      | REDIRECT, OAUTH |
+
+## Feature: Changed links for new Redirect SCA Approach subtype
+Redirect SCA approach was extended: now it has two possible subtypes - `REDIRECT` (default) and `OAUTH`.
+Depending on this subtype, the link names would be different in the following requests:
+ - payment initiation
+ - consent creation
+ - payment cancellation authorisation
+

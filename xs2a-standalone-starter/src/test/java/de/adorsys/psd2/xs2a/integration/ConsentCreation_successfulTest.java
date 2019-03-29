@@ -91,6 +91,7 @@ public class ConsentCreation_successfulTest {
     private static final String ALL_AVAILABLE_ACCOUNT_CONSENT_REQUEST_JSON_PATH = "/json/account/req/AllAvailableAccountConsent.json";
     private static final String CREATE_CONSENT_IMPLICIT_EMBEDDED_RESPONSE_PATH = "/json/account/res/CreateAisConsent_implicit_embedded_response.json";
     private static final String CREATE_CONSENT_IMPLICIT_REDIRECT_RESPONSE_PATH = "/json/account/res/CreateAisConsent_implicit_redirect_response.json";
+    private static final String CREATE_CONSENT_IMPLICIT_REDIRECT_OAUTH_RESPONSE_PATH = "/json/account/res/CreateAisConsent_implicit_redirect_oauth_response.json";
     private static final String CREATE_CONSENT_EXPLICIT_EMBEDDED_RESPONSE_PATH = "/json/account/res/CreateAisConsent_explicit_embedded_response.json";
     private static final String CREATE_CONSENT_EXPLICIT_REDIRECT_RESPONSE_PATH = "/json/account/res/CreateAisConsent_explicit_redirect_response.json";
 
@@ -162,6 +163,13 @@ public class ConsentCreation_successfulTest {
     @Test
     public void creation_dedicated_consent_implicit_redirect_successful() throws Exception {
         consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, DEDICATED_CONSENT_REQUEST_JSON_PATH, CREATE_CONSENT_IMPLICIT_REDIRECT_RESPONSE_PATH);
+    }
+
+    @Test
+    public void creation_dedicated_consent_implicit_redirect_oauth_successful() throws Exception {
+        given(aspspProfileService.getAspspSettings())
+            .willReturn(AspspSettingsBuilder.buildAspspSettingsWithOAuth());
+        consentCreation_successful(httpHeadersImplicit, ScaApproach.REDIRECT, DEDICATED_CONSENT_REQUEST_JSON_PATH, CREATE_CONSENT_IMPLICIT_REDIRECT_OAUTH_RESPONSE_PATH);
     }
 
     @Test

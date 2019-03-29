@@ -54,4 +54,5 @@ public class AspspSettings {
     private boolean psuInInitialRequestMandated;
     private boolean forceXs2aBaseUrl;
     private String xs2aBaseUrl;
+    private ScaRedirectFlow scaRedirectFlow;
 }

@@ -88,6 +88,7 @@ public class PaymentControllerTest {
     private HttpHeaders httpHeadersExplicit = new HttpHeaders();
 
     private static final String CANCELLATION_AUTHORISATIONS_RESP = "/json/payment/res/explicit/SinglePaymentCancellationAuth_response.json";
+    private static final String CANCELLATION_AUTHORISATIONS_REDIRECT_OAUTH_RESP = "/json/payment/res/explicit/SinglePaymentCancellationAuth_Redirect_OAuth_response.json";
 
     @Autowired
     private MockMvc mockMvc;
@@ -175,6 +176,28 @@ public class PaymentControllerTest {
         resultActions.andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(content().json(IOUtils.resourceToString(CANCELLATION_AUTHORISATIONS_RESP, UTF_8)));
+    }
+
+    @Test
+    public void cancelPaymentAuthorisation_Redirect_OAuth_successful() throws Exception {
+        // Given
+        given(aspspProfileService.getAspspSettings())
+            .willReturn(AspspSettingsBuilder.buildAspspSettingsWithOAuth());
+        given(pisCommonPaymentServiceEncrypted.getAuthorisationScaStatus(ENCRYPT_PAYMENT_ID, AUTHORISATION_ID, CmsAuthorisationType.CREATED))
+            .willReturn(Optional.of(ScaStatus.RECEIVED));
+        given(pisCommonPaymentServiceEncrypted.getCommonPaymentById(ENCRYPT_PAYMENT_ID))
+            .willReturn(Optional.of(PisCommonPaymentResponseBuilder.buildPisCommonPaymentResponse()));
+
+        MockHttpServletRequestBuilder requestBuilder = post(UrlBuilder.buildGetPaymentCancellationAuthorisationUrl(SINGLE_PAYMENT_TYPE.getValue(), SEPA_PAYMENT_PRODUCT, ENCRYPT_PAYMENT_ID));
+        requestBuilder.headers(httpHeadersExplicit);
+
+        // When
+        ResultActions resultActions = mockMvc.perform(requestBuilder);
+
+        //Then
+        resultActions.andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+            .andExpect(content().json(IOUtils.resourceToString(CANCELLATION_AUTHORISATIONS_REDIRECT_OAUTH_RESP, UTF_8)));
     }
 
     private PsuIdData getPsuIdData() {

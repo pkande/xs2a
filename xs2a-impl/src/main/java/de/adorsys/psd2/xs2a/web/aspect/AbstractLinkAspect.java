@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.web.aspect;
 
+import de.adorsys.psd2.aspsp.profile.domain.ScaRedirectFlow;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
@@ -48,6 +49,10 @@ public abstract class AbstractLinkAspect<T> {
         Optional<B> body = Optional.ofNullable(target.getBody());
         return body.isPresent() && body.get().getClass()
                                        .isAssignableFrom(MessageError.class);
+    }
+
+    protected boolean isOauthRedirectFlow() {
+        return aspspProfileService.getAspspSettings().getScaRedirectFlow() == ScaRedirectFlow.OAUTH;
     }
 
     <R> ResponseObject<R> enrichErrorTextMessage(ResponseObject<R> response) {

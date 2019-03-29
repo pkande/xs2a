@@ -18,6 +18,7 @@ package de.adorsys.psd2.xs2a.integration.builder;
 
 import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
 import de.adorsys.psd2.aspsp.profile.domain.MulticurrencyAccountLevel;
+import de.adorsys.psd2.aspsp.profile.domain.ScaRedirectFlow;
 import de.adorsys.psd2.aspsp.profile.domain.SupportedAccountReferenceField;
 import de.adorsys.psd2.xs2a.core.ais.BookingStatus;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
@@ -56,7 +57,8 @@ public class AspspSettingsBuilder {
     private static final boolean PSU_IN_INITIAL_REQUEST_MANDATED = false;
     private static final boolean FORCE_XS2A_BASE_URL = false;
     private static final String XS2A_BASEURL = "http://myhost.com/";
-
+    private static final ScaRedirectFlow SCA_REDIRECT_FLOW = ScaRedirectFlow.REDIRECT;
+    private static final ScaRedirectFlow SCA_REDIRECT_FLOW_OAUTH = ScaRedirectFlow.OAUTH;
 
     public static AspspSettings buildAspspSettings() {
         return new AspspSettings(
@@ -87,7 +89,41 @@ public class AspspSettingsBuilder {
             SCA_BY_ONE_TIME_AVAILABLE_ACCOUNTS_CONSENT_REQUIRED,
             PSU_IN_INITIAL_REQUEST_MANDATED,
             FORCE_XS2A_BASE_URL,
-            XS2A_BASEURL);
+            XS2A_BASEURL,
+            SCA_REDIRECT_FLOW);
+    }
+
+    public static AspspSettings buildAspspSettingsWithOAuth() {
+        return new AspspSettings(
+            FREQUENCY_PER_DAY,
+            COMBINED_SERVICE_INDICATOR,
+            TPP_SIGNATURE_REQUIRED,
+            PIS_REDIRECT_LINK,
+            AIS_REDIRECT_LINK,
+            MULTICURRENCY_ACCOUNT_LEVEL,
+            BANK_OFFERED_CONSENT_SUPPORT,
+            AVAILABLE_BOOKING_STATUSES,
+            SUPPORTED_ACCOUNT_REFERENCE_FIELDS,
+            CONSENT_LIFETIME,
+            TRANSACTION_LIFETIME,
+            ALL_PSD_2_SUPPORT,
+            TRANSACTIONS_WITHOUT_BALANCES_SUPPORTED,
+            SIGNING_BASKET_SUPPORTED,
+            PAYMENT_CANCELLATION_AUTHORIZATION_MANDATED,
+            PIIS_CONSENT_SUPPORTED,
+            DELTA_REPORT_SUPPORTED,
+            REDIRECT_URL_EXPIRATION_TIME_MS,
+            PIS_PAYMENT_CANCELLATION_REDIRECT_URL_TO_ASPSP,
+            NOT_CONFIRMED_CONSENT_EXPIRATION_PERIOD_MS,
+            NOT_CONFIRMED_PAYMENT_EXPIRATION_PERIOD_MS,
+            SUPPORTED_PAYMENT_TYPE_AND_PRODUCT_MATRIX,
+            PAYMENT_CANCELLATION_REDIRECT_URL_EXPIRATION_TIME_MS,
+            AVAILABLE_ACCOUNTS_CONSENT_SUPPORTED,
+            SCA_BY_ONE_TIME_AVAILABLE_ACCOUNTS_CONSENT_REQUIRED,
+            PSU_IN_INITIAL_REQUEST_MANDATED,
+            FORCE_XS2A_BASE_URL,
+            XS2A_BASEURL,
+            SCA_REDIRECT_FLOW_OAUTH);
     }
 
     private static List<SupportedAccountReferenceField> getSupportedAccountReferenceFields() {
