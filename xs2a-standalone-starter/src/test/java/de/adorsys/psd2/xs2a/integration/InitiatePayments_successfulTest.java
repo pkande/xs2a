@@ -293,8 +293,6 @@ public class InitiatePayments_successfulTest {
         given(singlePaymentSpi.initiatePayment(any(SpiContextData.class), any(SpiSinglePayment.class), any(AspspConsentData.class)))
             .willReturn(SpiPaymentInitiationResponseBuilder.buildSinglePaymentResponse());
 
-
-
         given(consentRestTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class), any(String.class)))
             .willReturn(ResponseEntity.ok(Void.class));
 
@@ -317,8 +315,6 @@ public class InitiatePayments_successfulTest {
 
         given(singlePaymentSpi.initiatePayment(any(SpiContextData.class), any(SpiSinglePayment.class), any(AspspConsentData.class)))
             .willReturn(SpiPaymentInitiationResponseBuilder.buildSinglePaymentResponse());
-
-
 
         given(consentRestTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class), any(String.class)))
             .willReturn(ResponseEntity.ok(Void.class));
