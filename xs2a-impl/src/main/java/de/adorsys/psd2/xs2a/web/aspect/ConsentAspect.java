@@ -96,7 +96,7 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
         if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, response.isMultilevelScaRequired())) {
             links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
         } else {
-            setScaRedirectOAuthLink(links, redirectLinkBuilder.buildConsentScaRedirectLink(consentId, response.getAuthorizationId()));
+            links.setScaRedirectOAuthLink(getScaRedirectFlow(), redirectLinkBuilder.buildConsentScaRedirectLink(consentId, response.getAuthorizationId()));
             links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
         }
     }

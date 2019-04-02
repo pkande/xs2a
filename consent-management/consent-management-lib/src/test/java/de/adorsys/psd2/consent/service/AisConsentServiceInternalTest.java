@@ -17,7 +17,7 @@
 package de.adorsys.psd2.consent.service;
 
 import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
-import de.adorsys.psd2.aspsp.profile.domain.ScaRedirectFlow;
+import de.adorsys.psd2.xs2a.core.profile.ScaRedirectFlow;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.consent.api.AccountInfo;
 import de.adorsys.psd2.consent.api.CmsScaMethod;

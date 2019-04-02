@@ -17,7 +17,7 @@
 package de.adorsys.psd2.aspsp.profile.config;
 
 import de.adorsys.psd2.aspsp.profile.AspspProfileApplication;
-import de.adorsys.psd2.aspsp.profile.domain.ScaRedirectFlow;
+import de.adorsys.psd2.xs2a.core.profile.ScaRedirectFlow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class BankProfileReaderConfigurationTest {
     private BankProfileReaderConfiguration bankProfileReaderConfiguration;
 
     @Test
-    public void profileConfigurationWithAdditionalFields() {
+    public void profileConfigurationDefaultScaRedirectFlow() {
         //Given
         //When
         ProfileConfiguration profileConfiguration = bankProfileReaderConfiguration.profileConfiguration();

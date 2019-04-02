@@ -16,7 +16,7 @@
 
 package de.adorsys.psd2.aspsp.profile.config;
 
-import de.adorsys.psd2.aspsp.profile.domain.ScaRedirectFlow;
+import de.adorsys.psd2.xs2a.core.profile.ScaRedirectFlow;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

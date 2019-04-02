@@ -16,7 +16,7 @@
 
 package de.adorsys.psd2.aspsp.profile.config;
 
-import de.adorsys.psd2.aspsp.profile.domain.ScaRedirectFlow;
+import de.adorsys.psd2.xs2a.core.profile.ScaRedirectFlow;
 import de.adorsys.psd2.aspsp.profile.domain.SupportedAccountReferenceField;
 import de.adorsys.psd2.xs2a.core.ais.BookingStatus;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
