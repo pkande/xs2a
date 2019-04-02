@@ -45,9 +45,11 @@ public class AccountModelMapper {
     private final AmountModelMapper amountModelMapper;
     private final HrefLinkMapper hrefLinkMapper;
 
-    public AccountList mapToAccountList(Map<String, List<Xs2aAccountDetails>> accountDetailsList) {
-        List<AccountDetails> details = accountDetailsList.values().stream()
-                                           .flatMap(ad -> ad.stream().map(this::mapToAccountDetails))
+    public AccountList mapToAccountList(Xs2aAccountListHolder xs2aAccountListHolder) {
+        List<Xs2aAccountDetails> accountDetailsList = xs2aAccountListHolder.getAccountDetails();
+
+        List<AccountDetails> details = accountDetailsList.stream()
+                                           .map(this::mapToAccountDetails)
                                            .collect(Collectors.toList());
         return new AccountList().accounts(details);
     }

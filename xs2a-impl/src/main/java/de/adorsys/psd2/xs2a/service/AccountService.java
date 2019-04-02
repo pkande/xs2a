@@ -26,10 +26,7 @@ import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.Transactions;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountDetails;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountReport;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aBalancesReport;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aTransactionsReport;
+import de.adorsys.psd2.xs2a.domain.account.*;
 import de.adorsys.psd2.xs2a.domain.consent.AccountConsent;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.consent.AccountReferenceInConsentUpdater;
@@ -62,7 +59,6 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
@@ -107,14 +103,14 @@ public class AccountService {
      *
      * @param consentId   String representing an AccountConsent identification
      * @param withBalance boolean representing if the responded AccountDetails should contain
-     * @return List of AccountDetails with Balances if requested and granted by consent
+     * @return response with {@link Xs2aAccountListHolder} containing the List of AccountDetails with Balances if requested and granted by consent
      */
-    public ResponseObject<Map<String, List<Xs2aAccountDetails>>> getAccountList(String consentId, boolean withBalance) {
+    public ResponseObject<Xs2aAccountListHolder> getAccountList(String consentId, boolean withBalance) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_ACCOUNT_LIST_REQUEST_RECEIVED);
 
         Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
         if (!accountConsentOptional.isPresent()) {
-            return ResponseObject.<Map<String, List<Xs2aAccountDetails>>>builder()
+            return ResponseObject.<Xs2aAccountListHolder>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
@@ -123,7 +119,7 @@ public class AccountService {
 
         ValidationResult validationResult = getAccountListValidator.validate(new GetAccountListConsentObject(accountConsent, withBalance));
         if (validationResult.isNotValid()) {
-            return ResponseObject.<Map<String, List<Xs2aAccountDetails>>>builder()
+            return ResponseObject.<Xs2aAccountListHolder>builder()
                        .fail(validationResult.getMessageError())
                        .build();
         }
@@ -137,7 +133,7 @@ public class AccountService {
         aisConsentDataService.updateAspspConsentData(spiResponse.getAspspConsentData());
 
         if (spiResponse.hasError()) {
-            return ResponseObject.<Map<String, List<Xs2aAccountDetails>>>builder()
+            return ResponseObject.<Xs2aAccountListHolder>builder()
                        .fail(new MessageError(spiErrorMapper.mapToErrorHolder(spiResponse, ServiceType.AIS)))
                        .build();
         }
@@ -145,14 +141,13 @@ public class AccountService {
         List<Xs2aAccountDetails> accountDetails = accountDetailsMapper.mapToXs2aAccountDetailsList(spiResponse.getPayload());
         accountReferenceUpdater.updateAccountReferences(consentId, accountConsent.getAccess(), accountDetails);
 
-        ResponseObject<Map<String, List<Xs2aAccountDetails>>> response = ResponseObject.<Map<String,
-                                                                                                List<Xs2aAccountDetails>>>builder()
-                                                                             .body(Collections.singletonMap("accountList", accountDetails))
-                                                                             .build();
+        Xs2aAccountListHolder xs2aAccountListHolder = new Xs2aAccountListHolder(accountDetails, accountConsent);
 
-        aisConsentService.consentActionLog(tppService.getTppId(), consentId, createActionStatus(withBalance,
-                                                                                                TypeAccess.ACCOUNT, response));
-        checkAndExpireConsentIfOneAccessType(accountConsent, consentId);
+        ResponseObject<Xs2aAccountListHolder> response =
+            ResponseObject.<Xs2aAccountListHolder>builder().body(xs2aAccountListHolder).build();
+
+        writeLogAndCheckConsent(consentId, withBalance, accountConsent, TypeAccess.ACCOUNT, response);
+
         return response;
     }
 
@@ -219,9 +214,8 @@ public class AccountService {
         ResponseObject<Xs2aAccountDetails> response =
             ResponseObject.<Xs2aAccountDetails>builder().body(accountDetails).build();
 
-        aisConsentService.consentActionLog(tppService.getTppId(), consentId, createActionStatus(withBalance,
-                                                                                                TypeAccess.ACCOUNT, response));
-        checkAndExpireConsentIfOneAccessType(accountConsent, consentId);
+        writeLogAndCheckConsent(consentId, withBalance, accountConsent, TypeAccess.ACCOUNT, response);
+
         return response;
     }
 
@@ -284,9 +278,8 @@ public class AccountService {
         ResponseObject<Xs2aBalancesReport> response =
             ResponseObject.<Xs2aBalancesReport>builder().body(balancesReport).build();
 
-        aisConsentService.consentActionLog(tppService.getTppId(), consentId, createActionStatus(false,
-                                                                                                TypeAccess.BALANCE, response));
-        checkAndExpireConsentIfOneAccessType(accountConsent, consentId);
+        writeLogAndCheckConsent(consentId, false, accountConsent, TypeAccess.BALANCE, response);
+
         return response;
     }
 
@@ -390,9 +383,8 @@ public class AccountService {
         ResponseObject<Xs2aTransactionsReport> response =
             ResponseObject.<Xs2aTransactionsReport>builder().body(transactionsReport).build();
 
-        aisConsentService.consentActionLog(tppService.getTppId(), consentId, createActionStatus(withBalance,
-                                                                                                TypeAccess.TRANSACTION, response));
-        checkAndExpireConsentIfOneAccessType(accountConsent, consentId);
+        writeLogAndCheckConsent(consentId, withBalance, accountConsent, TypeAccess.TRANSACTION, response);
+
         return response;
     }
 
@@ -459,6 +451,11 @@ public class AccountService {
         return ResponseObject.<Transactions>builder()
                    .body(transactions)
                    .build();
+    }
+
+    private void writeLogAndCheckConsent(String consentId, boolean withBalance, AccountConsent accountConsent, TypeAccess typeAccess, ResponseObject response) {
+        aisConsentService.consentActionLog(tppService.getTppId(), consentId, createActionStatus(withBalance, typeAccess, response));
+        checkAndExpireConsentIfOneAccessType(accountConsent, consentId);
     }
 
     private ActionStatus createActionStatus(boolean withBalance, TypeAccess access, ResponseObject response) {
