@@ -13,4 +13,5 @@ Depending on this subtype, the link names would be different in the following re
  - payment initiation
  - consent creation
  - payment cancellation authorisation
+
 In case of OAUTH subtype scaOAuth link will be used instead of scaRedirect.
