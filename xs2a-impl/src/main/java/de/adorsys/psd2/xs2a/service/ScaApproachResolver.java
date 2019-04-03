@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.DECOUPLED;
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.REDIRECT;
@@ -48,13 +49,23 @@ public class ScaApproachResolver {
             return scaApproachHolder.getScaApproach();
         }
 
-        boolean tppRedirectPreferred = requestProviderService.resolveTppRedirectPreferred();
         List<ScaApproach> scaApproaches = aspspProfileService.getScaApproaches();
+        ScaApproach firstScaApproach = getFirst(scaApproaches);
+        Optional<Boolean> tppRedirectPreferredOptional = requestProviderService.resolveTppRedirectPreferred();
+        if (!tppRedirectPreferredOptional.isPresent()) {
+            return firstScaApproach;
+        }
 
+        boolean tppRedirectPreferred = tppRedirectPreferredOptional.get();
         if (tppRedirectPreferred && scaApproaches.contains(REDIRECT)) {
             return REDIRECT;
         }
-        return getFirst(scaApproaches);
+
+        if (!tppRedirectPreferred && REDIRECT == firstScaApproach && scaApproaches.size() > 1) {
+            return getSecond(scaApproaches);
+        }
+
+        return firstScaApproach;
     }
 
     /**
@@ -67,5 +78,9 @@ public class ScaApproachResolver {
 
     private ScaApproach getFirst(List<ScaApproach> scaApproaches) {
         return scaApproaches.get(0);
+    }
+
+    private ScaApproach getSecond(List<ScaApproach> scaApproaches) {
+        return scaApproaches.get(1);
     }
 }

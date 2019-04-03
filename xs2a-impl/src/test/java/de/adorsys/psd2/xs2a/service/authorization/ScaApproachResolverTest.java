@@ -32,6 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +60,7 @@ public class ScaApproachResolverTest {
     public void resolveScaApproach_shouldReturn_Redirect() {
         //When
         when(requestProviderService.resolveTppRedirectPreferred())
-            .thenReturn(true);
+            .thenReturn(Optional.of(true));
 
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
@@ -71,12 +72,252 @@ public class ScaApproachResolverTest {
     public void resolveScaApproach_shouldReturn_Embedded() {
         //When
         when(requestProviderService.resolveTppRedirectPreferred())
-            .thenReturn(false);
+            .thenReturn(Optional.of(false));
 
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
         assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredAbsent_Redirect_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_Redirect_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_Redirect_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredAbsent_Embedded_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_Embedded_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_Embedded_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_Decoupled_shouldReturn_Decoupled() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(DECOUPLED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_Decoupled_shouldReturn_Decoupled() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(DECOUPLED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_EmbeddedDecoupledRedirect_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, DECOUPLED, REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_RedirectEmbeddedDecoupled_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, EMBEDDED, DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_DecoupledEmbeddedRedirect_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED, REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_EmbeddedDecoupled_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredTrue_DecoupledEmbedded_shouldReturn_Decoupled() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(DECOUPLED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredAbsent_RedirectEmbeddedDecoupled_shouldReturn_Redirect() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, EMBEDDED, DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(REDIRECT);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredAbsent_EmbeddedDecoupledRedirect_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, DECOUPLED, REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredAbsent_DecoupledEmbeddedRedirect_shouldReturn_Decoupled() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED, REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(DECOUPLED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_DecoupledEmbeddedRedirect_shouldReturn_Decoupled() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED, REDIRECT));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(DECOUPLED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_EmbeddedRedirectDecoupled_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, REDIRECT, DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_RedirectEmbeddedDecoupled_shouldReturn_Embedded() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, EMBEDDED, DECOUPLED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(EMBEDDED);
+    }
+
+    @Test
+    public void resolveScaApproach_TppRedirectPreferredFalse_RedirectDecoupledEmbedded_shouldReturn_Decoupled() {
+        //When
+        when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, DECOUPLED, EMBEDDED));
+        when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
+
+        ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
+
+        //Then
+        assertThat(actualResult).isEqualTo(DECOUPLED);
     }
 
     @Test
