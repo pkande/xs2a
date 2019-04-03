@@ -41,10 +41,11 @@ public class TppStopListServiceInternal implements TppStopListService {
         Optional<TppStopListEntity> stopListEntityOptional = tppStopListRepository.findByTppAuthorisationNumberAndNationalAuthorityIdAndInstanceId(tppUniqueParams.getAuthorisationNumber(), tppUniqueParams.getAuthorityId(), serviceInstanceId);
 
         return stopListEntityOptional
+                   .filter(TppStopListEntity::isBlocked)
                    .map(sl -> {
                        log.info("TPP ID: [{}], Authority ID: [{}]. TPP has been blocked, because it's in stop list",
                                 tppUniqueParams.getAuthorisationNumber(), tppUniqueParams.getAuthorityId());
-                       return sl.isBlocked();
+                       return true;
                    })
                    .orElse(false);
     }
