@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.integration;
 
 
+import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.consent.api.CmsAuthorisationType;
 import de.adorsys.psd2.consent.api.pis.CreatePisCommonPaymentResponse;
@@ -32,6 +33,7 @@ import de.adorsys.psd2.xs2a.core.consent.AspspConsentData;
 import de.adorsys.psd2.xs2a.core.event.Event;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
+import de.adorsys.psd2.xs2a.core.profile.ScaRedirectFlow;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.integration.builder.*;
 import de.adorsys.psd2.xs2a.integration.builder.payment.SpiPaymentInitiationResponseBuilder;
@@ -203,8 +205,10 @@ public class InitiatePayments_successfulTest {
 
     @Test
     public void initiateSinglePayment_implicit_redirect_oauth_successful() throws Exception {
+        AspspSettings aspspSettings = AspspSettingsBuilder.buildAspspSettings();
+        aspspSettings.setScaRedirectFlow(ScaRedirectFlow.OAUTH);
         given(aspspProfileService.getAspspSettings())
-            .willReturn(AspspSettingsBuilder.buildAspspSettingsWithOAuth());
+            .willReturn(aspspSettings);
         given(pisCommonPaymentServiceEncrypted.createAuthorization(ENCRYPT_PAYMENT_ID, getPisAuthorisationRequest(ScaApproach.REDIRECT)))
             .willReturn(Optional.of(new CreatePisAuthorisationResponse(AUTHORISATION_ID)));
         initiateSinglePaymentOauth_successful(httpHeadersImplicit, ScaApproach.REDIRECT);

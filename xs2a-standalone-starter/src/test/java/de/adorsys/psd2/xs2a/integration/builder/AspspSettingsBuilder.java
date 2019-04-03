@@ -93,39 +93,6 @@ public class AspspSettingsBuilder {
             SCA_REDIRECT_FLOW);
     }
 
-    public static AspspSettings buildAspspSettingsWithOAuth() {
-        return new AspspSettings(
-            FREQUENCY_PER_DAY,
-            COMBINED_SERVICE_INDICATOR,
-            TPP_SIGNATURE_REQUIRED,
-            PIS_REDIRECT_LINK,
-            AIS_REDIRECT_LINK,
-            MULTICURRENCY_ACCOUNT_LEVEL,
-            BANK_OFFERED_CONSENT_SUPPORT,
-            AVAILABLE_BOOKING_STATUSES,
-            SUPPORTED_ACCOUNT_REFERENCE_FIELDS,
-            CONSENT_LIFETIME,
-            TRANSACTION_LIFETIME,
-            ALL_PSD_2_SUPPORT,
-            TRANSACTIONS_WITHOUT_BALANCES_SUPPORTED,
-            SIGNING_BASKET_SUPPORTED,
-            PAYMENT_CANCELLATION_AUTHORIZATION_MANDATED,
-            PIIS_CONSENT_SUPPORTED,
-            DELTA_REPORT_SUPPORTED,
-            REDIRECT_URL_EXPIRATION_TIME_MS,
-            PIS_PAYMENT_CANCELLATION_REDIRECT_URL_TO_ASPSP,
-            NOT_CONFIRMED_CONSENT_EXPIRATION_PERIOD_MS,
-            NOT_CONFIRMED_PAYMENT_EXPIRATION_PERIOD_MS,
-            SUPPORTED_PAYMENT_TYPE_AND_PRODUCT_MATRIX,
-            PAYMENT_CANCELLATION_REDIRECT_URL_EXPIRATION_TIME_MS,
-            AVAILABLE_ACCOUNTS_CONSENT_SUPPORTED,
-            SCA_BY_ONE_TIME_AVAILABLE_ACCOUNTS_CONSENT_REQUIRED,
-            PSU_IN_INITIAL_REQUEST_MANDATED,
-            FORCE_XS2A_BASE_URL,
-            XS2A_BASEURL,
-            SCA_REDIRECT_FLOW_OAUTH);
-    }
-
     private static List<SupportedAccountReferenceField> getSupportedAccountReferenceFields() {
         return Collections.singletonList(IBAN);
     }

@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.integration;
 
 
+import de.adorsys.psd2.aspsp.profile.domain.AspspSettings;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.consent.api.CmsAuthorisationType;
 import de.adorsys.psd2.consent.api.pis.authorisation.CreatePisAuthorisationResponse;
@@ -28,6 +29,7 @@ import de.adorsys.psd2.xs2a.config.*;
 import de.adorsys.psd2.xs2a.core.event.Event;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
+import de.adorsys.psd2.xs2a.core.profile.ScaRedirectFlow;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
@@ -181,8 +183,10 @@ public class PaymentControllerTest {
     @Test
     public void cancelPaymentAuthorisation_Redirect_OAuth_successful() throws Exception {
         // Given
+        AspspSettings aspspSettings = AspspSettingsBuilder.buildAspspSettings();
+        aspspSettings.setScaRedirectFlow(ScaRedirectFlow.OAUTH);
         given(aspspProfileService.getAspspSettings())
-            .willReturn(AspspSettingsBuilder.buildAspspSettingsWithOAuth());
+            .willReturn(aspspSettings);
         given(pisCommonPaymentServiceEncrypted.getAuthorisationScaStatus(ENCRYPT_PAYMENT_ID, AUTHORISATION_ID, CmsAuthorisationType.CREATED))
             .willReturn(Optional.of(ScaStatus.RECEIVED));
         given(pisCommonPaymentServiceEncrypted.getCommonPaymentById(ENCRYPT_PAYMENT_ID))
