@@ -61,7 +61,9 @@ public class ScaApproachResolver {
             return REDIRECT;
         }
 
-        if (!tppRedirectPreferred && REDIRECT == firstScaApproach && scaApproaches.size() > 1) {
+        if (!tppRedirectPreferred
+                && REDIRECT == firstScaApproach
+                && scaApproaches.size() > 1) {
             return getSecond(scaApproaches);
         }
 
