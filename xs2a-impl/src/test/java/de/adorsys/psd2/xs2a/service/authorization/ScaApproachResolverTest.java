@@ -58,10 +58,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_shouldReturn_Redirect() {
-        //When
+        //Given
         when(requestProviderService.resolveTppRedirectPreferred())
             .thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -70,10 +71,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_shouldReturn_Embedded() {
-        //When
+        //Given
         when(requestProviderService.resolveTppRedirectPreferred())
             .thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -82,10 +84,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredAbsent_Redirect_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -94,10 +97,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_Redirect_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -106,10 +110,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_Redirect_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -118,10 +123,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredAbsent_Embedded_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -130,10 +136,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_Embedded_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -142,10 +149,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_Embedded_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -154,10 +162,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_Decoupled_shouldReturn_Decoupled() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -166,10 +175,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_Decoupled_shouldReturn_Decoupled() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -178,10 +188,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_EmbeddedDecoupledRedirect_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, DECOUPLED, REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -190,10 +201,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_RedirectEmbeddedDecoupled_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, EMBEDDED, DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -202,10 +214,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_DecoupledEmbeddedRedirect_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED, REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -214,10 +227,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_EmbeddedDecoupled_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -226,10 +240,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredTrue_DecoupledEmbedded_shouldReturn_Decoupled() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(true));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -238,10 +253,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredAbsent_RedirectEmbeddedDecoupled_shouldReturn_Redirect() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, EMBEDDED, DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -250,10 +266,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredAbsent_EmbeddedDecoupledRedirect_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, DECOUPLED, REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -262,10 +279,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredAbsent_DecoupledEmbeddedRedirect_shouldReturn_Decoupled() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED, REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.empty());
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -274,10 +292,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_DecoupledEmbeddedRedirect_shouldReturn_Decoupled() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(DECOUPLED, EMBEDDED, REDIRECT));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -286,10 +305,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_EmbeddedRedirectDecoupled_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(EMBEDDED, REDIRECT, DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -298,10 +318,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_RedirectEmbeddedDecoupled_shouldReturn_Embedded() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, EMBEDDED, DECOUPLED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
@@ -310,10 +331,11 @@ public class ScaApproachResolverTest {
 
     @Test
     public void resolveScaApproach_TppRedirectPreferredFalse_RedirectDecoupledEmbedded_shouldReturn_Decoupled() {
-        //When
+        //Given
         when(aspspProfileService.getScaApproaches()).thenReturn(buildScaApproaches(REDIRECT, DECOUPLED, EMBEDDED));
         when(requestProviderService.resolveTppRedirectPreferred()).thenReturn(Optional.of(false));
 
+        //When
         ScaApproach actualResult = scaApproachResolver.resolveScaApproach();
 
         //Then
