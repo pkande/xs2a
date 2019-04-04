@@ -38,7 +38,7 @@ public class ScaApproachResolver {
     /**
      * Resolve which sca approach from sca approaches list in ASPSP-profile should be used for authorisation.
      *
-     * If header "tpp-redirect-preferred" is provided with value "true", Redirect approach will be used.
+     * If header "tpp-redirect-preferred" is provided with value "true" and ASPSP supports Redirect approach, then this approach will be used.
      * If header "tpp-redirect-preferred" is provided with value "false", the first non-Redirect approach from the list will be used.
      * If header "tpp-redirect-preferred" is not provided, the first approach from the list will be chosen.
      * If ASPSP has only one SCA approach in profile, header "tpp-redirect-preferred" will be ignored
