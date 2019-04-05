@@ -195,7 +195,7 @@ public class AccountAspectTest {
                                  false, false, false, 1,
                                  null, 1, 1,
                                  null, 1, false,
-                                 false, false, false, FORCED_BASE_URL);
+                                 false, false, false, FORCED_BASE_URL,null);
     }
 
     private MockHttpServletRequest buildMockHttpServletRequest() {
