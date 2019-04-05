@@ -54,8 +54,13 @@ public class AccountModelMapper {
         return new AccountList().accounts(details);
     }
 
-    public AccountDetails mapToAccountDetails(Xs2aAccountDetails accountDetails) {
+    public AccountDetails mapToAccountDetails(Xs2aAccountDetailsHolder xs2aAccountDetailsHolder) {
+        return mapToAccountDetails(xs2aAccountDetailsHolder.getAccountDetails());
+    }
+
+    private AccountDetails mapToAccountDetails(Xs2aAccountDetails accountDetails) {
         AccountDetails target = new AccountDetails();
+
         BeanUtils.copyProperties(accountDetails, target);
 
         target.resourceId(accountDetails.getResourceId())

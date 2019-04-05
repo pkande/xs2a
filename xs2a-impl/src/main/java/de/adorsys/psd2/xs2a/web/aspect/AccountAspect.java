@@ -21,10 +21,7 @@ import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.Transactions;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountDetails;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountListHolder;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountReport;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aTransactionsReport;
+import de.adorsys.psd2.xs2a.domain.account.*;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
@@ -46,10 +43,10 @@ public class AccountAspect extends AbstractLinkAspect<AccountController> {
     }
 
     @AfterReturning(pointcut = "execution(* de.adorsys.psd2.xs2a.service.AccountService.getAccountDetails(..)) && args( consentId, accountId, withBalance)", returning = "result", argNames = "result,consentId,accountId,withBalance")
-    public ResponseObject<Xs2aAccountDetails> getAccountDetailsAspect(ResponseObject<Xs2aAccountDetails> result, String consentId, String accountId, boolean withBalance) {
+    public ResponseObject<Xs2aAccountDetailsHolder> getAccountDetailsAspect(ResponseObject<Xs2aAccountDetailsHolder> result, String consentId, String accountId, boolean withBalance) {
         if (!result.hasError()) {
-            Xs2aAccountDetails accountDetails = result.getBody();
-            accountDetails.setLinks(buildLinksForAccountDetails(accountDetails.getResourceId(), withBalance));
+            Xs2aAccountDetails accountDetails = result.getBody().getAccountDetails();
+            accountDetails.setLinks(buildLinksForAccountDetails(accountDetails.getResourceId(), result.getBody().getAccountConsent().getAccess()));
             return result;
         }
         return enrichErrorTextMessage(result);
@@ -124,15 +121,4 @@ public class AccountAspect extends AbstractLinkAspect<AccountController> {
                    && allowedAccountData.stream()
                           .anyMatch(a -> accountId.equals(a.getResourceId()));
     }
-
-    private Links buildLinksForAccountDetails(String accountId, boolean withBalance) {
-        Links links = new Links();
-        if (withBalance) {
-            links.setBalances(buildPath("/v1/accounts/{accountId}/balances", accountId));
-        }
-        links.setTransactions(buildPath("/v1/accounts/{accountId}/transactions", accountId));
-
-        return links;
-    }
-
 }

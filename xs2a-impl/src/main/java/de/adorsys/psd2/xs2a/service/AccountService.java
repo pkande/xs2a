@@ -159,14 +159,14 @@ public class AccountService {
      * @param consentId   String representing an AccountConsent identification
      * @param accountId   String representing a PSU`s Account at ASPSP
      * @param withBalance boolean representing if the responded AccountDetails should contain
-     * @return AccountDetails based on accountId with Balances if requested and granted by consent
+     * @return response with {@link Xs2aAccountDetailsHolder} based on accountId with Balances if requested and granted by consent
      */
-    public ResponseObject<Xs2aAccountDetails> getAccountDetails(String consentId, String accountId, boolean withBalance) {
+    public ResponseObject<Xs2aAccountDetailsHolder> getAccountDetails(String consentId, String accountId, boolean withBalance) {
         xs2aEventService.recordAisTppRequest(consentId, EventType.READ_ACCOUNT_DETAILS_REQUEST_RECEIVED);
 
         Optional<AccountConsent> accountConsentOptional = aisConsentService.getAccountConsentById(consentId);
         if (!accountConsentOptional.isPresent()) {
-            return ResponseObject.<Xs2aAccountDetails>builder()
+            return ResponseObject.<Xs2aAccountDetailsHolder>builder()
                        .fail(AIS_400, of(CONSENT_UNKNOWN_400))
                        .build();
         }
@@ -175,14 +175,14 @@ public class AccountService {
 
         ValidationResult validationResult = getAccountDetailsValidator.validate(new CommonAccountRequestObject(accountConsent, accountId, withBalance));
         if (validationResult.isNotValid()) {
-            return ResponseObject.<Xs2aAccountDetails>builder()
+            return ResponseObject.<Xs2aAccountDetailsHolder>builder()
                        .fail(validationResult.getMessageError())
                        .build();
         }
 
         Optional<SpiAccountReference> requestedAccountReference = findAccountReference(accountConsent.getAccess().getAccounts(), accountId);
         if (!requestedAccountReference.isPresent()) {
-            return ResponseObject.<Xs2aAccountDetails>builder()
+            return ResponseObject.<Xs2aAccountDetailsHolder>builder()
                        .fail(ErrorType.AIS_401, of(CONSENT_INVALID))
                        .build();
         }
@@ -196,7 +196,7 @@ public class AccountService {
         aisConsentDataService.updateAspspConsentData(spiResponse.getAspspConsentData());
 
         if (spiResponse.hasError()) {
-            return ResponseObject.<Xs2aAccountDetails>builder()
+            return ResponseObject.<Xs2aAccountDetailsHolder>builder()
                        .fail(spiErrorMapper.mapToErrorHolder(spiResponse, ServiceType.AIS))
                        .build();
         }
@@ -204,15 +204,17 @@ public class AccountService {
         SpiAccountDetails spiAccountDetails = spiResponse.getPayload();
 
         if (spiAccountDetails == null) {
-            return ResponseObject.<Xs2aAccountDetails>builder()
+            return ResponseObject.<Xs2aAccountDetailsHolder>builder()
                        .fail(ErrorType.AIS_404, of(RESOURCE_UNKNOWN_404))
                        .build();
         }
 
         Xs2aAccountDetails accountDetails = accountDetailsMapper.mapToXs2aAccountDetails(spiAccountDetails);
 
-        ResponseObject<Xs2aAccountDetails> response =
-            ResponseObject.<Xs2aAccountDetails>builder().body(accountDetails).build();
+        Xs2aAccountDetailsHolder xs2aAccountDetailsHolder = new Xs2aAccountDetailsHolder(accountDetails, accountConsent);
+
+        ResponseObject<Xs2aAccountDetailsHolder> response =
+            ResponseObject.<Xs2aAccountDetailsHolder>builder().body(xs2aAccountDetailsHolder).build();
 
         writeLogAndCheckConsent(consentId, withBalance, accountConsent, TypeAccess.ACCOUNT, response);
 

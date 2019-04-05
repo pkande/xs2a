@@ -20,10 +20,7 @@ import de.adorsys.psd2.api.AccountApi;
 import de.adorsys.psd2.xs2a.core.ais.BookingStatus;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.Transactions;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountDetails;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aAccountListHolder;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aBalancesReport;
-import de.adorsys.psd2.xs2a.domain.account.Xs2aTransactionsReport;
+import de.adorsys.psd2.xs2a.domain.account.*;
 import de.adorsys.psd2.xs2a.service.AccountService;
 import de.adorsys.psd2.xs2a.service.mapper.AccountModelMapper;
 import de.adorsys.psd2.xs2a.service.mapper.ResponseMapper;
@@ -61,7 +58,7 @@ public class AccountController implements AccountApi {
 
     @Override
     public ResponseEntity readAccountDetails(String accountId, UUID xRequestID, String consentID, Boolean withBalance, String digest, String signature, byte[] tpPSignatureCertificate, String psUIPAddress, String psUIPPort, String psUAccept, String psUAcceptCharset, String psUAcceptEncoding, String psUAcceptLanguage, String psUUserAgent, String psUHttpMethod, UUID psUDeviceID, String psUGeoLocation) {
-        ResponseObject<Xs2aAccountDetails> accountDetails = accountService.getAccountDetails(consentID, accountId, Optional.ofNullable(withBalance).orElse(false));
+        ResponseObject<Xs2aAccountDetailsHolder> accountDetails = accountService.getAccountDetails(consentID, accountId, Optional.ofNullable(withBalance).orElse(false));
         return accountDetails.hasError()
                    ? responseErrorMapper.generateErrorResponse(accountDetails.getError())
                    : responseMapper.ok(accountDetails, accountModelMapper::mapToAccountDetails);

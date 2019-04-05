@@ -81,7 +81,7 @@ public class AccountControllerTest {
     public void setUp() {
         when(accountService.getAccountList(anyString(), anyBoolean())).thenReturn(getXs2aAccountListHolder());
         when(accountService.getBalancesReport(anyString(), anyString())).thenReturn(getBalanceReport());
-        when(accountService.getAccountDetails(anyString(), any(), anyBoolean())).thenReturn(getXs2aAccountDetails());
+        when(accountService.getAccountDetails(anyString(), any(), anyBoolean())).thenReturn(getXs2aAccountDetailsHolder());
     }
 
     @Test
@@ -180,10 +180,11 @@ public class AccountControllerTest {
                    .body(details).build();
     }
 
-    private ResponseObject<Xs2aAccountDetails> getXs2aAccountDetails() {
+    private ResponseObject<Xs2aAccountDetailsHolder> getXs2aAccountDetailsHolder() {
         List<Xs2aAccountDetails> accountDetailsList = getXs2aAccountListHolder().getBody().getAccountDetails();
-        return ResponseObject.<Xs2aAccountDetails>builder()
-                   .body(accountDetailsList.get(0)).build();
+        Xs2aAccountDetailsHolder xs2aAccountDetailsHolder = new Xs2aAccountDetailsHolder(accountDetailsList.get(0), null);
+        return ResponseObject.<Xs2aAccountDetailsHolder>builder()
+                   .body(xs2aAccountDetailsHolder).build();
     }
 
     private ResponseObject<AccountDetails> getAccountDetails() throws IOException {

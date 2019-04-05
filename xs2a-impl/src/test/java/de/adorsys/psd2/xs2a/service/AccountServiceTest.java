@@ -369,7 +369,7 @@ public class AccountServiceTest {
         when(getAccountDetailsValidator.validate(new CommonAccountRequestObject(accountConsent, ACCOUNT_ID, WITH_BALANCE)))
             .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
-        ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
+        ResponseObject<Xs2aAccountDetailsHolder> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
@@ -398,7 +398,7 @@ public class AccountServiceTest {
         when(spiErrorMapper.mapToErrorHolder(buildErrorSpiResponse(spiAccountDetails), ServiceType.AIS))
             .thenReturn(ErrorHolder.builder(FORMAT_ERROR_CODE).errorType(ErrorType.AIS_400).build());
 
-        ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
+        ResponseObject<Xs2aAccountDetailsHolder> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
@@ -418,7 +418,7 @@ public class AccountServiceTest {
         when(getAccountDetailsValidator.validate(new CommonAccountRequestObject(accountConsent, ACCOUNT_ID, WITH_BALANCE)))
             .thenReturn(ValidationResult.invalid(CONSENT_INVALID_MESSAGE_ERROR));
 
-        ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
+        ResponseObject<Xs2aAccountDetailsHolder> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
@@ -447,12 +447,12 @@ public class AccountServiceTest {
         when(consentMapper.mapToSpiAccountConsent(any()))
             .thenReturn(SPI_ACCOUNT_CONSENT);
 
-        ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
+        ResponseObject<Xs2aAccountDetailsHolder> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isFalse();
 
-        Xs2aAccountDetails body = actualResponse.getBody();
+        Xs2aAccountDetails body = actualResponse.getBody().getAccountDetails();
 
         assertThat(body).isNotNull();
         assertThat(body).isEqualTo(xs2aAccountDetails);
@@ -497,7 +497,7 @@ public class AccountServiceTest {
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
-        ResponseObject<Xs2aAccountDetails> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
+        ResponseObject<Xs2aAccountDetailsHolder> actualResponse = accountService.getAccountDetails(CONSENT_ID, ACCOUNT_ID, WITH_BALANCE);
 
         // Then
         verify(getAccountDetailsValidator).validate(new CommonAccountRequestObject(accountConsent, ACCOUNT_ID, WITH_BALANCE));
