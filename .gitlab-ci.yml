@@ -76,7 +76,7 @@ variables: &variables
 
 .java_artifacts: &java_artifacts
   paths:
-    - "xs2a-standalone-starter/target/xs2a-standalone-starter*jar"
+    - "xs2a-standalone-starter/target/xs2a-standalone-starter*-exec.jar"
     - "consent-management/cms-standalone-service/target/consent-management*jar"
     - "aspsp-profile/aspsp-profile-server/target/aspsp-profile*jar"
   name: "$CI_PROJECT_NAME-${CI_BUILD_REF_NAME#*v}"
