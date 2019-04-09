@@ -5,7 +5,7 @@ In previous versions SPI-API provided a possibility to store some information, s
 workflow-relevant data in encrypted consent object. For that purpose in every SPI-Call there were `AspspConsentData` parameter,
 that provided access to `AspspConsentData` byte-array. Since it was plain POJO, unnecessary reads/updates were invoked.
 
-Now we change this consent by providing instead `AspspConsentData` object an `SpiAspspConsentDataProvider` interface.
+Now we change this concept by providing instead `AspspConsentData` object an `SpiAspspConsentDataProvider` interface.
 Within the SPI-call now developer can access `AspspConsentData` byte-array using the `loadAspspConsentData` method.
 And in case of saving the data, `updateAspspConsentData` may be used, that invokes immidiate save of consent data to the database.
 
