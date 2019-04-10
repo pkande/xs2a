@@ -320,7 +320,7 @@ public class AisAuthorisationServiceInternalTest {
         return new AspspSettings(1, false, false, null, null,
                                  null, false, null, null, consentLifeTime, 1, false,
                                  false, false, false, false, false, 1,
-                                 null, 1, 1, null, 1, false, false, false, false, null);
+                                 null, 1, 1, null, 1, false, false, false, false, null, null);
     }
 
     private AisConsent buildConsent(String externalId) {
