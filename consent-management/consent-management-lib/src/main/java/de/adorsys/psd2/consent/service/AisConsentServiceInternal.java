@@ -379,6 +379,8 @@ public class AisConsentServiceInternal implements AisConsentService {
         }
 
         AisConsentAuthorization aisConsentAuthorisation = aisConsentAuthorizationOptional.get();
+        PsuIdData psuDataFromRequest = request.getPsuData();
+        closePreviousAuthorisationsByPsu(aisConsentAuthorisation, psuDataFromRequest);
 
         if (aisConsentAuthorisation.getScaStatus().isFinalisedStatus()) {
             log.info("Authorisation ID: [{}], SCA status: [{}]. Update consent authorisation failed, because consent authorisation has finalised status",
@@ -387,7 +389,7 @@ public class AisConsentServiceInternal implements AisConsentService {
         }
 
         if (ScaStatus.STARTED == aisConsentAuthorisation.getScaStatus()) {
-            PsuData psuRequest = psuDataMapper.mapToPsuData(request.getPsuData());
+            PsuData psuRequest = psuDataMapper.mapToPsuData(psuDataFromRequest);
 
             if (!cmsPsuService.isPsuDataRequestCorrect(psuRequest, aisConsentAuthorisation.getPsuData())) {
                 log.info("Authorisation ID: [{}], SCA status: [{}]. Update consent authorisation failed, because psu data request does not match stored psu data",
@@ -576,6 +578,16 @@ public class AisConsentServiceInternal implements AisConsentService {
                    .stream()
                    .filter(auth -> auth.getExternalId().equals(authorisationId))
                    .findFirst();
+    }
+
+    private void closePreviousAuthorisationsByPsu(AisConsentAuthorization authorisation, PsuIdData psuIdData) {
+        AisConsent consent = authorisation.getConsent();
+
+        List<AisConsentAuthorization> previousAuthorisations = consent.getAuthorizations().stream()
+                                                                   .filter(a -> !a.getExternalId().equals(authorisation.getExternalId()))
+                                                                   .collect(Collectors.toList());
+
+        closePreviousAuthorisationsByPsu(previousAuthorisations, psuIdData);
     }
 
     private void closePreviousAuthorisationsByPsu(List<AisConsentAuthorization> authorisations, PsuIdData psuIdData) {
