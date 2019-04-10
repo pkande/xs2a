@@ -39,15 +39,14 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.PERIOD_INVALID;
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateConsentRequestValidatorTest {
     private static final MessageError COMBINED_SERVICE_VALIDATION_ERROR =
-        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR, "Sessions are not supported by ASPSP"));
+        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(SESSIONS_NOT_SUPPORTED));
 
     @InjectMocks
     private CreateConsentRequestValidator createConsentRequestValidator;

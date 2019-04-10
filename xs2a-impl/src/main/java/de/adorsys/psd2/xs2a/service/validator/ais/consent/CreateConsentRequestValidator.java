@@ -86,7 +86,7 @@ public class CreateConsentRequestValidator implements BusinessValidator<CreateCo
         }
 
         if (isNotSupportedCombinedServiceIndicator(request)) {
-            return ValidationResult.invalid(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR, "Sessions are not supported by ASPSP"));
+            return ValidationResult.invalid(ErrorType.AIS_400, SESSIONS_NOT_SUPPORTED);
         }
 
         return ValidationResult.valid();
