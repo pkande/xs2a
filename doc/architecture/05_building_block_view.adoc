@@ -1,0 +1,126 @@
+:imagesdir: images
+[[section-building-block-view]]
+
+
+== Building Block View
+
+
+
+=== Whitebox Overall System
+
+
+image::L01-Whitebox.png[Whitebox overall system]
+
+
+Motivation:: _<text explanation>_
+
+
+Contained Building Blocks::
+|===
+| Component | Description
+
+| xref:../../xs2a-impl/README.adoc[XS2A-Impl]
+| an external interface and corresponding validators and services operating to serve TPPs according to a Berlin Group operational rules
+
+| xref:../../consent-management-system/README.adoc[CMS]
+| Third-party provider, acting on behalf of PSU, operating the accounts/payment data of PSU provided by ASPSP through XS2A Interface.
+
+| xref:../../aspsp-profile/README.adoc[ASPSP Profile]
+| a service that provides static configuration of features, those are supported by actual ASPSP
+
+| xref:../../spi-api/README.adoc[SPI-API]
+| internal Java interface to provide a universal way to implement connectors to underlying ASPSP Systems
+
+| ASPSP-Connector
+| an implementation of spi-api interface to connect XS2A-services with ASPSP internal system to process requests
+|===
+
+Important Interfaces::
+_<Description of important interfaces>_
+
+
+
+
+==== <Name black box 1>
+
+
+
+_<Purpose/Responsibility>_
+
+_<Interface(s)>_
+
+_<(Optional) Quality/Performance Characteristics>_
+
+_<(Optional) Directory/File Location>_
+
+_<(Optional) Fulfilled Requirements>_
+
+_<(optional) Open Issues/Problems/Risks>_
+
+
+
+
+==== <Name black box 2>
+
+_<black box template>_
+
+==== <Name black box n>
+
+_<black box template>_
+
+
+==== <Name interface 1>
+
+...
+
+==== <Name interface m>
+
+
+
+=== Level 2
+
+
+
+==== White Box _<building block 1>_
+
+
+
+_<white box template>_
+
+==== White Box _<building block 2>_
+
+
+_<white box template>_
+
+...
+
+==== White Box _<building block m>_
+
+
+_<white box template>_
+
+
+
+=== Level 3
+
+
+
+
+==== White Box <_building block x.1_>
+
+
+
+
+_<white box template>_
+
+
+==== White Box <_building block x.2_>
+
+_<white box template>_
+
+
+
+==== White Box <_building block y.1_>
+
+_<white box template>_
+
