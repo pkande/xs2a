@@ -196,7 +196,6 @@ public class AisAuthorisationServiceInternalTest {
                                          .collect(Collectors.toSet());
         assertEquals(scaStatuses.size(), 1);
         assertTrue(scaStatuses.contains(ScaStatus.FAILED));
-
     }
 
     @Test
