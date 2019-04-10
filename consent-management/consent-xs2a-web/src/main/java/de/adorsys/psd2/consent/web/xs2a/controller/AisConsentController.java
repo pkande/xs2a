@@ -38,7 +38,7 @@ import java.util.List;
 @RequestMapping(path = "api/v1/ais/consent")
 @Api(value = "api/v1/ais/consent", tags = "AIS, Consents", description = "Provides access to consent management system for AIS")
 public class AisConsentController {
-    private final AisConsentAuthorisationServiceEncrypted aisAuthorisationServiceEncrypted;
+    private final AisConsentAuthorisationServiceEncrypted aisConsentAuthorisationServiceEncrypted;
     private final AisConsentServiceEncrypted aisConsentService;
 
     @PostMapping(path = "/")
@@ -146,7 +146,7 @@ public class AisConsentController {
         @ApiParam(name = "consent-id", value = "The consent identification assigned to the created consent authorization.", example = "bf489af6-a2cb-4b75-b71d-d66d58b934d7")
         @PathVariable("consent-id") String consentId,
         @RequestBody AisConsentAuthorizationRequest consentAuthorization) {
-        return aisAuthorisationServiceEncrypted.createAuthorization(consentId, consentAuthorization)
+        return aisConsentAuthorisationServiceEncrypted.createAuthorization(consentId, consentAuthorization)
                    .map(authorizationId -> new ResponseEntity<>(new CreateAisConsentAuthorizationResponse(authorizationId), HttpStatus.CREATED))
                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -161,7 +161,7 @@ public class AisConsentController {
         @PathVariable("authorization-id") String authorizationId,
         @ApiParam(value = "The following code values are permitted 'VALID', 'REJECTED', 'REVOKED_BY_PSU', 'TERMINATED_BY_TPP'. These values might be extended by ASPSP by more values.", example = "VALID")
         @RequestBody AisConsentAuthorizationRequest consentAuthorization) {
-        return aisAuthorisationServiceEncrypted.updateConsentAuthorization(authorizationId, consentAuthorization)
+        return aisConsentAuthorisationServiceEncrypted.updateConsentAuthorization(authorizationId, consentAuthorization)
                    ? new ResponseEntity<>(HttpStatus.OK)
                    : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -177,7 +177,7 @@ public class AisConsentController {
         @ApiParam(name = "authorization-id", value = "The consent authorization identification assigned to the created authorization.", example = "bf489af6-a2cb-4b75-b71d-d66d58b934d7")
         @PathVariable("authorization-id") String authorizationId) {
 
-        return aisAuthorisationServiceEncrypted.getAccountConsentAuthorizationById(authorizationId, consentId)
+        return aisConsentAuthorisationServiceEncrypted.getAccountConsentAuthorizationById(authorizationId, consentId)
                    .map(resp -> new ResponseEntity<>(resp, HttpStatus.OK))
                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -193,7 +193,7 @@ public class AisConsentController {
         @ApiParam(name = "authorisation-id", value = "Consent authorisation identification", example = "bf489af6-a2cb-4b75-b71d-d66d58b934d7")
         @PathVariable("authorisation-id") String authorisationId) {
 
-        return aisAuthorisationServiceEncrypted.getAuthorisationScaStatus(consentId, authorisationId)
+        return aisConsentAuthorisationServiceEncrypted.getAuthorisationScaStatus(consentId, authorisationId)
                    .map(resp -> new ResponseEntity<>(resp, HttpStatus.OK))
                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -206,7 +206,7 @@ public class AisConsentController {
     public ResponseEntity<List<String>> getConsentAuthorisation(
         @ApiParam(name = "consent-id", value = "The account consent identification assigned to the created account consent.", example = "vOHy6fj2f5IgxHk-kTlhw6sZdTXbRE3bWsu2obq54beYOChP5NvRmfh06nrwumc2R01HygQenchEcdGOlU-U0A==_=_iR74m2PdNyE")
         @PathVariable("consent-id") String consentId) {
-        return aisAuthorisationServiceEncrypted.getAuthorisationsByConsentId(consentId)
+        return aisConsentAuthorisationServiceEncrypted.getAuthorisationsByConsentId(consentId)
                    .map(authorisation -> new ResponseEntity<>(authorisation, HttpStatus.OK))
                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -219,7 +219,7 @@ public class AisConsentController {
         @PathVariable("authorisation-id") String authorisationId,
         @ApiParam(name = "authentication-method-id", value = "Authentication method identification", example = "sms")
         @PathVariable("authentication-method-id") String authenticationMethodId) {
-        boolean isMethodDecoupled = aisAuthorisationServiceEncrypted.isAuthenticationMethodDecoupled(authorisationId, authenticationMethodId);
+        boolean isMethodDecoupled = aisConsentAuthorisationServiceEncrypted.isAuthenticationMethodDecoupled(authorisationId, authenticationMethodId);
         return new ResponseEntity<>(isMethodDecoupled, HttpStatus.OK);
     }
 
@@ -232,7 +232,7 @@ public class AisConsentController {
         @ApiParam(name = "authorisation-id", value = "The consent authorisation identification.", example = "bf489af6-a2cb-4b75-b71d-d66d58b934d7")
         @PathVariable("authorisation-id") String authorisationId,
         @RequestBody List<CmsScaMethod> methods) {
-        return aisAuthorisationServiceEncrypted.saveAuthenticationMethods(authorisationId, methods)
+        return aisConsentAuthorisationServiceEncrypted.saveAuthenticationMethods(authorisationId, methods)
                    ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                    : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -247,7 +247,7 @@ public class AisConsentController {
         @PathVariable("authorisation-id") String authorisationId,
         @ApiParam(name = "sca-approach", value = "Chosen SCA approach.", example = "REDIRECT")
         @PathVariable("sca-approach") ScaApproach scaApproach) {
-        return aisAuthorisationServiceEncrypted.updateScaApproach(authorisationId, scaApproach)
+        return aisConsentAuthorisationServiceEncrypted.updateScaApproach(authorisationId, scaApproach)
                    ? new ResponseEntity<>(true, HttpStatus.OK)
                    : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

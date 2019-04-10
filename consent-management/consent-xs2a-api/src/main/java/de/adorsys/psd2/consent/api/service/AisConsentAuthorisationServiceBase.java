@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Base version of AisConsentService that contains all method declarations.
+ * Base version of AisConsentAuthorisationService that contains all method declarations.
  * Should not be implemented directly, consider using one of the interfaces that extends this one.
  *
- * @see AisConsentService
- * @see AisConsentServiceEncrypted
+ * @see de.adorsys.psd2.consent.api.service.AisConsentAuthorisationService
+ * @see de.adorsys.psd2.consent.api.service.AisConsentAuthorisationServiceEncrypted
  */
 interface AisConsentAuthorisationServiceBase {
     /**
