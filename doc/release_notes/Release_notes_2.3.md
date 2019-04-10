@@ -36,4 +36,4 @@ From now on, empty arrays in the HTTP responses are included in the bodies. For 
 
 ## Bugfix: Return correct value of "frequencyPerDay" property on get Consent request
 From now on, "frequencyPerDay" property in get AIS Consent(`GET /v1/consents/{consentId}`) response contains initial value or adjusted by ASPSP, according to profile settings.
-Before that, this field had initial value that was sent by TPP.
+Before that, this field always had initial value that was sent by TPP.
