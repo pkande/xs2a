@@ -25,8 +25,6 @@ import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
  * See <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/config/ServiceLocatorFactoryBean.html">Spring docs</a> for details.
  */
 public interface PisScaStageAuthorisationFactory extends ServiceFactory {
-//    String INITIATION_PREFIX = "PIS";
-//    String SEPARATOR = "_";
     String CANCELLATION_SERVICE_STATUS_PATTERN = "PIS_CANCELLATION_%s_%s";
     String SERVICE_STATUS_PATTERN = "PIS_%s_%s";
 
