@@ -32,11 +32,13 @@ import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.pis.stage.PisScaStage;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 // TODO this class takes low-level communication to Consent-management-system. Should be migrated to consent-services package. All XS2A business-logic should be removed from here to XS2A services. https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/332
@@ -67,10 +69,16 @@ public class PisAuthorisationService {
      * @return update pis authorisation response, which contains payment id, authorisation id, sca status, psu message and links
      */
     public Xs2aUpdatePisCommonPaymentPsuDataResponse updatePisAuthorisation(Xs2aUpdatePisCommonPaymentPsuDataRequest request, ScaApproach scaApproach) {
-        GetPisAuthorisationResponse response = pisCommonPaymentServiceEncrypted.getPisAuthorisationById(request.getAuthorisationId())
-                                                   .orElse(null);
+            Optional<GetPisAuthorisationResponse> pisAuthorisationOptional = pisCommonPaymentServiceEncrypted.getPisAuthorisationById(request.getAuthorisationId());
+            if (!pisAuthorisationOptional.isPresent()) {
+                log.error("Pis authorization is null");
+                throw new IllegalStateException("Pis authorization is empty");
+            }
 
-        PisScaStage<Xs2aUpdatePisCommonPaymentPsuDataRequest, GetPisAuthorisationResponse, Xs2aUpdatePisCommonPaymentPsuDataResponse> service = pisScaStageAuthorisationFactory.getService(PisScaStageAuthorisationFactory.INITIATION_PREFIX + PisScaStageAuthorisationFactory.SEPARATOR + scaApproach.name() + PisScaStageAuthorisationFactory.SEPARATOR + response.getScaStatus().name());
+            GetPisAuthorisationResponse response = pisAuthorisationOptional.get();
+
+        PisScaStage<Xs2aUpdatePisCommonPaymentPsuDataRequest, GetPisAuthorisationResponse, Xs2aUpdatePisCommonPaymentPsuDataResponse> service =
+            pisScaStageAuthorisationFactory.getService(PisScaStageAuthorisationFactory.getServiceName(scaApproach, response.getScaStatus()));
         Xs2aUpdatePisCommonPaymentPsuDataResponse stageResponse = service.apply(request, response);
 
         if (!stageResponse.hasError()) {
@@ -88,10 +96,16 @@ public class PisAuthorisationService {
      * @return update pis authorisation response, which contains payment id, authorisation id, sca status, psu message and links
      */
     public Xs2aUpdatePisCommonPaymentPsuDataResponse updatePisCancellationAuthorisation(Xs2aUpdatePisCommonPaymentPsuDataRequest request, ScaApproach scaApproach) {
-        GetPisAuthorisationResponse response = pisCommonPaymentServiceEncrypted.getPisCancellationAuthorisationById(request.getAuthorisationId())
-                                                   .orElse(null);
+        Optional<GetPisAuthorisationResponse> pisCancellationAuthorisationOptional = pisCommonPaymentServiceEncrypted.getPisCancellationAuthorisationById(request.getAuthorisationId());
+        if (!pisCancellationAuthorisationOptional.isPresent()) {
+            log.error("Pis cancellation authorization is null");
+            throw new IllegalStateException("Pis cancellation authorization is empty");
+        }
 
-        PisScaStage<Xs2aUpdatePisCommonPaymentPsuDataRequest, GetPisAuthorisationResponse, Xs2aUpdatePisCommonPaymentPsuDataResponse> service = pisScaStageAuthorisationFactory.getService(PisScaStageAuthorisationFactory.CANCELLATION_PREFIX + PisScaStageAuthorisationFactory.SEPARATOR + scaApproach.name() + PisScaStageAuthorisationFactory.SEPARATOR + response.getScaStatus().name());
+        GetPisAuthorisationResponse response = pisCancellationAuthorisationOptional.get();
+
+        PisScaStage<Xs2aUpdatePisCommonPaymentPsuDataRequest, GetPisAuthorisationResponse, Xs2aUpdatePisCommonPaymentPsuDataResponse> service =
+            pisScaStageAuthorisationFactory.getService(PisScaStageAuthorisationFactory.getCancellationServiceName(scaApproach, response.getScaStatus()));
         Xs2aUpdatePisCommonPaymentPsuDataResponse stageResponse = service.apply(request, response);
 
         if (!stageResponse.hasError()) {
