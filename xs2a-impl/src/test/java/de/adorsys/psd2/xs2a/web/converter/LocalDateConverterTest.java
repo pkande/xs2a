@@ -17,23 +17,18 @@
 package de.adorsys.psd2.xs2a.web.converter;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LocalDateConverterTest {
     private static final String ISO_DATE_STRING = "2020-04-02";
     private static final LocalDate EXPECTED_LOCAL_DATE = LocalDate.of(2020, 4, 2);
     private static final String MALFORMED_STRING = "malformed body";
 
-    @InjectMocks
-    private LocalDateConverter localDateConverter;
+    private LocalDateConverter localDateConverter = new LocalDateConverter();
 
     @Test
     public void convert_withCorrectString_shouldReturnObject() {
