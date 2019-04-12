@@ -158,7 +158,7 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
         Optional<PisAuthorization> pisAuthorisation = Optional.ofNullable(pisAuthorisationRepository.findOne(pisAuthorisationSpecification.byExternalIdAndInstanceId(authorisationId, instanceId)));
 
         if (!pisAuthorisation.isPresent()) {
-            log.info("Authorisation ID [{}], Instance ID: [{}]. PIS Authorization is empty.",
+            log.info("Authorisation ID [{}], Instance ID: [{}]. Update authorisation status failed, because authorisation not found.",
                      authorisationId, instanceId);
             return false;
         }
