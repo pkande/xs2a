@@ -28,7 +28,6 @@ import static org.junit.Assert.*;
 
 public class PSD2QCStatementTest {
 
-
     private X509Certificate validCertificate;
     private X509Certificate invalidCertificate;
 
