@@ -158,7 +158,7 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
         Optional<PisAuthorization> pisAuthorisation = Optional.ofNullable(pisAuthorisationRepository.findOne(pisAuthorisationSpecification.byExternalIdAndInstanceId(authorisationId, instanceId)));
 
         if (!pisAuthorisation.isPresent()) {
-            log.info("Authorisation ID [{}], Instance ID: [{}]. Update authorisation status failed, because authorisation not found",
+            log.info("Authorisation ID [{}], Instance ID: [{}]. PIS Authorization is empty.",
                      authorisationId, instanceId);
             return false;
         }
@@ -168,7 +168,14 @@ public class CmsPsuPisServiceInternal implements CmsPsuPisService {
                               .map(id -> validateGivenData(id, paymentId, psuIdData))
                               .orElse(false);
 
-        return isValid && updateAuthorisationStatusAndSaveAuthorisation(pisAuthorisation.get(), status);
+        if (!isValid) {
+            log.info("Authorisation ID [{}], Instance ID: [{}]. Update authorisation status failed, because request data is not valid",
+                     authorisationId, instanceId);
+            return false;
+        }
+
+
+        return updateAuthorisationStatusAndSaveAuthorisation(pisAuthorisation.get(), status);
     }
 
     @Override

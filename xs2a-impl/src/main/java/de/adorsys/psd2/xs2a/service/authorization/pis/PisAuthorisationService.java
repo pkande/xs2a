@@ -26,15 +26,19 @@ import de.adorsys.psd2.xs2a.config.factory.PisScaStageAuthorisationFactory;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
+import de.adorsys.psd2.xs2a.domain.ErrorHolder;
+import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataRequest;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.pis.stage.PisScaStage;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
+import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,13 +73,21 @@ public class PisAuthorisationService {
      * @return update pis authorisation response, which contains payment id, authorisation id, sca status, psu message and links
      */
     public Xs2aUpdatePisCommonPaymentPsuDataResponse updatePisAuthorisation(Xs2aUpdatePisCommonPaymentPsuDataRequest request, ScaApproach scaApproach) {
-            Optional<GetPisAuthorisationResponse> pisAuthorisationOptional = pisCommonPaymentServiceEncrypted.getPisAuthorisationById(request.getAuthorisationId());
-            if (!pisAuthorisationOptional.isPresent()) {
-                log.error("Pis authorization is null");
-                throw new IllegalStateException("Pis authorization is empty");
-            }
+        String authorisationId = request.getAuthorisationId();
+        Optional<GetPisAuthorisationResponse> pisAuthorisationOptional = pisCommonPaymentServiceEncrypted.getPisAuthorisationById(authorisationId);
+        if (!pisAuthorisationOptional.isPresent()) {
+            log.info("Authorisation ID: [{}]. Updating PIS authorisation PSU Data has failed: authorization is not found",
+                     authorisationId);
 
-            GetPisAuthorisationResponse response = pisAuthorisationOptional.get();
+            ErrorHolder errorHolder = ErrorHolder.builder(MessageErrorCode.RESOURCE_UNKNOWN_404)
+                                          .errorType(ErrorType.PIS_404)
+                                          .messages(Collections.singletonList("Pis authorization is not found"))
+                                          .build();
+            return new Xs2aUpdatePisCommonPaymentPsuDataResponse(errorHolder, request.getPaymentId(), authorisationId, request.getPsuData());
+
+        }
+
+        GetPisAuthorisationResponse response = pisAuthorisationOptional.get();
 
         PisScaStage<Xs2aUpdatePisCommonPaymentPsuDataRequest, GetPisAuthorisationResponse, Xs2aUpdatePisCommonPaymentPsuDataResponse> service =
             pisScaStageAuthorisationFactory.getService(PisScaStageAuthorisationFactory.getServiceName(scaApproach, response.getScaStatus()));
@@ -96,10 +108,17 @@ public class PisAuthorisationService {
      * @return update pis authorisation response, which contains payment id, authorisation id, sca status, psu message and links
      */
     public Xs2aUpdatePisCommonPaymentPsuDataResponse updatePisCancellationAuthorisation(Xs2aUpdatePisCommonPaymentPsuDataRequest request, ScaApproach scaApproach) {
+        String authorisationId = request.getAuthorisationId();
         Optional<GetPisAuthorisationResponse> pisCancellationAuthorisationOptional = pisCommonPaymentServiceEncrypted.getPisCancellationAuthorisationById(request.getAuthorisationId());
         if (!pisCancellationAuthorisationOptional.isPresent()) {
-            log.error("Pis cancellation authorization is null");
-            throw new IllegalStateException("Pis cancellation authorization is empty");
+            log.info("Authorisation ID: [{}]. Updating PIS authorisation PSU Data has failed: authorization is not found",
+                     authorisationId);
+
+            ErrorHolder errorHolder = ErrorHolder.builder(MessageErrorCode.RESOURCE_UNKNOWN_404)
+                                          .errorType(ErrorType.PIS_404)
+                                          .messages(Collections.singletonList("Pis cancellation authorization is not found"))
+                                          .build();
+            return new Xs2aUpdatePisCommonPaymentPsuDataResponse(errorHolder, request.getPaymentId(), authorisationId, request.getPsuData());
         }
 
         GetPisAuthorisationResponse response = pisCancellationAuthorisationOptional.get();

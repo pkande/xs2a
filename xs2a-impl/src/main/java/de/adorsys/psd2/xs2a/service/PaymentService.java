@@ -60,7 +60,7 @@ import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.*;
 @Service
 @AllArgsConstructor
 public class PaymentService {
-    private static final String PAYMENT_NOT_FOUND_MESSAGE = "Payment not found";
+    private static final String PAYMENT_NOT_FOUND_MESSAGE = "Payment not found"; //TODO: move to bundle https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/791
 
     private final ReadPaymentFactory readPaymentFactory;
     private final ReadPaymentStatusFactory readPaymentStatusFactory;
@@ -305,9 +305,14 @@ public class PaymentService {
             }
 
             Optional<? extends SpiPayment> spiPaymentOptional = spiPaymentFactory.createSpiPaymentByPaymentType(pisPayments, pisCommonPaymentResponse.getPaymentProduct(), paymentType);
-            if (spiPaymentOptional.isPresent()) {
-                spiPayment = spiPaymentOptional.get();
+            if (!spiPaymentOptional.isPresent()) {
+                log.info("X-Request-ID: [{}], Payment ID: [{}]. Cancelling payment has failed: couldn't create SPI payment from CMS payments",
+                         requestProviderService.getRequestId(), encryptedPaymentId);
+                return ResponseObject.<CancelPaymentResponse>builder()
+                           .fail(PIS_404, of(RESOURCE_UNKNOWN_404, PAYMENT_NOT_FOUND_MESSAGE))
+                           .build();
             }
+            spiPayment = spiPaymentOptional.get();
         }
 
         List<PsuIdData> psuData = pisCommonPaymentResponse.getPsuData();
