@@ -82,18 +82,21 @@ public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
         String authorizationId = body.getAuthorizationId();
 
         if (authorisationMethodDecider.isExplicitMethod(paymentRequestParameters.isTppExplicitAuthorisationPreferred(), body.isMultilevelScaRequired())) {
-            links.setStartAuthorisation(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations", paymentService, paymentProduct, paymentId));
+            if (paymentRequestParameters.getPsuData().isEmpty()) {
+                links.setStartAuthorisation(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations", paymentService, paymentProduct, paymentId));
+            } else {
+                links.setStartAuthorisationWithPsuAuthentication(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations", paymentService, paymentProduct, paymentId));
+            }
         } else {
             links.setScaStatus(
                 buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorizationId));
             if (paymentRequestParameters.getPsuData().isEmpty()) {
-                links.setStartAuthorisationWithPsuIdentification(
+                links.setUpdatePsuIdentification(
                     buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorizationId));
             } else {
-                links.setStartAuthorisationWithPsuAuthentication(
+                links.setUpdatePsuAuthentication(
                     buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorizationId));
             }
-
         }
 
         return links;

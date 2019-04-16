@@ -74,9 +74,9 @@ public class CreatePisAuthorisationCancellationAspect extends AbstractLinkAspect
     private Links addEmbeddedDecoupledRelatedLinks(Links links, String paymentService, String paymentProduct, String paymentId, String authorizationId, PsuIdData psuData) {
         String path = "/v1/{paymentService}/{payment-product}/{paymentId}/cancellation-authorisations/{authorisationId}";
         if (psuData.isEmpty()) {
-            links.setStartAuthorisationWithPsuIdentification(buildPath(path, paymentService, paymentProduct, paymentId, authorizationId));
+            links.setUpdatePsuIdentification(buildPath(path, paymentService, paymentProduct, paymentId, authorizationId));
         } else {
-            links.setStartAuthorisationWithPsuAuthentication(buildPath(path, paymentService, paymentProduct, paymentId, authorizationId));
+            links.setUpdatePsuAuthentication(buildPath(path, paymentService, paymentProduct, paymentId, authorizationId));
         }
         return links;
     }

@@ -99,15 +99,20 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
         String consentId = response.getConsentId();
 
         if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, response.isMultilevelScaRequired())) {
-            links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
-        } else {
-            String path = buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId());
             if (psuData.isEmpty()) {
-                links.setStartAuthorisationWithPsuIdentification(path);
+                links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
             } else {
-                links.setStartAuthorisationWithPsuAuthentication(path);
+                links.setStartAuthorisationWithPsuAuthentication(buildPath("/v1/consents/{consentId}/authorisations", consentId));
             }
+        } else {
             links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+            if (psuData.isEmpty()) {
+                links.setUpdatePsuIdentification(
+                    buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+            } else {
+                links.setUpdatePsuAuthentication(
+                    buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+            }
         }
     }
 
