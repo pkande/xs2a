@@ -16,18 +16,15 @@
 
 package de.adorsys.psd2.xs2a.web.validator.common;
 
+import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.web.validator.AbstractHeadersValidator;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
-import de.adorsys.psd2.xs2a.web.validator.HeadersValidator;
 import de.adorsys.psd2.xs2a.web.validator.common.service.XRequestIdValidationService;
 import de.adorsys.psd2.xs2a.web.validator.methods.SpecificMethodsHeadersValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_REQUEST_ID;
 
@@ -36,29 +33,23 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_
  */
 @Component
 @RequiredArgsConstructor
-public class CommonHeadersValidator extends AbstractHeadersValidator {
+public class CommonHeadersValidator {
 
     private final XRequestIdValidationService xRequestIdValidationService;
     private final ErrorBuildingService errorBuildingService;
 
-    @Override
-    protected boolean validateThis(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+    public void validate(MessageError messageError, HttpServletRequest request) {
 
         String xRequestId = request.getHeader(X_REQUEST_ID);
 
         ValidationResult xRequestIdValidationResult = xRequestIdValidationService.validateXRequestId(xRequestId);
 
         if (xRequestIdValidationResult.isNotValid()) {
-            errorBuildingService.buildErrorResponse(response, xRequestIdValidationResult.getMessageError());
-            return false;
+            errorBuildingService.enrichMessageError(messageError, xRequestIdValidationResult.getMessageError());
         }
 
-        return true;
+        //
+        // TODO: add common headers validation, ex "accept", "content-type" and so on.
+        //
     }
-
-    @Override
-    protected HeadersValidator getNextValidator() {
-        return specificMethodsHeadersValidator;
-    }
-
 }

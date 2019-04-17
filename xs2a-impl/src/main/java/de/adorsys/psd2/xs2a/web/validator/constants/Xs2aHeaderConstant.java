@@ -20,8 +20,17 @@ public class Xs2aHeaderConstant {
     public static final String X_REQUEST_ID = "X-Request-ID";
     public static final String PSU_IP_ADDRESS = "PSU-IP-Address";
 
+    public static final String PSU_ID = "PSU-ID";
+    public static final String PSU_ID_TYPE = "PSU-ID-Type";
+    public static final String PSU_CORPORATE_ID = "PSU-Corporate-ID";
+    public static final String PSU_CORPORATE_ID_TYPE = "PSU-Corporate-ID-Type";
+    public static final String AUTHORISATION = "Authorization";
+
     public static final String TPP_REDIRECT_PREFERRED = "TPP-Redirect-Preferred";
     public static final String TPP_REDIRECT_URI = "TPP-Redirect-URI";
+
+    public static final String TPP_NOK_REDIRECT_URI = "TPP-Nok-Redirect-URI";
+    public static final String TPP_EXPLICIT_AUTHORISATION_PREFERRED = "TPP-Explicit-Authorisation-Preferred";
 
     private Xs2aHeaderConstant() {
     }
