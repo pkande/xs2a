@@ -156,8 +156,7 @@ public class ConsentService {
         CreateConsentResponse createConsentResponse = new CreateConsentResponse(ConsentStatus.RECEIVED.getValue(), consentId, null, null, null, null, multilevelScaRequired);
         ResponseObject<CreateConsentResponse> createConsentResponseObject = ResponseObject.<CreateConsentResponse>builder().body(createConsentResponse).build();
 
-        if (isEmbeddedOrRedirectScaApproach()
-                && authorisationMethodDecider.isImplicitMethod(explicitPreferred, multilevelScaRequired)) {
+        if (authorisationMethodDecider.isImplicitMethod(explicitPreferred, multilevelScaRequired)) {
             proceedImplicitCaseForCreateConsent(createConsentResponseObject.getBody(), psuData, consentId);
         }
 
