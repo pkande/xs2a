@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator;
+package de.adorsys.psd2.xs2a.web.validator.header;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-public interface HeadersValidator {
-    boolean validate(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException;
+public interface ConsentHeaderValidator extends HeaderValidator{
 }

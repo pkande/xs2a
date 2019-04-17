@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods;
+package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import de.adorsys.psd2.xs2a.core.profile.PaymentType;
+import de.adorsys.psd2.xs2a.exception.MessageError;
 
-/**
- * Common interface for specific methods headers validation. Please note, that all implementations of this interface
- * should be marked by '@Service("_methodName")' annotation, where method name corresponds to the controller method name.
- */
-public interface MethodHeadersValidator {
-    boolean validate(HttpServletRequest request, HttpServletResponse response) throws IOException;
+public interface PaymentTypeValidator {
+
+    PaymentType getPaymentType();
+
+    void validate(Object body, MessageError messageError);
 }

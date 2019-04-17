@@ -25,11 +25,9 @@ import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.PeriodicPayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePaymentInitiationResponse;
-import de.adorsys.psd2.xs2a.service.AccountReferenceValidationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
@@ -45,8 +43,6 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.PERIOD_INVALID;
 import static de.adorsys.psd2.xs2a.domain.TppMessageInformation.of;
 import static de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType.PIS_400;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PaymentValidationServiceTest {
@@ -67,15 +63,9 @@ public class PaymentValidationServiceTest {
 
     @InjectMocks
     private PaymentValidationService paymentValidationService;
-    @Mock
-    private AccountReferenceValidationService referenceValidationService;
 
     @Test
     public void validateSinglePayment_Success() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
-
         // When
         ResponseObject actualResponse = paymentValidationService.validateSinglePayment(buildSinglePayment(IBAN, AMOUNT, REQUESTED_EXECUTION_DATE_CORRECT));
 
@@ -85,10 +75,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validatePeriodicPayment_Success() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
-
         // When
         ResponseObject actualResponse = paymentValidationService.validatePeriodicPayment(buildPeriodicPayment(IBAN, AMOUNT, START_DATE_CORRECT, END_DATE_CORRECT));
 
@@ -98,10 +84,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validateBulkPayment_Success() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
-
         // When
         ResponseObject actualResponse = paymentValidationService.validateBulkPayment(buildBulkPayment(IBAN, AMOUNT, REQUESTED_EXECUTION_DATE_CORRECT));
 
@@ -111,9 +93,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validateSinglePaymentWrongIban_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildFormatErrorResponse());
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validateSinglePayment(buildSinglePayment(WRONG_IBAN, AMOUNT, REQUESTED_EXECUTION_DATE_CORRECT));
 
@@ -125,11 +104,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validateSinglePaymentWrongDate_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
-
-
         // When
         ResponseObject actualResponse = paymentValidationService.validateSinglePayment(buildSinglePayment(IBAN, AMOUNT, REQUESTED_EXECUTION_DATE_WRONG));
 
@@ -141,10 +115,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validatePeriodicPaymentWrongIban_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildFormatErrorResponse());
-
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validatePeriodicPayment(buildPeriodicPayment(WRONG_IBAN, AMOUNT, START_DATE_CORRECT, END_DATE_CORRECT));
 
@@ -156,9 +126,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validatePeriodicPaymentWrongStartDate_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validatePeriodicPayment(buildPeriodicPayment(IBAN, AMOUNT, START_DATE_WRONG, END_DATE_CORRECT));
 
@@ -170,9 +137,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validatePeriodicPaymentWrongEndDate_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validatePeriodicPayment(buildPeriodicPayment(IBAN, AMOUNT, START_DATE_CORRECT, END_DATE_WRONG));
 
@@ -184,9 +148,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validateBulkPaymentWrongIban_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildFormatErrorResponse());
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentValidationService.validateBulkPayment(buildBulkPayment(WRONG_IBAN, AMOUNT, REQUESTED_EXECUTION_DATE_CORRECT));
 
@@ -198,10 +159,6 @@ public class PaymentValidationServiceTest {
 
     @Test
     public void validateBulkPaymentWrongDate_Error() {
-        // Given
-        when(referenceValidationService.validateAccountReferences(any()))
-            .thenReturn(buildValidResponse());
-
         // When
         ResponseObject actualResponse = paymentValidationService.validateBulkPayment(buildBulkPayment(IBAN, AMOUNT, REQUESTED_EXECUTION_DATE_WRONG));
 
@@ -261,13 +218,4 @@ public class PaymentValidationServiceTest {
         return reference;
     }
 
-    private ResponseObject buildValidResponse() {
-        return ResponseObject.builder().build();
-    }
-
-    private ResponseObject buildFormatErrorResponse() {
-        return ResponseObject.builder()
-                   .fail(PIS_400, of(FORMAT_ERROR))
-                   .build();
-    }
 }

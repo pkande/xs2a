@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2018 adorsys GmbH & Co KG
+ * Copyright 2018-2019 adorsys GmbH & Co KG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.domain.account;
+package de.adorsys.psd2.xs2a.web.validator.header;
 
-public enum SupportedAccountReferenceField {
-    IBAN,
-    BBAN,
-    PAN,
-    MASKEDPAN,
-    MSISDN
+public interface PaymentHeaderValidator extends HeaderValidator{
 }

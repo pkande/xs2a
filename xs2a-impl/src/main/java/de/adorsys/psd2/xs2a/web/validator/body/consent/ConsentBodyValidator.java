@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods.factory;
+package de.adorsys.psd2.xs2a.web.validator.body.consent;
 
-import de.adorsys.psd2.xs2a.config.factory.ServiceFactory;
+import de.adorsys.psd2.xs2a.web.validator.body.BodyValidator;
 
-public interface HeadersValidationServiceFactory extends ServiceFactory {
-
+public interface ConsentBodyValidator extends BodyValidator {
 }

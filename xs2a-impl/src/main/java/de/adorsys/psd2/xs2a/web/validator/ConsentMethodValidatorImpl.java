@@ -16,21 +16,26 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
-import de.adorsys.psd2.xs2a.web.validator.common.CommonHeadersValidator;
-import lombok.RequiredArgsConstructor;
+import de.adorsys.psd2.xs2a.web.validator.body.consent.ConsentBodyValidator;
+import de.adorsys.psd2.xs2a.web.validator.header.ConsentHeaderValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.util.List;
 
 @Component
-@RequiredArgsConstructor
-public class HeadersValidationChain {
+public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
 
-    private final CommonHeadersValidator commonHeadersValidator;
+    private static final String METHOD_NAME = "_createConsent";
 
-    public boolean launchValidation(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
-        return commonHeadersValidator.validate(request, response, handler);
+    @Autowired
+    public ConsentMethodValidatorImpl(List<ConsentHeaderValidator> headerValidators,
+                                      List<ConsentBodyValidator> bodyValidators) {
+        super(headerValidators, bodyValidators);
+    }
+
+    @Override
+    public String getMethodName() {
+        return METHOD_NAME;
     }
 }
