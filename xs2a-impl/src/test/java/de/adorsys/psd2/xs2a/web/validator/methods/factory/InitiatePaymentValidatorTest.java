@@ -43,81 +43,81 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InitiatePaymentValidatorTest {
-
-    @InjectMocks
-    private InitiatePaymentValidator initiatePaymentValidator;
-
-    @Mock
-    private ErrorBuildingService errorBuildingService;
-
-    @Mock
-    private TppRedirectUriValidationService tppRedirectUriValidationService;
-
-    @Mock
-    private PsuIpAddressValidationService psuIpAddressValidationService;
-
-    @Test
-    public void validate_validSuccess() throws IOException {
-        // Given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        request.addHeader(TPP_REDIRECT_PREFERRED, true);
-        request.addHeader(TPP_REDIRECT_URI, "Any URI");
-
-        when(psuIpAddressValidationService.validatePsuIdAddress(anyString()))
-            .thenReturn(ValidationResult.valid());
-        when(tppRedirectUriValidationService.isNotValid(anyBoolean(), any(String.class)))
-            .thenReturn(false);
-
-        // When
-        boolean actual = initiatePaymentValidator.validate(request, response);
-
-        // Then
-        assertTrue(actual);
-    }
-
-    @Test
-    public void validate_invalidByIpSuccess() throws IOException {
-        // Given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        request.addHeader(TPP_REDIRECT_PREFERRED, true);
-
-        when(psuIpAddressValidationService.validatePsuIdAddress(anyString()))
-            .thenReturn(ValidationResult.invalid(new MessageError(ErrorType.PIS_400, TppMessageInformation.of(MessageErrorCode.FORMAT_ERROR))));
-
-        when(tppRedirectUriValidationService.isNotValid(anyBoolean(), any(String.class)))
-            .thenReturn(true);
-
-        // When
-        boolean actual = initiatePaymentValidator.validate(request, response);
-
-        // Then
-        assertFalse(actual);
-    }
-
-    @Test
-    public void validate_invalidByUriSuccess() throws IOException {
-        // Given
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        request.addHeader(TPP_REDIRECT_PREFERRED, true);
-
-        when(psuIpAddressValidationService.validatePsuIdAddress(anyString()))
-            .thenReturn(ValidationResult.valid());
-
-        when(tppRedirectUriValidationService.isNotValid(anyBoolean(), any(String.class)))
-            .thenReturn(true);
-
-        // When
-        boolean actual = initiatePaymentValidator.validate(request, response);
-
-        // Then
-        assertFalse(actual);
-    }
-
+//
+//    @InjectMocks
+//    private InitiatePaymentValidator initiatePaymentValidator;
+//
+//    @Mock
+//    private ErrorBuildingService errorBuildingService;
+//
+//    @Mock
+//    private TppRedirectUriValidationService tppRedirectUriValidationService;
+//
+//    @Mock
+//    private PsuIpAddressValidationService psuIpAddressValidationService;
+//
+//    @Test
+//    public void validate_validSuccess() throws IOException {
+//        // Given
+//        MockHttpServletRequest request = new MockHttpServletRequest();
+//        MockHttpServletResponse response = new MockHttpServletResponse();
+//
+//        request.addHeader(TPP_REDIRECT_PREFERRED, true);
+//        request.addHeader(TPP_REDIRECT_URI, "Any URI");
+//
+//        when(psuIpAddressValidationService.validatePsuIdAddress(anyString()))
+//            .thenReturn(ValidationResult.valid());
+//        when(tppRedirectUriValidationService.isNotValid(anyBoolean(), any(String.class)))
+//            .thenReturn(false);
+//
+//        // When
+//        boolean actual = initiatePaymentValidator.validate(request, response);
+//
+//        // Then
+//        assertTrue(actual);
+//    }
+//
+//    @Test
+//    public void validate_invalidByIpSuccess() throws IOException {
+//        // Given
+//        MockHttpServletRequest request = new MockHttpServletRequest();
+//        MockHttpServletResponse response = new MockHttpServletResponse();
+//
+//        request.addHeader(TPP_REDIRECT_PREFERRED, true);
+//
+//        when(psuIpAddressValidationService.validatePsuIdAddress(anyString()))
+//            .thenReturn(ValidationResult.invalid(new MessageError(ErrorType.PIS_400, TppMessageInformation.of(MessageErrorCode.FORMAT_ERROR))));
+//
+//        when(tppRedirectUriValidationService.isNotValid(anyBoolean(), any(String.class)))
+//            .thenReturn(true);
+//
+//        // When
+//        boolean actual = initiatePaymentValidator.validate(request, response);
+//
+//        // Then
+//        assertFalse(actual);
+//    }
+//
+//    @Test
+//    public void validate_invalidByUriSuccess() throws IOException {
+//        // Given
+//        MockHttpServletRequest request = new MockHttpServletRequest();
+//        MockHttpServletResponse response = new MockHttpServletResponse();
+//
+//        request.addHeader(TPP_REDIRECT_PREFERRED, true);
+//
+//        when(psuIpAddressValidationService.validatePsuIdAddress(anyString()))
+//            .thenReturn(ValidationResult.valid());
+//
+//        when(tppRedirectUriValidationService.isNotValid(anyBoolean(), any(String.class)))
+//            .thenReturn(true);
+//
+//        // When
+//        boolean actual = initiatePaymentValidator.validate(request, response);
+//
+//        // Then
+//        assertFalse(actual);
+//    }
+//
 
 }

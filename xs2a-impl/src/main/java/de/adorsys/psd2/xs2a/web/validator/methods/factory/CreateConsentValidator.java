@@ -16,50 +16,59 @@
 
 package de.adorsys.psd2.xs2a.web.validator.methods.factory;
 
-import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
-import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
-import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
-import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.adorsys.psd2.model.Consents;
+import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
+import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.service.TppRedirectUriValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_REDIRECT_PREFERRED;
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_REDIRECT_URI;
 
 @RequiredArgsConstructor
 @Service("_createConsent")
 public class CreateConsentValidator implements MethodHeadersValidator {
 
-    private final ErrorBuildingService errorBuildingService;
-    private final TppRedirectUriValidationService tppRedirectUriValidationService;
+    private final ObjectMapper objectMapper;
+
+    // Headers that should be validated here:
+    // PSU-ID, PSU-ID-Type, PSU-Corporate-ID, PSU-Corporate-ID-Type, Authorization, TPP-Redirect-Preferred, TPP-Redirect-URI, TPP-Nok-Redirect-URI, TPP-Explicit-Authorisation-Preferred.
+    //
 
     @Override
-    public boolean validate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ValidationResult creteConsentValidationResult = validateCreateConsent(request);
+    public void validate(HttpServletRequest request, MessageError messageError) {
 
-        if (creteConsentValidationResult.isNotValid()) {
-            errorBuildingService.buildErrorResponse(response, creteConsentValidationResult.getMessageError());
-            return false;
-        }
+        validatePsuId(request, messageError);
+        validatePsuIdType(request, messageError);
+        // TODO: enrich the chain
 
-        return true;
+
+        // Next step - body validation, should be performed after this.
+        Consents body = mapBodyToConsents(request);
     }
 
-    private ValidationResult validateCreateConsent(HttpServletRequest request) {
-        boolean tppRedirectPreferred = Boolean.parseBoolean(request.getHeader(TPP_REDIRECT_PREFERRED));
-        String tppRedirectUri = request.getHeader(TPP_REDIRECT_URI);
+    private Consents mapBodyToConsents(HttpServletRequest request) {
 
-        if (tppRedirectUriValidationService.isNotValid(tppRedirectPreferred, tppRedirectUri)) {
-            return ValidationResult.invalid(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR, TPP_REDIRECT_URI + " is not correct or empty"));
+        Consents body = new Consents();
+
+        MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
+        try {
+            body = objectMapper.readValue(multiReadRequest.getInputStream(), Consents.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: handle the jackson error
         }
 
-        return ValidationResult.valid();
+        return body;
+    }
+
+    private void validatePsuId(HttpServletRequest request, MessageError messageError) {
+        // TODO:
+    }
+
+    private void validatePsuIdType(HttpServletRequest request, MessageError messageError) {
+        // TODO:
     }
 }

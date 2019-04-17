@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.validator.methods.factory;
 
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
+import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
@@ -37,39 +38,24 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
 @Service("_initiatePayment")
 public class InitiatePaymentValidator implements MethodHeadersValidator {
 
-    private final PsuIpAddressValidationService psuIpAddressValidationService;
-    private final ErrorBuildingService errorBuildingService;
-    private final TppRedirectUriValidationService tppRedirectUriValidationService;
+    // Headers that should be validated here:
+    // TODO: enrich the list:
+    // PSU-ID, PSU-ID-Type, ....
+    //
 
     @Override
-    public boolean validate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void validate(HttpServletRequest request, MessageError messageError) {
 
-        String psuIpAddress = request.getHeader(PSU_IP_ADDRESS);
-
-        ValidationResult psuIpAddressValidationResult = psuIpAddressValidationService.validatePsuIdAddress(psuIpAddress);
-
-        if (psuIpAddressValidationResult.isNotValid()) {
-            errorBuildingService.buildErrorResponse(response, psuIpAddressValidationResult.getMessageError());
-            return false;
-        }
-
-        ValidationResult tppRedirectValidationResult = validateInitiatePaymentHeaders(request);
-        if (tppRedirectValidationResult.isNotValid()) {
-            errorBuildingService.buildErrorResponse(response, tppRedirectValidationResult.getMessageError());
-            return false;
-        }
-
-        return true;
+        validatePsuId(request, messageError);
+        validatePsuIdType(request, messageError);
+        // TODO:
     }
 
-    private ValidationResult validateInitiatePaymentHeaders(HttpServletRequest request) {
-        boolean tppRedirectPreferred = Boolean.parseBoolean(request.getHeader(TPP_REDIRECT_PREFERRED));
-        String tppRedirectUri = request.getHeader(TPP_REDIRECT_URI);
+    private void validatePsuId(HttpServletRequest request, MessageError messageError) {
+        // TODO:
+    }
 
-        if (tppRedirectUriValidationService.isNotValid(tppRedirectPreferred, tppRedirectUri)) {
-            return ValidationResult.invalid(ErrorType.PIS_400, TppMessageInformation.of(FORMAT_ERROR, TPP_REDIRECT_URI + " is not correct or empty"));
-        }
-
-        return ValidationResult.valid();
+    private void validatePsuIdType(HttpServletRequest request, MessageError messageError) {
+        // TODO:
     }
 }

@@ -39,7 +39,6 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_
 public class CommonHeadersValidator extends AbstractHeadersValidator {
 
     private final XRequestIdValidationService xRequestIdValidationService;
-    private final SpecificMethodsHeadersValidator specificMethodsHeadersValidator;
     private final ErrorBuildingService errorBuildingService;
 
     @Override

@@ -16,6 +16,8 @@
 
 package de.adorsys.psd2.xs2a.web.validator.methods;
 
+import de.adorsys.psd2.xs2a.exception.MessageError;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -25,5 +27,5 @@ import java.io.IOException;
  * should be marked by '@Service("_methodName")' annotation, where method name corresponds to the controller method name.
  */
 public interface MethodHeadersValidator {
-    boolean validate(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    void validate(HttpServletRequest request, MessageError messageError) throws IOException;
 }
