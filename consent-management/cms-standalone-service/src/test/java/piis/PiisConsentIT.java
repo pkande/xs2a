@@ -127,7 +127,7 @@ public class PiisConsentIT {
     @NotNull
     private CreatePiisConsentRequest buildCreatePiisConsentRequest() {
         CreatePiisConsentRequest request = new CreatePiisConsentRequest();
-        request.setAccounts(buildAccountReferenceList());
+        request.setAccount(buildAccountReference());
         request.setValidUntil(LocalDate.now().plusDays(1));
         request.setAllowedFrequencyPerDay(1);
         return request;

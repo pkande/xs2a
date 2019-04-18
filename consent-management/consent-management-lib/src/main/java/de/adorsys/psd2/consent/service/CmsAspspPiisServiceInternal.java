@@ -25,6 +25,7 @@ import de.adorsys.psd2.consent.service.mapper.AccountReferenceMapper;
 import de.adorsys.psd2.consent.service.mapper.PiisConsentMapper;
 import de.adorsys.psd2.consent.service.mapper.PsuDataMapper;
 import de.adorsys.psd2.consent.service.mapper.TppInfoMapper;
+import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
 import de.adorsys.psd2.xs2a.core.piis.PiisConsent;
 import de.adorsys.psd2.xs2a.core.piis.PiisConsentTppAccessType;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
@@ -32,9 +33,9 @@ import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +70,6 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
                                           int allowedFrequencyPerDay) {
         CreatePiisConsentRequest request = new CreatePiisConsentRequest();
         request.setTppInfo(tppInfo);
-        request.setAccounts(accounts);
         request.setValidUntil(validUntil);
         request.setAllowedFrequencyPerDay(allowedFrequencyPerDay);
 
@@ -83,6 +83,8 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
             log.info("Consent cannot be created, because request contains no allowed tppInfo or empty psuIdData or empty accounts or validUntil or cardExpiryDate in the past");
             return Optional.empty();
         }
+
+        closePreviousPiisConsents(psuIdData, request.getTppInfo(), request.getAccount());
 
         PiisConsentEntity consent = buildPiisConsent(psuIdData, request);
         PiisConsentEntity saved = piisConsentRepository.save(consent);
@@ -127,6 +129,13 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
         return true;
     }
 
+    private void closePreviousPiisConsents(PsuIdData psuIdData, TppInfo tppInfo, AccountReference accountReference) {
+        Specification<PiisConsentEntity> specification = piisConsentEntitySpecification.byPsuIdDataAndTppInfoAndAccountReference(psuIdData, tppInfo, accountReference);
+        List<PiisConsentEntity> piisConsentEntities = piisConsentRepository.findAll(specification);
+        piisConsentEntities.forEach(con -> con.setConsentStatus(ConsentStatus.REVOKED_BY_PSU));
+        piisConsentRepository.save(piisConsentEntities);
+    }
+
     private PiisConsentEntity buildPiisConsent(PsuIdData psuIdData, CreatePiisConsentRequest request) {
         PiisConsentEntity consent = new PiisConsentEntity();
         consent.setExternalId(UUID.randomUUID().toString());
@@ -135,7 +144,7 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
         consent.setExpireDate(request.getValidUntil());
         consent.setPsuData(psuDataMapper.mapToPsuData(psuIdData));
         consent.setTppInfo(tppInfoMapper.mapToTppInfoEntity(request.getTppInfo()));
-        consent.setAccounts(accountReferenceMapper.mapToAccountReferenceEntityList(request.getAccounts()));
+        consent.setAccount(accountReferenceMapper.mapToAccountReferenceEntity(request.getAccount()));
         PiisConsentTppAccessType accessType = request.getTppInfo() != null
                                                   ? PiisConsentTppAccessType.SINGLE_TPP
                                                   : PiisConsentTppAccessType.ALL_TPP;
@@ -154,7 +163,7 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
 
         return invalidTpp
                    || psuIdData.isEmpty()
-                   || CollectionUtils.isEmpty(request.getAccounts())
+                   || request.getAccount() == null
                    || request.getValidUntil() == null
                    || request.getValidUntil().isBefore(LocalDate.now())
                    || request.getCardExpiryDate() != null && request.getCardExpiryDate().isBefore(LocalDate.now());

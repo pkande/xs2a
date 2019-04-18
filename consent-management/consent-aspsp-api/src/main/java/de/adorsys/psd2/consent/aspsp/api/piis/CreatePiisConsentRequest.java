@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @ApiModel(description = "Piis consent request", value = "PiisConsentRequest")
@@ -31,8 +30,8 @@ public class CreatePiisConsentRequest {
     @ApiModelProperty(value = "Tpp for which the consent will be created. If the property is omitted, the consent will be created for all TPPs")
     private TppInfo tppInfo;
 
-    @ApiModelProperty(value = "Accounts for which the consent is created")
-    private List<AccountReference> accounts;
+    @ApiModelProperty(value = "Account, where the confirmation of funds service is aimed to be submitted to.")
+    private AccountReference account;
 
     @ApiModelProperty(value = "Consent`s expiration date. The content is the local ASPSP date in ISODate Format", example = "2020-10-10")
     private LocalDate validUntil;

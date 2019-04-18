@@ -26,7 +26,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -40,7 +39,7 @@ public class PiisConsent {
     private PsuIdData psuData;
     private TppInfo tppInfo;
     private ConsentStatus consentStatus;
-    private List<AccountReference> accounts;
+    private AccountReference account;
     private PiisConsentTppAccessType tppAccessType;
     private int allowedFrequencyPerDay;
     private OffsetDateTime creationTimestamp;
