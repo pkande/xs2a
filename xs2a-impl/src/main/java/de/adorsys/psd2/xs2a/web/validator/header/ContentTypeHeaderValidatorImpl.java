@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator;
+package de.adorsys.psd2.xs2a.web.validator.header;
 
-import de.adorsys.psd2.xs2a.web.validator.header.HeaderValidator;
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.CONTENT_TYPE;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
-    @Override
-    public List<HeaderValidator> getHeaderValidators() {
-        return new ArrayList<>();
-    }
+/**
+ * Validator to be used to validate 'Content-type' header in all REST calls.
+ */
+public class ContentTypeHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
 
     @Override
-    protected List<HeaderValidator> getBodyValidators() {
-        return new ArrayList<>();
+    protected String getHeaderName() {
+        return CONTENT_TYPE;
     }
 }

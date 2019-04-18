@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator;
+package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public interface HeaderValidator {
 
-    void validate(HttpServletRequest request, MessageError messageError);
+    void validate(Map<String, String> headers, HttpServletRequest request, MessageError messageError);
 }
