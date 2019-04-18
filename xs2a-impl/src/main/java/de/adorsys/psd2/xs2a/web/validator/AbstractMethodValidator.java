@@ -37,7 +37,7 @@ public abstract class AbstractMethodValidator implements MethodValidator {
                                           .stream()
                                           .collect(Collectors.toMap(h -> h, request::getHeader));
 
-        getHeaderValidators().forEach(v -> v.validate(headers, request, messageError));
-        getBodyValidators().forEach(v -> v.validate(headers, request, messageError));
+        getHeaderValidators().forEach(v -> v.validate(headers, messageError));
+        getBodyValidators().forEach(v -> v.validate(headers, messageError));
     }
 }

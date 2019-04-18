@@ -82,7 +82,7 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
         return checkHeaderContent(headers);
     }
 
-    protected void checkBooleanFormat(Map<String, String> headers, MessageError messageError) {
+    void checkBooleanFormat(Map<String, String> headers, MessageError messageError) {
         String header = headers.get(getHeaderName());
         if (Objects.nonNull(header)) {
             Boolean checker = BooleanUtils.toBooleanObject(header);
