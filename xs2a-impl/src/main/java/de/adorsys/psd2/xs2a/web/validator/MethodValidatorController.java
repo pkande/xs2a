@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,12 +27,14 @@ import java.util.Optional;
 @Component
 public class MethodValidatorController {
     private ErrorBuildingService errorBuildingService;
+    private ObjectMapper objectMapper;
 
     private Map<String, MethodValidator> methodValidatorContext = new HashMap<>();
 
     @Autowired
-    public MethodValidatorController(ErrorBuildingService errorBuildingService) {
+    public MethodValidatorController(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         this.errorBuildingService = errorBuildingService;
+        this.objectMapper = objectMapper;
         createMethodValidationContext();
     }
 
@@ -40,7 +43,7 @@ public class MethodValidatorController {
     }
 
     private void createMethodValidationContext() {
-        methodValidatorContext.put("_createConsent", new ConsentMethodValidatorImpl(errorBuildingService));
+        methodValidatorContext.put("_createConsent", new ConsentMethodValidatorImpl(errorBuildingService, objectMapper));
         methodValidatorContext.put("_initiatePayment", new PaymentMethodValidatorImpl(errorBuildingService));
     }
 }

@@ -57,9 +57,8 @@ public class InitiatePaymentBodyValidator {
     }
 
     private void validateSinglePayment(SinglePayment singlePayment, MessageError messageError) {
-        if (Objects.nonNull(singlePayment.getEndToEndIdentification()) &&
-                singlePayment.getEndToEndIdentification().length() > 35) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'endToEndIdentification' should not be more than 35 symbols");
+        if (Objects.nonNull(singlePayment.getEndToEndIdentification())) {
+            checkFieldForMaxLength(singlePayment.getEndToEndIdentification(), "endToEndIdentification", 35, messageError);
         }
 
         if (Objects.isNull(singlePayment.getDebtorAccount())) {
@@ -80,6 +79,12 @@ public class InitiatePaymentBodyValidator {
             validateAccount(singlePayment.getCreditorAccount(), messageError);
         }
 
+        if (Objects.isNull(singlePayment.getCreditorName())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'creditorName' should not be null");
+        } else {
+            checkFieldForMaxLength(singlePayment.getCreditorName(), "creditorName", 70, messageError);
+        }
+
     }
 
     private void validateInstructedAmount(Xs2aAmount instructedAmount, MessageError messageError) {
@@ -89,9 +94,14 @@ public class InitiatePaymentBodyValidator {
         if (Objects.isNull(instructedAmount.getAmount())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'amount' should not be null");
         } else {
-            if (instructedAmount.getAmount().length() > 140) {
-                errorBuildingService.enrichMessageError(messageError, "Value 'instructedAmount' should not be more than 140 symbols");
-            }
+            checkFieldForMaxLength(instructedAmount.getAmount(), "amount", 140, messageError);
+        }
+    }
+
+    private void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
+        if (fieldToCheck.length() > maxLength) {
+            String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
+            errorBuildingService.enrichMessageError(messageError, text);
         }
     }
 

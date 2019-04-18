@@ -24,5 +24,4 @@ public interface MethodValidator {
 
     void validate(HttpServletRequest request, MessageError messageError);
 
-
 }

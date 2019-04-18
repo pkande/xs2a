@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods.factory;
+package de.adorsys.psd2.xs2a.web.validator.methods;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 
-@RequiredArgsConstructor
-@Service("_createConsent")
-public class CreateConsentValidator implements MethodHeadersValidator {
+public interface BodyValidator {
 
-
-    @Override
-    public void validate(HttpServletRequest request, MessageError messageError) {
-
-    }
-
+    void validate(HttpServletRequest request, MessageError messageError);
 
 }

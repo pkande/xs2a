@@ -18,6 +18,7 @@ package de.adorsys.psd2.xs2a.web.validator;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.header.HeaderValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -29,7 +30,7 @@ public abstract class AbstractMethodValidator implements MethodValidator {
 
     protected abstract List<HeaderValidator> getHeaderValidators();
 
-    protected abstract List<HeaderValidator> getBodyValidators();
+    protected abstract List<BodyValidator> getBodyValidators();
 
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {
@@ -38,6 +39,6 @@ public abstract class AbstractMethodValidator implements MethodValidator {
                                           .collect(Collectors.toMap(h -> h, request::getHeader));
 
         getHeaderValidators().forEach(v -> v.validate(headers, messageError));
-        getBodyValidators().forEach(v -> v.validate(headers, messageError));
+        getBodyValidators().forEach(v -> v.validate(request, messageError));
     }
 }

@@ -14,59 +14,66 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods.service;
+package de.adorsys.psd2.xs2a.web.validator.methods;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.model.AccountAccess;
 import de.adorsys.psd2.model.AccountReference;
 import de.adorsys.psd2.model.Consents;
+import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.validator.routines.CreditCardValidator;
 import org.apache.commons.validator.routines.IBANValidator;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
 
-@Service
-@RequiredArgsConstructor
-public class CreateConsentBodyValidator {
+public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl {
 
-    private final ErrorBuildingService errorBuildingService;
+    public AccountAccessValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
+        super(errorBuildingService, objectMapper);
+    }
 
-    public void validateConsentBody(Consents consents, MessageError messageError) {
+    @Override
+    public void validate(HttpServletRequest request, MessageError messageError) {
+
+        Consents consents = mapBodyToConsents(request, messageError);
+
+        // In case of wrong JSON - we don't proceed the inner fields validation.
+        if (consents == null) {
+            return;
+        }
 
         if (Objects.isNull(consents.getAccess())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'access' should not be null");
         } else {
             validateAccountAccess(consents.getAccess(), messageError);
         }
+    }
 
-        if (Objects.isNull(consents.getRecurringIndicator())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'recurringIndicator' should not be null");
+    private Consents mapBodyToConsents(HttpServletRequest request, MessageError messageError) {
+
+        Consents body = null;
+
+        MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
+        try {
+            body = objectMapper.readValue(multiReadRequest.getInputStream(), Consents.class);
+        } catch (IOException e) {
+            errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
         }
 
-        if (Objects.isNull(consents.getValidUntil())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' should not be null");
-        } else {
-            validateValidUntil(consents.getValidUntil(), messageError);
-        }
-
-        if (Objects.isNull(consents.getFrequencyPerDay())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'frequencyPerDay' should not be null");
-        } else {
-            validateFrequencyPerDay(consents.getFrequencyPerDay(), messageError);
-        }
+        return body;
     }
 
     private void validateAccountAccess(AccountAccess accountAccess, MessageError messageError) {
         List<AccountReference> references = accountAccess.getAccounts();
-        references.forEach(ar -> validateAccountReference(ar, messageError));
+        if (references != null) {
+            references.forEach(ar -> validateAccountReference(ar, messageError));
+        }
     }
 
     private void validateAccountReference(AccountReference accountReference, MessageError messageError) {
@@ -90,25 +97,6 @@ public class CreateConsentBodyValidator {
         }
     }
 
-    private void validateValidUntil(LocalDate validUntil, MessageError messageError) {
-        try {
-            LocalDate.parse(String.valueOf(validUntil));
-        } catch (DateTimeParseException e) {
-            errorBuildingService.enrichMessageError(messageError, "Wrong 'validUntil' date value");
-            return;
-        }
-
-        if (validUntil.isBefore(LocalDate.now())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' may not be in the past");
-        }
-    }
-
-    private void validateFrequencyPerDay(Integer frequencyPerDay, MessageError messageError) {
-        if (frequencyPerDay < 1) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'frequencyPerDay' should not be lower than 1");
-        }
-    }
-
     private boolean isValidIban(String iban) {
         IBANValidator validator = IBANValidator.getInstance();
         return validator.isValid(normalizeString(iban));
@@ -120,8 +108,7 @@ public class CreateConsentBodyValidator {
     }
 
     private boolean isValidPan(String pan) {
-        CreditCardValidator validator = CreditCardValidator.genericCreditCardValidator(); //Can be extended with specification of credit card types (VISA, MasterCard, AMEX etc. with array in aspsp profile)
-        return validator.isValid(normalizeString(pan));
+        return pan.length() <= 35;
     }
 
     private boolean isValidMaskedPan(String maskedPan) {

@@ -16,7 +16,10 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.web.validator.header.*;
+import de.adorsys.psd2.xs2a.web.validator.methods.AccountAccessValidatorImpl;
+import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +27,16 @@ import java.util.List;
 public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
 
     private ErrorBuildingService errorBuildingService;
+    private ObjectMapper objectMapper;
     private List<HeaderValidator> headerValidators = new ArrayList<>();
+    private List<BodyValidator> bodyValidators = new ArrayList<>();
 
-    ConsentMethodValidatorImpl(ErrorBuildingService errorBuildingService) {
+    ConsentMethodValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         this.errorBuildingService = errorBuildingService;
+        this.objectMapper = objectMapper;
 
         populateHeaderValidators();
-
+        populateBodyValidators();
     }
 
     @Override
@@ -39,8 +45,8 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
     }
 
     @Override
-    protected List<HeaderValidator> getBodyValidators() {
-        return new ArrayList<>();
+    protected List<BodyValidator> getBodyValidators() {
+        return bodyValidators;
     }
 
     private void populateHeaderValidators() {
@@ -52,6 +58,10 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
         //Specific header validators
         headerValidators.add(new TppRedirectPreferredHeaderValidatorImpl(errorBuildingService));
         headerValidators.add(new TppExplicitAuthorisationPrefferredHeaderValidatorImpl(errorBuildingService));
+    }
+
+    private void populateBodyValidators() {
+        bodyValidators.add(new AccountAccessValidatorImpl(errorBuildingService, objectMapper));
     }
 
 }

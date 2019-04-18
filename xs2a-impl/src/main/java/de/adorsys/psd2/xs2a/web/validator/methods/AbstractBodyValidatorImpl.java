@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods.factory;
+package de.adorsys.psd2.xs2a.web.validator.methods;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 
 import javax.servlet.http.HttpServletRequest;
 
-@RequiredArgsConstructor
-@Service("_createConsent")
-public class CreateConsentValidator implements MethodHeadersValidator {
+public class AbstractBodyValidatorImpl implements BodyValidator {
 
+    protected ErrorBuildingService errorBuildingService;
+    protected ObjectMapper objectMapper;
+
+    AbstractBodyValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
+        this.errorBuildingService = errorBuildingService;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {
 
     }
-
-
 }

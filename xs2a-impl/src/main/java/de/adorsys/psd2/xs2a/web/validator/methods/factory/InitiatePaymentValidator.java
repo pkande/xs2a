@@ -17,29 +17,18 @@
 package de.adorsys.psd2.xs2a.web.validator.methods.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.adorsys.psd2.model.Consents;
 import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
-import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
-import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.service.CreateConsentBodyValidator;
 import de.adorsys.psd2.xs2a.web.validator.methods.service.InitiatePaymentBodyValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.service.PsuIpAddressValidationService;
-import de.adorsys.psd2.xs2a.web.validator.methods.service.TppRedirectUriValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
-
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
 
 @RequiredArgsConstructor
 @Service("_initiatePayment")

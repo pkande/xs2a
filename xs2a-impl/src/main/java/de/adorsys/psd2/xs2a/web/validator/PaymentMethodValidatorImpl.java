@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.validator;
 
 import de.adorsys.psd2.xs2a.web.validator.header.*;
+import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
     }
 
     @Override
-    protected List<HeaderValidator> getBodyValidators() {
+    protected List<BodyValidator> getBodyValidators() {
         return new ArrayList<>();
     }
 

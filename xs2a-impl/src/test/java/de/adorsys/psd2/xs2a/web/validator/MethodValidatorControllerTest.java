@@ -26,7 +26,7 @@ public class MethodValidatorControllerTest {
 
     @Test
     public void getMethod() {
-        MethodValidatorController controller = new MethodValidatorController(null);
+        MethodValidatorController controller = new MethodValidatorController(null, null);
 
         Optional<MethodValidator> methodValidator = controller.getMethod("_createConsent");
         assertTrue(methodValidator.isPresent());
