@@ -16,12 +16,18 @@
 
 package de.adorsys.psd2.xs2a.web.validator.header;
 
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.CONTENT_TYPE;
 
 /**
  * Validator to be used to validate 'Content-type' header in all REST calls.
  */
 public class ContentTypeHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
+
+    public ContentTypeHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
+        super(errorBuildingService);
+    }
 
     @Override
     protected String getHeaderName() {

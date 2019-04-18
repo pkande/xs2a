@@ -18,10 +18,8 @@ package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.service.discovery.ServiceTypeDiscoveryService;
-import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
-import de.adorsys.psd2.xs2a.service.mapper.psd2.ServiceTypeToErrorTypeMapper;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,12 +30,15 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 
 public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
 
-    private static final String ERROR_TEXT_ABSENT_HEADER = "Header '%s' is missing in request";
-    private static final String ERROR_TEXT_NULL_HEADER = "Header '%s' may not be null";
-    private static final String ERROR_TEXT_BLANK_HEADER = "Header '%s' may not be blank";
+    static final String ERROR_TEXT_ABSENT_HEADER = "Header '%s' is missing in request";
+    static final String ERROR_TEXT_NULL_HEADER = "Header '%s' may not be null";
+    static final String ERROR_TEXT_BLANK_HEADER = "Header '%s' may not be blank";
 
-    protected ServiceTypeDiscoveryService serviceTypeDiscoveryService;
-    protected ServiceTypeToErrorTypeMapper errorTypeMapper;
+    protected ErrorBuildingService errorBuildingService;
+
+    AbstractHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
+        this.errorBuildingService = errorBuildingService;
+    }
 
     protected abstract String getHeaderName();
 
@@ -46,15 +47,12 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
         ValidationResult validationResult = validate(headers);
 
         if (validationResult.isNotValid()) {
-            enrichMessageError(messageError, validationResult.getMessageError());
+            errorBuildingService.enrichMessageError(messageError, validationResult.getMessageError());
         }
     }
 
     protected ValidationResult validate(Map<String, String> headers) {
-        checkIfHeaderIsPresented(headers);
-        checkHeaderContent(headers);
-
-        return ValidationResult.valid();
+        return checkIfHeaderIsPresented(headers);
     }
 
     protected ValidationResult checkHeaderContent(Map<String, String> headers) {
@@ -64,38 +62,23 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
     ValidationResult checkIfHeaderIsPresented(Map<String, String> headers) {
         if (!headers.containsKey(getHeaderName())) {
             return ValidationResult.invalid(
-                buildErrorType(), TppMessageInformation.of(FORMAT_ERROR,
+                errorBuildingService.buildErrorType(), TppMessageInformation.of(FORMAT_ERROR,
                                                            String.format(ERROR_TEXT_ABSENT_HEADER, getHeaderName())));
         }
 
         String contentType = headers.get(getHeaderName());
         if (Objects.isNull(contentType)) {
             return ValidationResult.invalid(
-                buildErrorType(), TppMessageInformation.of(FORMAT_ERROR,
+                errorBuildingService.buildErrorType(), TppMessageInformation.of(FORMAT_ERROR,
                                                            String.format(ERROR_TEXT_NULL_HEADER, getHeaderName())));
         }
 
         if (StringUtils.isBlank(contentType)) {
             return ValidationResult.invalid(
-                buildErrorType(), TppMessageInformation.of(FORMAT_ERROR,
+                errorBuildingService.buildErrorType(), TppMessageInformation.of(FORMAT_ERROR,
                                                            String.format(ERROR_TEXT_BLANK_HEADER, getHeaderName())));
         }
-        return ValidationResult.valid();
+        return checkHeaderContent(headers);
     }
 
-    ErrorType buildErrorType() {
-        return errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
-    }
-
-    void enrichMessageError(MessageError messageError, MessageError validationMessageError) {
-        enrichMessageError(messageError, validationMessageError.getTppMessage());
-    }
-
-    void enrichMessageError(MessageError messageError, TppMessageInformation tppMessageInformation) {
-        messageError.addTppMessage(tppMessageInformation);
-    }
-
-    void enrichMessageError(MessageError messageError, String errorMessage) {
-        enrichMessageError(messageError, new MessageError(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, errorMessage)));
-    }
 }

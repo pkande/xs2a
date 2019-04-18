@@ -67,6 +67,10 @@ public class ErrorBuildingService {
         messageError.addTppMessage(tppMessageInformation);
     }
 
+    public ErrorType buildErrorType() {
+        return errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
+    }
+
     private Object createError(Set<TppMessageInformation> tppMessageInformations) {
         List<String> errorMessages = new ArrayList<>();
         tppMessageInformations.forEach(tmi -> errorMessages.add(tmi.getText()));
@@ -85,10 +89,6 @@ public class ErrorBuildingService {
                                                   .toArray(TppMessageInformation[]::new);
 
         return new MessageError(errorType, tppMessages);
-    }
-
-    private ErrorType buildErrorType() {
-        return errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
     }
 
 }

@@ -18,6 +18,7 @@ package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -31,6 +32,10 @@ public class XRequestIdHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
 
     private static final String ERROR_TEXT_WRONG_HEADER = "Header 'X-Request-ID' has to be represented by standard 36-char UUID representation";
 
+    public XRequestIdHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
+        super(errorBuildingService);
+    }
+
     @Override
     protected String getHeaderName() {
         return X_REQUEST_ID;
@@ -40,7 +45,8 @@ public class XRequestIdHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
     protected ValidationResult checkHeaderContent(Map<String, String> headers) {
         String header = headers.get(getHeaderName());
         if (isNonValid(header)) {
-            return ValidationResult.invalid(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, ERROR_TEXT_WRONG_HEADER));
+            return ValidationResult.invalid(
+                errorBuildingService.buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, ERROR_TEXT_WRONG_HEADER));
         }
 
         return super.checkHeaderContent(headers);

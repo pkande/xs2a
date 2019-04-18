@@ -16,36 +16,31 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
-import de.adorsys.psd2.xs2a.exception.MessageError;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-public enum MethodValidatorController {
+@Component
+public class MethodValidatorController {
+    private ErrorBuildingService errorBuildingService;
 
-    CREATE_CONSENT("_createConsent", new ConsentMethodValidatorImpl()),
-    INITIATE_PAYMENT("_initiatePayment", new PaymentMethodValidatorImpl());
+    private Map<String, MethodValidator> methodValidatorContext = new HashMap<>();
 
-    private String value;
-    private MethodValidator methodValidator;
-
-    MethodValidatorController(String value, MethodValidator methodValidator) {
-        this.value = value;
-        this.methodValidator = methodValidator;
+    @Autowired
+    public MethodValidatorController(ErrorBuildingService errorBuildingService) {
+        this.errorBuildingService = errorBuildingService;
+        createMethodValidationContext();
     }
 
-    public String getValue() {
-        return value;
+    public Optional<MethodValidator> getMethod(String methodName) {
+        return Optional.ofNullable(methodValidatorContext.get(methodName));
     }
 
-    public void validate(HttpServletRequest request, MessageError messageError) {
-        methodValidator.validate(request, messageError);
-    }
-
-    public static Optional<MethodValidatorController> get(String methodName) {
-        return Arrays.stream(values())
-                   .filter(m -> m.getValue().equals(methodName))
-                   .findFirst();
+    private void createMethodValidationContext() {
+        methodValidatorContext.put("_createConsent", new ConsentMethodValidatorImpl(errorBuildingService));
+        methodValidatorContext.put("_initiatePayment", new PaymentMethodValidatorImpl(errorBuildingService));
     }
 }

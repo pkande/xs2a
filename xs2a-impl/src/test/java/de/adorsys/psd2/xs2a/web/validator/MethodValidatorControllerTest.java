@@ -25,22 +25,24 @@ import static org.junit.Assert.*;
 public class MethodValidatorControllerTest {
 
     @Test
-    public void get() {
-        Optional<MethodValidatorController> methodValidator = MethodValidatorController.get("_createConsent");
-        assertTrue(methodValidator.isPresent());
-        assertEquals(MethodValidatorController.CREATE_CONSENT, methodValidator.get());
+    public void getMethod() {
+        MethodValidatorController controller = new MethodValidatorController(null);
 
-        methodValidator = MethodValidatorController.get("_initiatePayment");
+        Optional<MethodValidator> methodValidator = controller.getMethod("_createConsent");
         assertTrue(methodValidator.isPresent());
-        assertEquals(MethodValidatorController.INITIATE_PAYMENT, methodValidator.get());
+        assertTrue(methodValidator.get() instanceof ConsentMethodValidatorImpl);
 
-        methodValidator = MethodValidatorController.get("");
+        methodValidator = controller.getMethod("_initiatePayment");
+        assertTrue(methodValidator.isPresent());
+        assertTrue(methodValidator.get() instanceof PaymentMethodValidatorImpl);
+
+        methodValidator = controller.getMethod("");
         assertFalse(methodValidator.isPresent());
 
-        methodValidator = MethodValidatorController.get(null);
+        methodValidator = controller.getMethod(null);
         assertFalse(methodValidator.isPresent());
 
-        methodValidator = MethodValidatorController.get("unknown method");
+        methodValidator = controller.getMethod("unknown method");
         assertFalse(methodValidator.isPresent());
     }
 }

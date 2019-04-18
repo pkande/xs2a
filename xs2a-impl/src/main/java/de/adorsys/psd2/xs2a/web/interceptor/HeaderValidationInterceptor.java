@@ -18,6 +18,7 @@ package de.adorsys.psd2.xs2a.web.interceptor;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import de.adorsys.psd2.xs2a.web.validator.MethodValidator;
 import de.adorsys.psd2.xs2a.web.validator.MethodValidatorController;
 import de.adorsys.psd2.xs2a.web.validator.common.CommonHeadersValidator;
 import de.adorsys.psd2.xs2a.web.validator.common.service.HeaderLengthValidationService;
@@ -38,6 +39,7 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
     private final HeaderLengthValidationService headerLengthValidationService;
     private final CommonHeadersValidator commonHeadersValidator;
     private final ErrorBuildingService errorBuildingService;
+    private final MethodValidatorController methodValidatorController;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
@@ -58,7 +60,7 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             String methodName = handlerMethod.getMethod().getName();
 
-            Optional<MethodValidatorController> methodValidator = MethodValidatorController.get(methodName);
+            Optional<MethodValidator> methodValidator = methodValidatorController.getMethod(methodName);
             if (methodValidator.isPresent()) {
                 methodValidator.get().validate(request, initialMessageError);
 

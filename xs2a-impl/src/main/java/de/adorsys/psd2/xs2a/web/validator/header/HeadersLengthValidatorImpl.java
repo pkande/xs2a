@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,11 @@ public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl {
     private static final String[] HEADERS_TO_VALIDATE = {PSU_ID, PSU_ID_TYPE, PSU_CORPORATE_ID, PSU_CORPORATE_ID_TYPE, AUTHORISATION, TPP_REDIRECT_URI, TPP_NOK_REDIRECT_URI};
     private static final int MAX_HEADER_LENGTH = 140;
 
-    public static final String HEADER_LENGHT_ERROR_TEXT = "Header '%s' should not be more than %s symbols";
+    private static final String HEADER_LENGHT_ERROR_TEXT = "Header '%s' should not be more than %s symbols";
+
+    public HeadersLengthValidatorImpl(ErrorBuildingService errorBuildingService) {
+        super(errorBuildingService);
+    }
 
     @Override
     protected String getHeaderName() {
@@ -60,7 +65,7 @@ public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl {
     private void getResultWithError(MessageError messageError, List<String> wrongLengthHeaders) {
         wrongLengthHeaders.forEach(h -> {
             String resultingMessage = String.format(HEADER_LENGHT_ERROR_TEXT, h, MAX_HEADER_LENGTH);
-            enrichMessageError(messageError, resultingMessage);
+            errorBuildingService.enrichMessageError(messageError, resultingMessage);
         });
     }
 }
