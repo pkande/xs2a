@@ -22,6 +22,7 @@ import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.service.CreateConsentBodyValidator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TP
 public class CreateConsentValidator implements MethodHeadersValidator {
 
     private final ObjectMapper objectMapper;
+    private final CreateConsentBodyValidator createConsentBodyValidator;
     private final ErrorBuildingService errorBuildingService;
 
     // Headers that should be validated here:
@@ -54,7 +56,7 @@ public class CreateConsentValidator implements MethodHeadersValidator {
         Consents body = mapBodyToConsents(request, messageError);
 
         // TODO: think how to validate body (maybe interface and different implementations with Object in signature)
-
+        createConsentBodyValidator.validateConsentBody(body, messageError);
     }
 
     private Consents mapBodyToConsents(HttpServletRequest request, MessageError messageError) {
