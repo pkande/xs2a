@@ -27,6 +27,8 @@ import org.apache.commons.validator.routines.CreditCardValidator;
 import org.apache.commons.validator.routines.IBANValidator;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
@@ -40,13 +42,25 @@ public class CreateConsentBodyValidator {
     public void validateConsentBody(Consents consents, MessageError messageError) {
 
         if (Objects.isNull(consents.getAccess())) {
-            errorBuildingService.enrichMessageError(messageError, "'access' should not be null");
+            errorBuildingService.enrichMessageError(messageError, "Value 'access' should not be null");
         } else {
             validateAccountAccess(consents.getAccess(), messageError);
         }
 
         if (Objects.isNull(consents.getRecurringIndicator())) {
-            errorBuildingService.enrichMessageError(messageError, "'recurringIndicator' should not be null");
+            errorBuildingService.enrichMessageError(messageError, "Value 'recurringIndicator' should not be null");
+        }
+
+        if (Objects.isNull(consents.getValidUntil())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' should not be null");
+        } else {
+            validateValidUntil(consents.getValidUntil(), messageError);
+        }
+
+        if (Objects.isNull(consents.getFrequencyPerDay())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'frequencyPerDay' should not be null");
+        } else {
+            validateFrequencyPerDay(consents.getFrequencyPerDay(), messageError);
         }
     }
 
@@ -73,6 +87,25 @@ public class CreateConsentBodyValidator {
         }
         if (StringUtils.isNotBlank(accountReference.getCurrency()) && !isValidCurrency(accountReference.getCurrency())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
+        }
+    }
+
+    private void validateValidUntil(LocalDate validUntil, MessageError messageError) {
+        try {
+            LocalDate.parse(String.valueOf(validUntil));
+        } catch (DateTimeParseException e) {
+            errorBuildingService.enrichMessageError(messageError, "Wrong 'validUntil' date value");
+            return;
+        }
+
+        if (validUntil.isBefore(LocalDate.now())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' may not be in the past");
+        }
+    }
+
+    private void validateFrequencyPerDay(Integer frequencyPerDay, MessageError messageError) {
+        if (frequencyPerDay < 1) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'frequencyPerDay' should not be lower than 1");
         }
     }
 
