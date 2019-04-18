@@ -270,6 +270,15 @@ public class ConsentModelMapper {
         return request;
     }
 
+    public String mapToPasswordFromBody(Map body) {
+        return Optional.ofNullable(body)
+                   .filter(bdy -> !bdy.isEmpty())
+                   .map(bdy -> bdy.get("psuData"))
+                   .map(o -> (LinkedHashMap<String, String>) o)
+                   .map(psuDataMap -> psuDataMap.get("password"))
+                   .orElse(null);
+    }
+
     public UpdatePsuAuthenticationResponse mapToUpdatePsuAuthenticationResponse(Xs2aUpdatePisCommonPaymentPsuDataResponse response) {
         return new UpdatePsuAuthenticationResponse()
                    ._links(hrefLinkMapper.mapToLinksMap(response.getLinks()))

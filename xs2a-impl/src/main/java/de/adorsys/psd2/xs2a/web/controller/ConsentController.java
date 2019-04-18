@@ -35,6 +35,7 @@ import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -116,11 +117,23 @@ public class ConsentController implements ConsentApi {
                                                     String psUHttpMethod, UUID psUDeviceID,
                                                     String psUGeoLocation) {
         PsuIdData psuData = new PsuIdData(PSU_ID, psUIDType, psUCorporateID, psUCorporateIDType);
+
         ResponseObject<CreateConsentAuthorizationResponse> consentAuthorizationWithResponse =
             consentService.createConsentAuthorizationWithResponse(psuData, consentId);
-        return consentAuthorizationWithResponse.hasError()
-                   ? responseErrorMapper.generateErrorResponse(consentAuthorizationWithResponse.getError())
-                   : responseMapper.created(consentAuthorizationWithResponse, authorisationMapper::mapToStartScaProcessResponse);
+
+        if (consentAuthorizationWithResponse.hasError()) {
+            return responseErrorMapper.generateErrorResponse(consentAuthorizationWithResponse.getError());
+        }
+
+        // update authorisation if password is exist and psu is not empty
+        String password = consentModelMapper.mapToPasswordFromBody((Map) body);
+        if (psuData.isEmpty() || StringUtils.isBlank(password)) {
+            return responseMapper.created(consentAuthorizationWithResponse, authorisationMapper::mapToStartScaProcessResponse);
+        }
+
+        String authorisationId = consentAuthorizationWithResponse.getBody().getAuthorizationId();
+
+        return updateAisAuthorisation(psuData, authorisationId, consentId, body);
     }
 
     @Override
@@ -131,8 +144,14 @@ public class ConsentController implements ConsentApi {
                                                 String psUUserAgent, String psUHttpMethod, UUID psUDeviceID, String psUGeoLocation) {
 
         PsuIdData psuData = new PsuIdData(PSU_ID, psUIDType, psUCorporateID, psUCorporateIDType);
+
+        return updateAisAuthorisation(psuData, authorisationId, consentId, body);
+    }
+
+    private ResponseEntity updateAisAuthorisation(PsuIdData psuData, String authorisationId, String consentId, Object body) {
         UpdateConsentPsuDataReq updatePsuDataRequest = consentModelMapper.mapToUpdatePsuData(psuData, consentId, authorisationId, (Map) body);
         ResponseObject<UpdateConsentPsuDataResponse> updateConsentPsuDataResponse = consentService.updateConsentPsuData(updatePsuDataRequest);
+
         return updateConsentPsuDataResponse.hasError()
                    ? responseErrorMapper.generateErrorResponse(updateConsentPsuDataResponse.getError())
                    : responseMapper.ok(updateConsentPsuDataResponse, consentModelMapper::mapToUpdatePsuAuthenticationResponse);

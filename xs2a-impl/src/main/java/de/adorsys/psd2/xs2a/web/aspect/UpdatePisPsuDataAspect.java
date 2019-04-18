@@ -31,6 +31,8 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Aspect
 @Component
 public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController> {
@@ -47,9 +49,7 @@ public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController
             Links links = buildLink(request);
 
             if (isScaStatusMethodAuthenticated(body.getScaStatus())) {
-
                 links.setSelectAuthenticationMethod(buildAuthorisationLink(request.getPaymentService(), request.getPaymentProduct(), request.getPaymentId(), request.getAuthorisationId()));
-                links.setUpdatePsuAuthentication(buildAuthorisationLink(request.getPaymentService(), request.getPaymentProduct(), request.getPaymentId(), request.getAuthorisationId()));
 
                 // TODO https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
             } else if (isScaStatusMethodSelected(body.getChosenScaMethod(), body.getScaStatus()) && scaApproachResolver.resolveScaApproach() == ScaApproach.EMBEDDED) {
@@ -94,5 +94,11 @@ public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController
 
     private boolean isScaStatusMethodIdentified(ScaStatus scaStatus) {
         return scaStatus == ScaStatus.PSUIDENTIFIED;
+    }
+
+    private boolean hasScaChoice(Xs2aUpdatePisCommonPaymentPsuDataResponse body) {
+        return Optional.ofNullable(body.getAvailableScaMethods())
+                   .map(lst -> lst.size() > 1)
+                   .orElse(false);
     }
 }
