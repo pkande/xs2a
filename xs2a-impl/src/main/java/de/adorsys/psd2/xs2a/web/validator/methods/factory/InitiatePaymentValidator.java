@@ -16,20 +16,27 @@
 
 package de.adorsys.psd2.xs2a.web.validator.methods.factory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.adorsys.psd2.model.Consents;
+import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.service.CreateConsentBodyValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.service.InitiatePaymentBodyValidator;
 import de.adorsys.psd2.xs2a.web.validator.methods.service.PsuIpAddressValidationService;
 import de.adorsys.psd2.xs2a.web.validator.methods.service.TppRedirectUriValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
@@ -37,6 +44,10 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
 @RequiredArgsConstructor
 @Service("_initiatePayment")
 public class InitiatePaymentValidator implements MethodHeadersValidator {
+
+    private final ObjectMapper objectMapper;
+    private final InitiatePaymentBodyValidator initiatePaymentBodyValidator;
+    private final ErrorBuildingService errorBuildingService;
 
     // Headers that should be validated here:
     // TODO: enrich the list:
@@ -49,7 +60,29 @@ public class InitiatePaymentValidator implements MethodHeadersValidator {
         validatePsuId(request, messageError);
         validatePsuIdType(request, messageError);
         // TODO:
+
+        Map<String, String> pathParametersMap = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+        Object body = mapBodyToPaymentObject(request, messageError);
+
+        // TODO: think how to validate body (maybe interface and different implementations with Object in signature)
+        initiatePaymentBodyValidator.validateInitiatePaymentBody(body, pathParametersMap, messageError);
     }
+
+    private Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
+
+        Object body = new Object();
+
+        MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
+        try {
+            body = objectMapper.readValue(multiReadRequest.getInputStream(), Object.class);
+        } catch (IOException e) {
+            errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
+        }
+
+        return body;
+    }
+
+
 
     private void validatePsuId(HttpServletRequest request, MessageError messageError) {
         // TODO:
