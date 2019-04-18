@@ -62,8 +62,8 @@ public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
         String paymentId = body.getPaymentId();
 
         Links links = new Links();
-        links.setSelf(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}", paymentService, paymentProduct, paymentId));
-        links.setStatus(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/status", paymentService, paymentProduct, paymentId));
+        links.setSelf(buildPath(UrlHolder.PAYMENT_LINK_URL, paymentService, paymentProduct, paymentId));
+        links.setStatus(buildPath(UrlHolder.PAYMENT_STATUS_URL, paymentService, paymentProduct, paymentId));
 
         if (EnumSet.of(EMBEDDED, DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
             return addEmbeddedDecoupledRelatedLinks(links, paymentRequestParameters, body);
@@ -83,19 +83,19 @@ public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
 
         if (authorisationMethodDecider.isExplicitMethod(paymentRequestParameters.isTppExplicitAuthorisationPreferred(), body.isMultilevelScaRequired())) {
             if (paymentRequestParameters.getPsuData().isEmpty()) {
-                links.setStartAuthorisation(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations", paymentService, paymentProduct, paymentId));
+                links.setStartAuthorisation(buildPath(UrlHolder.START_PIS_AUTHORISATION_URL, paymentService, paymentProduct, paymentId));
             } else {
-                links.setStartAuthorisationWithPsuAuthentication(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations", paymentService, paymentProduct, paymentId));
+                links.setStartAuthorisationWithPsuAuthentication(buildPath(UrlHolder.START_PIS_AUTHORISATION_URL, paymentService, paymentProduct, paymentId));
             }
         } else {
             links.setScaStatus(
-                buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorizationId));
+                buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, paymentService, paymentProduct, paymentId, authorizationId));
             if (paymentRequestParameters.getPsuData().isEmpty()) {
                 links.setUpdatePsuIdentification(
-                    buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorizationId));
+                    buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, paymentService, paymentProduct, paymentId, authorizationId));
             } else {
                 links.setUpdatePsuAuthentication(
-                    buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorizationId));
+                    buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, paymentService, paymentProduct, paymentId, authorizationId));
             }
         }
 
@@ -109,12 +109,12 @@ public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
         String authorisationId = body.getAuthorizationId();
 
         if (authorisationMethodDecider.isExplicitMethod(paymentRequestParameters.isTppExplicitAuthorisationPreferred(), body.isMultilevelScaRequired())) {
-            links.setStartAuthorisation(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations", paymentService, paymentProduct, paymentId));
+            links.setStartAuthorisation(buildPath(UrlHolder.START_PIS_AUTHORISATION_URL, paymentService, paymentProduct, paymentId));
         } else {
             String scaRedirectLink = redirectLinkBuilder.buildPaymentScaRedirectLink(body.getPaymentId(), authorisationId);
             links.setScaRedirect(scaRedirectLink);
             links.setScaStatus(
-                buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/authorisations/{authorisation-id}", paymentService, paymentProduct, paymentId, authorisationId));
+                buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, paymentService, paymentProduct, paymentId, authorisationId));
         }
         return links;
     }

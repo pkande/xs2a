@@ -437,7 +437,6 @@ public class ConsentAspectTest {
         assertNull(links.getStartAuthorisationWithPsuIdentification());
         assertNull(links.getStartAuthorisationWithPsuAuthentication());
         assertNull(links.getScaRedirect());
-
     }
 
     private void assertCreateAccountConsentLinksEmbeddedDecoupledExplicit(CreateConsentResponse createConsentResponse, String baseUrl) {

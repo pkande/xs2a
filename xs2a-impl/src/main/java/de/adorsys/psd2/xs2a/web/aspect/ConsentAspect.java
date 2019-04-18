@@ -78,17 +78,17 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
         String consentId = response.getConsentId();
 
         Links links = new Links();
-        links.setSelf(buildPath("/v1/consents/{consentId}", consentId));
-        links.setStatus(buildPath("/v1/consents/{consentId}/status", consentId));
+        links.setSelf(buildPath(UrlHolder.CONSENT_LINK_URL, consentId));
+        links.setStatus(buildPath(UrlHolder.CONSENT_STATUS_URL, consentId));
 
         if (EnumSet.of(ScaApproach.EMBEDDED, ScaApproach.DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
             buildLinkForEmbeddedAndDecoupledScaApproach(response, links, explicitPreferred, psuData);
         } else if (ScaApproach.REDIRECT == scaApproachResolver.resolveScaApproach()) {
             if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, response.isMultilevelScaRequired())) {
-                links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
+                links.setStartAuthorisation(buildPath(UrlHolder.CREATE_AIS_AUTHORISATION_URL, consentId));
             } else {
                 links.setScaRedirect(redirectLinkBuilder.buildConsentScaRedirectLink(consentId, response.getAuthorizationId()));
-                links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+                links.setScaStatus(buildPath(UrlHolder.AIS_AUTHORISATION_URL, consentId, response.getAuthorizationId()));
             }
         }
 
@@ -100,18 +100,18 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
 
         if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, response.isMultilevelScaRequired())) {
             if (psuData.isEmpty()) {
-                links.setStartAuthorisation(buildPath("/v1/consents/{consentId}/authorisations", consentId));
+                links.setStartAuthorisation(buildPath(UrlHolder.CREATE_AIS_AUTHORISATION_URL, consentId));
             } else {
-                links.setStartAuthorisationWithPsuAuthentication(buildPath("/v1/consents/{consentId}/authorisations", consentId));
+                links.setStartAuthorisationWithPsuAuthentication(buildPath(UrlHolder.CREATE_AIS_AUTHORISATION_URL, consentId));
             }
         } else {
-            links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+            links.setScaStatus(buildPath(UrlHolder.AIS_AUTHORISATION_URL, consentId, response.getAuthorizationId()));
             if (psuData.isEmpty()) {
                 links.setUpdatePsuIdentification(
-                    buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+                    buildPath(UrlHolder.AIS_AUTHORISATION_URL, consentId, response.getAuthorizationId()));
             } else {
                 links.setUpdatePsuAuthentication(
-                    buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", consentId, response.getAuthorizationId()));
+                    buildPath(UrlHolder.AIS_AUTHORISATION_URL, consentId, response.getAuthorizationId()));
             }
         }
     }
@@ -138,7 +138,7 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
 
     private Links buildLinksForPsuAuthenticatedConsentResponse(UpdateConsentPsuDataReq request) {
         Links links = new Links();
-        links.setSelectAuthenticationMethod(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", request.getConsentId(), request.getAuthorizationId()));
+        links.setSelectAuthenticationMethod(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));
 
         return links;
     }
@@ -147,9 +147,9 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
         Links links = new Links();
 
         if (scaApproachResolver.resolveScaApproach() == ScaApproach.DECOUPLED) {
-            links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", request.getConsentId(), request.getAuthorizationId()));
+            links.setScaStatus(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));
         } else {
-            links.setAuthoriseTransaction(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", request.getConsentId(), request.getAuthorizationId()));
+            links.setAuthoriseTransaction(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));
         }
 
         return links;
@@ -157,14 +157,14 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
 
     private Links buildLinksForFinalisedConsentResponse(UpdateConsentPsuDataReq request) {
         Links links = new Links();
-        links.setScaStatus(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", request.getConsentId(), request.getAuthorizationId()));
+        links.setScaStatus(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));
 
         return links;
     }
 
     private Links buildLinksForPsuIdentifiedConsentResponse(UpdateConsentPsuDataReq request) {
         Links links = new Links();
-        links.setStartAuthorisationWithPsuAuthentication(buildPath("/v1/consents/{consentId}/authorisations/{authorisation-id}", request.getConsentId(), request.getAuthorizationId()));
+        links.setStartAuthorisationWithPsuAuthentication(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));
 
         return links;
     }

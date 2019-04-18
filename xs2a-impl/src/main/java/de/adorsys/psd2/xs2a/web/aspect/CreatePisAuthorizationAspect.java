@@ -58,10 +58,10 @@ public class CreatePisAuthorizationAspect extends AbstractLinkAspect<PaymentCont
 
     private Links buildLink(String paymentService, String paymentProduct, String paymentId, String authorisationId, PsuIdData psuData) {
         Links links = new Links();
-        links.setSelf(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}", paymentService, paymentProduct, paymentId));
-        links.setStatus(buildPath("/v1/{payment-service}/{payment-product}/{payment-id}/status", paymentService, paymentProduct, paymentId));
+        links.setSelf(buildPath(UrlHolder.PAYMENT_LINK_URL, paymentService, paymentProduct, paymentId));
+        links.setStatus(buildPath(UrlHolder.PAYMENT_STATUS_URL, paymentService, paymentProduct, paymentId));
         if (EnumSet.of(EMBEDDED, DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
-            String path = "/v1/{paymentService}/{paymentProduct}/{paymentId}/authorisations/{authorisationId}";
+            String path = UrlHolder.PIS_AUTHORISATION_LINK_URL;
             if (psuData.isEmpty()) {
                 links.setUpdatePsuIdentification(buildPath(path, paymentService, paymentProduct, paymentId, authorisationId));
             } else {
