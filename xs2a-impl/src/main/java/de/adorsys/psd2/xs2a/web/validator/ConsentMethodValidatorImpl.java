@@ -16,10 +16,7 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
-import de.adorsys.psd2.xs2a.web.validator.header.ContentTypeHeaderValidatorImpl;
-import de.adorsys.psd2.xs2a.web.validator.header.HeaderValidator;
-import de.adorsys.psd2.xs2a.web.validator.header.HeadersLengthValidatorImpl;
-import de.adorsys.psd2.xs2a.web.validator.header.XRequestIdHeaderValidatorImpl;
+import de.adorsys.psd2.xs2a.web.validator.header.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +50,7 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
         headerValidators.add(new HeadersLengthValidatorImpl(errorBuildingService));
 
         //Specific header validators
+        headerValidators.add(new CreateConsentHeaderValidatorImpl(errorBuildingService));
     }
 
 }

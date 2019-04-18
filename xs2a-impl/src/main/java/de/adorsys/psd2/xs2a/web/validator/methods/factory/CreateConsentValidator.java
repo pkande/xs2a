@@ -24,15 +24,10 @@ import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
 import de.adorsys.psd2.xs2a.web.validator.methods.service.CreateConsentBodyValidator;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Objects;
-
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_EXPLICIT_AUTHORISATION_PREFERRED;
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_REDIRECT_PREFERRED;
 
 @RequiredArgsConstructor
 @Service("_createConsent")
@@ -42,15 +37,8 @@ public class CreateConsentValidator implements MethodHeadersValidator {
     private final CreateConsentBodyValidator createConsentBodyValidator;
     private final ErrorBuildingService errorBuildingService;
 
-    // Headers that should be validated here:
-    // PSU-ID, PSU-ID-Type, PSU-Corporate-ID, PSU-Corporate-ID-Type, Authorization, TPP-Redirect-Preferred, TPP-Redirect-URI, TPP-Nok-Redirect-URI, TPP-Explicit-Authorisation-Preferred.
-    //
-
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {
-
-        validateTppRedirectPreferred(request, messageError);
-        validateTppExplicitAuthorisationPreferred(request, messageError);
 
         // Next step - body validation, should be performed after this.
         Consents body = mapBodyToConsents(request, messageError);
@@ -73,25 +61,4 @@ public class CreateConsentValidator implements MethodHeadersValidator {
         return body;
     }
 
-    private void validateTppRedirectPreferred(HttpServletRequest request, MessageError messageError) {
-        String tppRedirectPreferred = request.getHeader(TPP_REDIRECT_PREFERRED);
-
-        if (Objects.nonNull(tppRedirectPreferred)) {
-            Boolean checker = BooleanUtils.toBooleanObject(tppRedirectPreferred);
-            if (checker == null) {
-                errorBuildingService.enrichMessageError(messageError, "Wrong format for 'TPP-Redirect-Preferred': value should be a boolean");
-            }
-        }
-    }
-
-    private void validateTppExplicitAuthorisationPreferred(HttpServletRequest request, MessageError messageError) {
-        String tppExplicitAuthorisationPreferred = request.getHeader(TPP_EXPLICIT_AUTHORISATION_PREFERRED);
-
-        if (Objects.nonNull(tppExplicitAuthorisationPreferred)) {
-            Boolean checker = BooleanUtils.toBooleanObject(tppExplicitAuthorisationPreferred);
-            if (checker == null) {
-                errorBuildingService.enrichMessageError(messageError, "Wrong format for 'TPP-Explicit-Authorisation-Preferred': value should be a boolean");
-            }
-        }
-    }
 }
