@@ -18,10 +18,9 @@ package de.adorsys.psd2.xs2a.web.interceptor;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import de.adorsys.psd2.xs2a.web.validator.MethodValidatorController;
 import de.adorsys.psd2.xs2a.web.validator.common.CommonHeadersValidator;
 import de.adorsys.psd2.xs2a.web.validator.common.service.HeaderLengthValidationService;
-import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.factory.HeadersValidationServiceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -30,15 +29,12 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
 
-    private final HeadersValidationServiceFactory headersValidationServiceFactory;
     private final HeaderLengthValidationService headerLengthValidationService;
     private final CommonHeadersValidator commonHeadersValidator;
     private final ErrorBuildingService errorBuildingService;
@@ -62,13 +58,9 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             String methodName = handlerMethod.getMethod().getName();
 
-            List<String> availableMethods = Arrays.stream(ControllerMethodsForValidation.values())
-                                                .map(ControllerMethodsForValidation::getValue)
-                                                .collect(Collectors.toList());
-
-            if (availableMethods.contains(methodName)) {
-                MethodHeadersValidator controllerMethodValidator = headersValidationServiceFactory.getService(methodName);
-                controllerMethodValidator.validate(request, initialMessageError);
+            Optional<MethodValidatorController> methodValidator = MethodValidatorController.get(methodName);
+            if (methodValidator.isPresent()) {
+                methodValidator.get().validate(request, initialMessageError);
 
                 if (!initialMessageError.getTppMessages().isEmpty()) {
                     // Last part of all validations: if there is at least one error - we build 400 response.
@@ -82,19 +74,4 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
         return true;
     }
 
-    public enum ControllerMethodsForValidation {
-
-        CREATE_CONSENT ("_createConsent"),
-        INITIATE_PAYMENT ("_initiatePayment");
-
-        private String value;
-
-        ControllerMethodsForValidation(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return String.valueOf(value);
-        }
-    }
 }
