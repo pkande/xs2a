@@ -55,6 +55,10 @@ public class ErrorBuildingService {
         response.flushBuffer();
     }
 
+    public void enrichMessageError(MessageError messageError, String errorMessage) {
+        enrichMessageError(messageError, new MessageError(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, errorMessage)));
+    }
+
     public void enrichMessageError(MessageError messageError, MessageError validationMessageError) {
         enrichMessageError(messageError, validationMessageError.getTppMessage());
     }
@@ -82,4 +86,9 @@ public class ErrorBuildingService {
 
         return new MessageError(errorType, tppMessages);
     }
+
+    private ErrorType buildErrorType() {
+        return errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
+    }
+
 }

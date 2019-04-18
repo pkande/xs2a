@@ -17,20 +17,21 @@
 package de.adorsys.psd2.xs2a.web.validator.constants;
 
 public class Xs2aHeaderConstant {
-    public static final String X_REQUEST_ID = "X-Request-ID";
-    public static final String PSU_IP_ADDRESS = "PSU-IP-Address";
+    public static final String CONTENT_TYPE = "content-type";
+    public static final String X_REQUEST_ID = "x-request-id";
+    public static final String PSU_IP_ADDRESS = "psu-ip-address";
 
-    public static final String PSU_ID = "PSU-ID";
-    public static final String PSU_ID_TYPE = "PSU-ID-Type";
-    public static final String PSU_CORPORATE_ID = "PSU-Corporate-ID";
-    public static final String PSU_CORPORATE_ID_TYPE = "PSU-Corporate-ID-Type";
-    public static final String AUTHORISATION = "Authorization";
+    public static final String PSU_ID = "psu-id";
+    public static final String PSU_ID_TYPE = "psu-id-Type";
+    public static final String PSU_CORPORATE_ID = "psu-corporate-id";
+    public static final String PSU_CORPORATE_ID_TYPE = "psu-corporate-id-type";
+    public static final String AUTHORISATION = "authorization";
 
-    public static final String TPP_REDIRECT_PREFERRED = "TPP-Redirect-Preferred";
-    public static final String TPP_REDIRECT_URI = "TPP-Redirect-URI";
+    public static final String TPP_REDIRECT_PREFERRED = "tpp-redirect-preferred";
+    public static final String TPP_REDIRECT_URI = "tpp-redirect-uri";
 
-    public static final String TPP_NOK_REDIRECT_URI = "TPP-Nok-Redirect-URI";
-    public static final String TPP_EXPLICIT_AUTHORISATION_PREFERRED = "TPP-Explicit-Authorisation-Preferred";
+    public static final String TPP_NOK_REDIRECT_URI = "tpp-nok-redirect-uri";
+    public static final String TPP_EXPLICIT_AUTHORISATION_PREFERRED = "tpp-explicit-authorisation-preferred";
 
     private Xs2aHeaderConstant() {
     }

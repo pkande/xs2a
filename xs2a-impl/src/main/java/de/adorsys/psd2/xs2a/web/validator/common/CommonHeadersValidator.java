@@ -19,14 +19,15 @@ package de.adorsys.psd2.xs2a.web.validator.common;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import de.adorsys.psd2.xs2a.web.validator.common.service.ContentTypeValidationService;
 import de.adorsys.psd2.xs2a.web.validator.common.service.XRequestIdValidationService;
-import de.adorsys.psd2.xs2a.web.validator.methods.SpecificMethodsHeadersValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_REQUEST_ID;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class is used for validation of common headers, that are used in all controllers' methods.
@@ -36,20 +37,25 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_
 public class CommonHeadersValidator {
 
     private final XRequestIdValidationService xRequestIdValidationService;
+    private final ContentTypeValidationService contentTypeValidationService;
     private final ErrorBuildingService errorBuildingService;
 
     public void validate(MessageError messageError, HttpServletRequest request) {
 
-        String xRequestId = request.getHeader(X_REQUEST_ID);
+        Map<String, String> headers = Collections.list(request.getHeaderNames())
+                                          .stream()
+                                          .collect(Collectors.toMap(h -> h, request::getHeader));
 
-        ValidationResult xRequestIdValidationResult = xRequestIdValidationService.validateXRequestId(xRequestId);
+        ValidationResult xRequestIdValidationResult = xRequestIdValidationService.validateHeader(headers);
 
         if (xRequestIdValidationResult.isNotValid()) {
             errorBuildingService.enrichMessageError(messageError, xRequestIdValidationResult.getMessageError());
         }
 
-        //
-        // TODO: add common headers validation, ex "accept", "content-type" and so on.
-        //
+        ValidationResult contentTypeValidationResult = contentTypeValidationService.validateHeader(headers);
+
+        if (contentTypeValidationResult.isNotValid()) {
+            errorBuildingService.enrichMessageError(messageError, contentTypeValidationResult.getMessageError());
+        }
     }
 }

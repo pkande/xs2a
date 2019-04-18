@@ -27,26 +27,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_REQUEST_ID;
-
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.CONTENT_TYPE;
 
 /**
- * Service to be used to validate 'X-Request-ID' header in all REST calls.
+ * Service to be used to validate 'Content-type' header in all REST calls.
  */
 @Service
 @RequiredArgsConstructor
-public class XRequestIdValidationService implements OneHeaderValidator {
+public class ContentTypeValidationService implements OneHeaderValidator {
 
-    private static final String UUID_REGEX = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\z";
-    private static final Pattern PATTERN = Pattern.compile(UUID_REGEX, Pattern.CASE_INSENSITIVE);
-
-    private static final String ERROR_TEXT_ABSENT_HEADER = "Header 'X-Request-ID' is missing in request";
-    private static final String ERROR_TEXT_NULL_HEADER = "Header 'X-Request-ID' may not be null";
-    private static final String ERROR_TEXT_BLANK_HEADER = "Header 'X-Request-ID' may not be blank";
-    private static final String ERROR_TEXT_WRONG_HEADER = "Header 'X-Request-ID' has to be represented by standard 36-char UUID representation";
+    private static final String ERROR_TEXT_ABSENT_HEADER = "Header 'Content-type' is missing in request";
+    private static final String ERROR_TEXT_NULL_HEADER = "Header 'Content-type' may not be null";
+    private static final String ERROR_TEXT_BLANK_HEADER = "Header 'Content-type' may not be blank";
 
     private final ServiceTypeDiscoveryService serviceTypeDiscoveryService;
     private final ServiceTypeToErrorTypeMapper errorTypeMapper;
@@ -54,22 +48,18 @@ public class XRequestIdValidationService implements OneHeaderValidator {
     @Override
     public ValidationResult validateHeader(Map<String, String> headers) {
 
-        if (!headers.containsKey(X_REQUEST_ID)) {
+        if (!headers.containsKey(CONTENT_TYPE)) {
             return ValidationResult.invalid(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, ERROR_TEXT_ABSENT_HEADER));
         }
 
-        String xRequestId = headers.get(X_REQUEST_ID);
+        String contentType = headers.get(CONTENT_TYPE);
 
-        if (Objects.isNull(xRequestId)) {
+        if (Objects.isNull(contentType)) {
             return ValidationResult.invalid(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, ERROR_TEXT_NULL_HEADER));
         }
 
-        if (StringUtils.isBlank(xRequestId)) {
+        if (StringUtils.isBlank(contentType)) {
             return ValidationResult.invalid(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, ERROR_TEXT_BLANK_HEADER));
-        }
-
-        if (isNonValid(xRequestId)) {
-            return ValidationResult.invalid(buildErrorType(), TppMessageInformation.of(FORMAT_ERROR, ERROR_TEXT_WRONG_HEADER));
         }
 
         return ValidationResult.valid();
@@ -77,9 +67,5 @@ public class XRequestIdValidationService implements OneHeaderValidator {
 
     private ErrorType buildErrorType() {
         return errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
-    }
-
-    private boolean isNonValid(String xRequestId) {
-        return !PATTERN.matcher(xRequestId).matches();
     }
 }

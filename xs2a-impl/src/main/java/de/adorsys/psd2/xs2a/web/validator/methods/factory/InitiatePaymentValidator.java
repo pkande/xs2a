@@ -41,7 +41,7 @@ public class InitiatePaymentValidator implements MethodHeadersValidator {
     // Headers that should be validated here:
     // TODO: enrich the list:
     // PSU-ID, PSU-ID-Type, ....
-    //
+    // https://wiki.adorsys.de/display/PSD2/VR-+002+PIS+Fields+validation
 
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {

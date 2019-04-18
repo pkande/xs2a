@@ -20,18 +20,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.model.Consents;
 import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Objects;
+
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_EXPLICIT_AUTHORISATION_PREFERRED;
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_REDIRECT_PREFERRED;
 
 @RequiredArgsConstructor
 @Service("_createConsent")
 public class CreateConsentValidator implements MethodHeadersValidator {
 
     private final ObjectMapper objectMapper;
+    private final ErrorBuildingService errorBuildingService;
 
     // Headers that should be validated here:
     // PSU-ID, PSU-ID-Type, PSU-Corporate-ID, PSU-Corporate-ID-Type, Authorization, TPP-Redirect-Preferred, TPP-Redirect-URI, TPP-Nok-Redirect-URI, TPP-Explicit-Authorisation-Preferred.
@@ -40,16 +47,17 @@ public class CreateConsentValidator implements MethodHeadersValidator {
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {
 
-        validatePsuId(request, messageError);
-        validatePsuIdType(request, messageError);
-        // TODO: enrich the chain
-
+        validateTppRedirectPreferred(request, messageError);
+        validateTppExplicitAuthorisationPreferred(request, messageError);
 
         // Next step - body validation, should be performed after this.
-        Consents body = mapBodyToConsents(request);
+        Consents body = mapBodyToConsents(request, messageError);
+
+        // TODO: think how to validate body (maybe interface and different implementations with Object in signature)
+
     }
 
-    private Consents mapBodyToConsents(HttpServletRequest request) {
+    private Consents mapBodyToConsents(HttpServletRequest request, MessageError messageError) {
 
         Consents body = new Consents();
 
@@ -57,18 +65,31 @@ public class CreateConsentValidator implements MethodHeadersValidator {
         try {
             body = objectMapper.readValue(multiReadRequest.getInputStream(), Consents.class);
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: handle the jackson error
+            errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
         }
 
         return body;
     }
 
-    private void validatePsuId(HttpServletRequest request, MessageError messageError) {
-        // TODO:
+    private void validateTppRedirectPreferred(HttpServletRequest request, MessageError messageError) {
+        String tppRedirectPreferred = request.getHeader(TPP_REDIRECT_PREFERRED);
+
+        if (Objects.nonNull(tppRedirectPreferred)) {
+            Boolean checker = BooleanUtils.toBooleanObject(tppRedirectPreferred);
+            if (checker == null) {
+                errorBuildingService.enrichMessageError(messageError, "Wrong format for 'TPP-Redirect-Preferred': value should be a boolean");
+            }
+        }
     }
 
-    private void validatePsuIdType(HttpServletRequest request, MessageError messageError) {
-        // TODO:
+    private void validateTppExplicitAuthorisationPreferred(HttpServletRequest request, MessageError messageError) {
+        String tppExplicitAuthorisationPreferred = request.getHeader(TPP_EXPLICIT_AUTHORISATION_PREFERRED);
+
+        if (Objects.nonNull(tppExplicitAuthorisationPreferred)) {
+            Boolean checker = BooleanUtils.toBooleanObject(tppExplicitAuthorisationPreferred);
+            if (checker == null) {
+                errorBuildingService.enrichMessageError(messageError, "Wrong format for 'TPP-Explicit-Authorisation-Preferred': value should be a boolean");
+            }
+        }
     }
 }

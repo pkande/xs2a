@@ -19,6 +19,7 @@ package de.adorsys.psd2.xs2a.web.interceptor;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.common.CommonHeadersValidator;
+import de.adorsys.psd2.xs2a.web.validator.common.service.HeaderLengthValidationService;
 import de.adorsys.psd2.xs2a.web.validator.methods.MethodHeadersValidator;
 import de.adorsys.psd2.xs2a.web.validator.methods.factory.HeadersValidationServiceFactory;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
 
     private final HeadersValidationServiceFactory headersValidationServiceFactory;
+    private final HeaderLengthValidationService headerLengthValidationService;
     private final CommonHeadersValidator commonHeadersValidator;
     private final ErrorBuildingService errorBuildingService;
 
@@ -52,10 +54,10 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
         MessageError initialMessageError = new MessageError();
 
         commonHeadersValidator.validate(initialMessageError, request);
+        headerLengthValidationService.validateHeaders(initialMessageError, request);
 
         // Services for the definite method validations are called by method name via factory pattern here. To add any new
         // validators please include the new class to the 'methods.factory' package and add new enum to ControllerMethodsForValidation.
-
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             String methodName = handlerMethod.getMethod().getName();
@@ -73,13 +75,11 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
                     errorBuildingService.buildErrorResponse(response, initialMessageError);
                     return false;
                 }
-
-
             } else {
                 return true;
             }
         }
-        return false;
+        return true;
     }
 
     public enum ControllerMethodsForValidation {
