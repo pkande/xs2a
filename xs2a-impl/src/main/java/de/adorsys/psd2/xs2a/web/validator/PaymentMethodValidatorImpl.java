@@ -16,10 +16,7 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
-import de.adorsys.psd2.xs2a.web.validator.header.ContentTypeHeaderValidatorImpl;
-import de.adorsys.psd2.xs2a.web.validator.header.HeaderValidator;
-import de.adorsys.psd2.xs2a.web.validator.header.HeadersLengthValidatorImpl;
-import de.adorsys.psd2.xs2a.web.validator.header.XRequestIdHeaderValidatorImpl;
+import de.adorsys.psd2.xs2a.web.validator.header.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +49,9 @@ public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
         headerValidators.add(new HeadersLengthValidatorImpl(errorBuildingService));
 
         //Specific header validators
-
+        headerValidators.add(new PsuIPAddressHeaderValidatorImpl(errorBuildingService));
+        headerValidators.add(new TppRedirectPreferredHeaderValidatorImpl(errorBuildingService));
+        headerValidators.add(new TppRejectionNoFundsPrefferedHeaderValidationImpl(errorBuildingService));
+        headerValidators.add(new TppExplicitAuthorisationPrefferredHeaderValidatorImpl(errorBuildingService));
     }
 }

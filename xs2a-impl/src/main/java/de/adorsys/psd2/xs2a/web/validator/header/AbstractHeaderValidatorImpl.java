@@ -20,9 +20,9 @@ import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,6 +33,7 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
     static final String ERROR_TEXT_ABSENT_HEADER = "Header '%s' is missing in request";
     static final String ERROR_TEXT_NULL_HEADER = "Header '%s' may not be null";
     static final String ERROR_TEXT_BLANK_HEADER = "Header '%s' may not be blank";
+    static final String ERROR_TEXT_BOOLEAN_FORMAT = "Wrong format for '%s': value should be a boolean";
 
     protected ErrorBuildingService errorBuildingService;
 
@@ -43,7 +44,7 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
     protected abstract String getHeaderName();
 
     @Override
-    public void validate(Map<String, String> headers, HttpServletRequest request, MessageError messageError) {
+    public void validate(Map<String, String> headers, MessageError messageError) {
         ValidationResult validationResult = validate(headers);
 
         if (validationResult.isNotValid()) {
@@ -79,6 +80,17 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
                                                            String.format(ERROR_TEXT_BLANK_HEADER, getHeaderName())));
         }
         return checkHeaderContent(headers);
+    }
+
+    protected void checkBooleanFormat(Map<String, String> headers, MessageError messageError) {
+        String header = headers.get(getHeaderName());
+        if (Objects.nonNull(header)) {
+            Boolean checker = BooleanUtils.toBooleanObject(header);
+            if (checker == null) {
+                errorBuildingService.enrichMessageError(messageError,
+                                                        String.format(ERROR_TEXT_BOOLEAN_FORMAT, getHeaderName()));
+            }
+        }
     }
 
 }

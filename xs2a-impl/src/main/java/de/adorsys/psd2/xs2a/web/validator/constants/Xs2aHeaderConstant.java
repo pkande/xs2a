@@ -33,6 +33,8 @@ public class Xs2aHeaderConstant {
     public static final String TPP_NOK_REDIRECT_URI = "tpp-nok-redirect-uri";
     public static final String TPP_EXPLICIT_AUTHORISATION_PREFERRED = "tpp-explicit-authorisation-preferred";
 
+    public static final String TPP_REJECTION_NO_FUNDS_PREFERRED = "tpp-rejection-no funds-preferred";
+
     private Xs2aHeaderConstant() {
     }
 }

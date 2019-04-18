@@ -16,11 +16,17 @@
 
 package de.adorsys.psd2.xs2a.web.validator.header;
 
-import de.adorsys.psd2.xs2a.exception.MessageError;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 
-import java.util.Map;
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.PSU_IP_ADDRESS;
 
-public interface HeaderValidator {
+public class PsuIPAddressHeaderValidatorImpl extends AbstractHeaderValidatorImpl{
+    public PsuIPAddressHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
+        super(errorBuildingService);
+    }
 
-    void validate(Map<String, String> headers, MessageError messageError);
+    @Override
+    protected String getHeaderName() {
+        return PSU_IP_ADDRESS;
+    }
 }

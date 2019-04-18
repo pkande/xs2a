@@ -50,7 +50,8 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
         headerValidators.add(new HeadersLengthValidatorImpl(errorBuildingService));
 
         //Specific header validators
-        headerValidators.add(new CreateConsentHeaderValidatorImpl(errorBuildingService));
+        headerValidators.add(new TppRedirectPreferredHeaderValidatorImpl(errorBuildingService));
+        headerValidators.add(new TppExplicitAuthorisationPrefferredHeaderValidatorImpl(errorBuildingService));
     }
 
 }

@@ -17,10 +17,24 @@
 package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
+import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 
 import java.util.Map;
 
-public interface HeaderValidator {
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_REDIRECT_PREFERRED;
 
-    void validate(Map<String, String> headers, MessageError messageError);
+public class TppRedirectPreferredHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
+    public TppRedirectPreferredHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
+        super(errorBuildingService);
+    }
+
+    @Override
+    protected String getHeaderName() {
+        return TPP_REDIRECT_PREFERRED;
+    }
+
+    @Override
+    public void validate(Map<String, String> headers, MessageError messageError) {
+        checkBooleanFormat(headers, messageError);
+    }
 }
