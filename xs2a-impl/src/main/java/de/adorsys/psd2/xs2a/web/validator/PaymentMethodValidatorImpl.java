@@ -21,7 +21,6 @@ import de.adorsys.psd2.xs2a.web.validator.methods.InitialPaymentBodyValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -33,8 +32,10 @@ public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
     private List<InitialPaymentBodyValidator> bodyValidators;
 
     @Autowired
-    PaymentMethodValidatorImpl(List<InitialPaymentHeaderValidator> headerValidators) {
+    PaymentMethodValidatorImpl(List<InitialPaymentHeaderValidator> headerValidators,
+                               List<InitialPaymentBodyValidator> bodyValidators) {
         this.headerValidators = headerValidators;
+        this.bodyValidators = bodyValidators;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
 
     @Override
     protected List<InitialPaymentBodyValidator> getBodyValidators() {
-        return new ArrayList<>();
+        return bodyValidators;
     }
 
     @Override

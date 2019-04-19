@@ -36,6 +36,8 @@ import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.CreditCardValidator;
 import org.apache.commons.validator.routines.IBANValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,8 +49,10 @@ import java.util.stream.Collectors;
 import static de.adorsys.psd2.xs2a.core.profile.PaymentType.PERIODIC;
 import static de.adorsys.psd2.xs2a.core.profile.PaymentType.SINGLE;
 
-public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl {
+@Component
+public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implements InitialPaymentBodyValidator{
 
+    @Autowired
     public PaymentBodyValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         super(errorBuildingService, objectMapper);
     }
