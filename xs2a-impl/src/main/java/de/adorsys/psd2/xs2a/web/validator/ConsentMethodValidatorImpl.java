@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.web.validator.header.*;
 import de.adorsys.psd2.xs2a.web.validator.methods.AccountAccessValidatorImpl;
 import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.ConsentBodyFieldsValidatorImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,7 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
 
     private void populateBodyValidators() {
         bodyValidators.add(new AccountAccessValidatorImpl(errorBuildingService, objectMapper));
+        bodyValidators.add(new ConsentBodyFieldsValidatorImpl(errorBuildingService, objectMapper));
     }
 
 }

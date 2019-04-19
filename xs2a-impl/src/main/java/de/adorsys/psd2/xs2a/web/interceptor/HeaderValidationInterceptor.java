@@ -20,8 +20,6 @@ import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.MethodValidator;
 import de.adorsys.psd2.xs2a.web.validator.MethodValidatorController;
-import de.adorsys.psd2.xs2a.web.validator.common.CommonHeadersValidator;
-import de.adorsys.psd2.xs2a.web.validator.common.service.HeaderLengthValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -36,8 +34,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
 
-    private final HeaderLengthValidationService headerLengthValidationService;
-    private final CommonHeadersValidator commonHeadersValidator;
     private final ErrorBuildingService errorBuildingService;
     private final MethodValidatorController methodValidatorController;
 
@@ -50,9 +46,6 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
 
         // This MessageError instance may be enriched in all chains of validation (headers and body) for all methods.
         MessageError initialMessageError = new MessageError();
-
-        commonHeadersValidator.validate(initialMessageError, request);
-        headerLengthValidationService.validateHeaders(initialMessageError, request);
 
         // Services for the definite method validations are called by method name via factory pattern here. To add any new
         // validators please include the new class to the 'methods.factory' package and add new enum to ControllerMethodsForValidation.
