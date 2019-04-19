@@ -19,6 +19,8 @@ package de.adorsys.psd2.xs2a.web.validator.header;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,11 +29,14 @@ import java.util.Map;
 
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
 
-public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl {
+@Component
+public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl
+    implements CreateConsentHeaderValidator, InitialPaymentHeaderValidator {
 
     private static final int MAX_HEADER_LENGTH = 140;
     private static final String HEADER_LENGTH_ERROR_TEXT = "Header '%s' should not be more than %s symbols";
 
+    @Autowired
     public HeadersLengthValidatorImpl(ErrorBuildingService errorBuildingService) {
         super(errorBuildingService);
     }

@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator;
+package de.adorsys.psd2.xs2a.web.validator.methods;
 
-import de.adorsys.psd2.xs2a.exception.MessageError;
-
-import javax.servlet.http.HttpServletRequest;
-
-public interface MethodValidator {
-
-    String getMethodName();
-
-    void validate(HttpServletRequest request, MessageError messageError);
-
+public interface InitialPaymentBodyValidator extends BodyValidator {
 }

@@ -26,6 +26,8 @@ import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.IBANValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -33,8 +35,10 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
 
-public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl {
+@Component
+public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implements CreateConsentBodyValidator {
 
+    @Autowired
     public AccountAccessValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         super(errorBuildingService, objectMapper);
     }

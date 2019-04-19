@@ -24,29 +24,30 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static de.adorsys.psd2.xs2a.web.validator.header.AbstractHeaderValidatorImpl.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static de.adorsys.psd2.xs2a.web.validator.header.XRequestIdHeaderValidatorImpl.ERROR_TEXT_WRONG_HEADER;
+import static org.junit.Assert.*;
 
-public class PsuIPAddressHeaderValidatorImplTest {
+public class XRequestIdHeaderValidatorImplTest {
 
-    private static final String PSU_IP_ADDRESS = "192.168.12.34";
+    private static final String X_REQUEST_ID_HEADER = UUID.randomUUID().toString();
 
-    private PsuIPAddressHeaderValidatorImpl validator;
+    private XRequestIdHeaderValidatorImpl validator;
     private MessageError messageError;
     private Map<String, String> headers;
 
     @Before
     public void setUp() {
-        validator = new PsuIPAddressHeaderValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
+        validator = new XRequestIdHeaderValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
         messageError = new MessageError();
         headers = new HashMap<>();
     }
 
     @Test
     public void validate_success() {
-        headers.put(validator.getHeaderName(), PSU_IP_ADDRESS);
+        headers.put(validator.getHeaderName(), X_REQUEST_ID_HEADER);
         validator.validate(headers, messageError);
         assertTrue(messageError.getTppMessages().isEmpty());
     }
@@ -75,5 +76,14 @@ public class PsuIPAddressHeaderValidatorImplTest {
 
         assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
         assertEquals(String.format(ERROR_TEXT_BLANK_HEADER, validator.getHeaderName()), messageError.getTppMessage().getText());
+    }
+
+    @Test
+    public void validate_wrongFormatError() {
+        headers.put(validator.getHeaderName(), "wrong_format");
+        validator.validate(headers, messageError);
+
+        assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
+        assertEquals(String.format(ERROR_TEXT_WRONG_HEADER, validator.getHeaderName()), messageError.getTppMessage().getText());
     }
 }

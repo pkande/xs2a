@@ -18,6 +18,8 @@ package de.adorsys.psd2.xs2a.web.validator;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -26,7 +28,10 @@ public class MethodValidatorControllerTest {
 
     @Test
     public void getMethod() {
-        MethodValidatorController controller = new MethodValidatorController(null, null);
+        List<MethodValidator> methodValidators = new ArrayList<>();
+        methodValidators.add(new ConsentMethodValidatorImpl(null, null));
+        methodValidators.add(new PaymentMethodValidatorImpl(null, null));
+        MethodValidatorController controller = new MethodValidatorController(methodValidators);
 
         Optional<MethodValidator> methodValidator = controller.getMethod("_createConsent");
         assertTrue(methodValidator.isPresent());

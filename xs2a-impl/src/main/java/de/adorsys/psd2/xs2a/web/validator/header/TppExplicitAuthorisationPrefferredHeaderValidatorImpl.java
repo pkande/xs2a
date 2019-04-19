@@ -18,12 +18,18 @@ package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_EXPLICIT_AUTHORISATION_PREFERRED;
 
-public class TppExplicitAuthorisationPrefferredHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
+@Component
+public class TppExplicitAuthorisationPrefferredHeaderValidatorImpl extends AbstractHeaderValidatorImpl
+    implements CreateConsentHeaderValidator, InitialPaymentHeaderValidator {
+
+    @Autowired
     public TppExplicitAuthorisationPrefferredHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
         super(errorBuildingService);
     }

@@ -24,7 +24,7 @@ import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class AbstractBodyValidatorImpl implements BodyValidator {
+public class AbstractBodyValidatorImpl {
 
     protected ErrorBuildingService errorBuildingService;
     protected ObjectMapper objectMapper;
@@ -34,11 +34,6 @@ public class AbstractBodyValidatorImpl implements BodyValidator {
         this.objectMapper = objectMapper;
     }
 
-    @Override
-    public void validate(HttpServletRequest request, MessageError messageError) {
-
-    }
-
     void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
         if (fieldToCheck.length() > maxLength) {
             String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
@@ -46,7 +41,7 @@ public class AbstractBodyValidatorImpl implements BodyValidator {
         }
     }
 
-    Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
+    protected Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
 
         Object body = null;
 

@@ -19,6 +19,8 @@ package de.adorsys.psd2.xs2a.web.validator.header;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -26,12 +28,16 @@ import java.util.regex.Pattern;
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.X_REQUEST_ID;
 
-public class XRequestIdHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
+@Component
+public class XRequestIdHeaderValidatorImpl extends AbstractHeaderValidatorImpl
+    implements CreateConsentHeaderValidator, InitialPaymentHeaderValidator {
+
     private static final String UUID_REGEX = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\z";
     private static final Pattern PATTERN = Pattern.compile(UUID_REGEX, Pattern.CASE_INSENSITIVE);
 
-    private static final String ERROR_TEXT_WRONG_HEADER = "Header 'X-Request-ID' has to be represented by standard 36-char UUID representation";
+    static final String ERROR_TEXT_WRONG_HEADER = "Header 'X-Request-ID' has to be represented by standard 36-char UUID representation";
 
+    @Autowired
     public XRequestIdHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
         super(errorBuildingService);
     }
