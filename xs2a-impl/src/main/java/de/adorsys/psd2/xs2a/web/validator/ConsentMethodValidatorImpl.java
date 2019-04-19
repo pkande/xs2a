@@ -18,25 +18,19 @@ package de.adorsys.psd2.xs2a.web.validator;
 
 import de.adorsys.psd2.xs2a.web.validator.header.CreateConsentHeaderValidator;
 import de.adorsys.psd2.xs2a.web.validator.methods.CreateConsentBodyValidator;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
 
     private static final String METHOD_NAME = "_createConsent";
 
-    private List<CreateConsentHeaderValidator> headerValidators;
-    private List<CreateConsentBodyValidator> bodyValidators;
-
-    @Autowired
-    ConsentMethodValidatorImpl(List<CreateConsentHeaderValidator> headerValidators,
-                               List<CreateConsentBodyValidator> bodyValidators) {
-        this.headerValidators = headerValidators;
-        this.bodyValidators = bodyValidators;
-    }
+    private final List<CreateConsentHeaderValidator> headerValidators;
+    private final List<CreateConsentBodyValidator> bodyValidators;
 
     @Override
     public List<CreateConsentHeaderValidator> getHeaderValidators() {
@@ -52,5 +46,4 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
     public String getMethodName() {
         return METHOD_NAME;
     }
-
 }
