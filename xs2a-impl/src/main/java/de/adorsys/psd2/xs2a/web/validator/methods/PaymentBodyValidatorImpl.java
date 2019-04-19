@@ -157,28 +157,21 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl {
         }
     }
 
-    private void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
-        if (fieldToCheck.length() > maxLength) {
-            String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
-            errorBuildingService.enrichMessageError(messageError, text);
-        }
-    }
-
-    private void validateAccount(AccountReference debtorAccount, MessageError messageError) {
-        if (StringUtils.isNotBlank(debtorAccount.getIban()) && !isValidIban(debtorAccount.getIban())) {
+    private void validateAccount(AccountReference accountReference, MessageError messageError) {
+        if (StringUtils.isNotBlank(accountReference.getIban()) && !isValidIban(accountReference.getIban())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid IBAN format");
         }
-        if (StringUtils.isNotBlank(debtorAccount.getBban()) && !isValidBban(debtorAccount.getBban())) {
+        if (StringUtils.isNotBlank(accountReference.getBban()) && !isValidBban(accountReference.getBban())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid BBAN format");
         }
-        if (StringUtils.isNotBlank(debtorAccount.getPan()) && !isValidPan(debtorAccount.getPan())) {
-            errorBuildingService.enrichMessageError(messageError, "Invalid PAN format");
+        if (StringUtils.isNotBlank(accountReference.getPan())) {
+            checkFieldForMaxLength(accountReference.getPan(), "PAN", 35, messageError);
         }
-        if (StringUtils.isNotBlank(debtorAccount.getMaskedPan()) && !isValidMaskedPan(debtorAccount.getMaskedPan())) {
-            errorBuildingService.enrichMessageError(messageError, "Masked PAN should not be more than 35 symbols");
+        if (StringUtils.isNotBlank(accountReference.getMaskedPan())) {
+            checkFieldForMaxLength(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
         }
-        if (StringUtils.isNotBlank(debtorAccount.getMsisdn()) && !isValidMsisdn(debtorAccount.getMsisdn())) {
-            errorBuildingService.enrichMessageError(messageError, "MSISDN should not be more than 35 symbols");
+        if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
+            checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
         }
     }
 

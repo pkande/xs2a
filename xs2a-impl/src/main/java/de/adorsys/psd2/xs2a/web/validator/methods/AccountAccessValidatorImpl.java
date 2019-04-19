@@ -23,6 +23,7 @@ import de.adorsys.psd2.model.Consents;
 import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.IBANValidator;
 
@@ -70,9 +71,12 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl {
     }
 
     private void validateAccountAccess(AccountAccess accountAccess, MessageError messageError) {
-        List<AccountReference> references = accountAccess.getAccounts();
-        if (references != null) {
-            references.forEach(ar -> validateAccountReference(ar, messageError));
+        List<AccountReference> accountAccesses = accountAccess.getAccounts();
+        accountAccesses.addAll(accountAccess.getBalances());
+        accountAccesses.addAll(accountAccess.getTransactions());
+
+        if (CollectionUtils.isNotEmpty(accountAccesses)) {
+            accountAccesses.forEach(ar -> validateAccountReference(ar, messageError));
         }
     }
 
@@ -83,14 +87,14 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl {
         if (StringUtils.isNotBlank(accountReference.getBban()) && !isValidBban(accountReference.getBban())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid BBAN format");
         }
-        if (StringUtils.isNotBlank(accountReference.getPan()) && !isValidPan(accountReference.getPan())) {
-            errorBuildingService.enrichMessageError(messageError, "Invalid PAN format");
+        if (StringUtils.isNotBlank(accountReference.getPan())) {
+            checkFieldForMaxLength(accountReference.getPan(), "PAN", 35, messageError);
         }
-        if (StringUtils.isNotBlank(accountReference.getMaskedPan()) && !isValidMaskedPan(accountReference.getMaskedPan())) {
-            errorBuildingService.enrichMessageError(messageError, "Masked PAN should not be more than 35 symbols");
+        if (StringUtils.isNotBlank(accountReference.getMaskedPan())) {
+            checkFieldForMaxLength(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
         }
-        if (StringUtils.isNotBlank(accountReference.getMsisdn()) && !isValidMsisdn(accountReference.getMsisdn())) {
-            errorBuildingService.enrichMessageError(messageError, "MSISDN should not be more than 35 symbols");
+        if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
+            checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
         }
         if (StringUtils.isNotBlank(accountReference.getCurrency()) && !isValidCurrency(accountReference.getCurrency())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
@@ -105,18 +109,6 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl {
     private boolean isValidBban(String bban) {
         return normalizeString(bban).length() >= 11
                    && normalizeString(bban).length() <= 28; // Can be extended with aprox 50 country specific masks
-    }
-
-    private boolean isValidPan(String pan) {
-        return pan.length() <= 35;
-    }
-
-    private boolean isValidMaskedPan(String maskedPan) {
-        return maskedPan.length() <= 35;
-    }
-
-    private boolean isValidMsisdn(String msisdn) {
-        return msisdn.length() <= 35;
     }
 
     private boolean isValidCurrency(String currency) {

@@ -39,7 +39,14 @@ public class AbstractBodyValidatorImpl implements BodyValidator {
 
     }
 
-    protected Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
+    void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
+        if (fieldToCheck.length() > maxLength) {
+            String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
+            errorBuildingService.enrichMessageError(messageError, text);
+        }
+    }
+
+    Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
 
         Object body = null;
 
