@@ -16,23 +16,5 @@
 
 package de.adorsys.psd2.xs2a.web.validator.header;
 
-import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.PSU_IP_ADDRESS;
-
-@Component
-public class PsuIPAddressHeaderValidatorImpl extends AbstractHeaderValidatorImpl
-    implements InitialPaymentHeaderValidator {
-
-    @Autowired
-    public PsuIPAddressHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
-        super(errorBuildingService);
-    }
-
-    @Override
-    protected String getHeaderName() {
-        return PSU_IP_ADDRESS;
-    }
+public interface CreateConsentHeaderValidator extends HeaderValidator{
 }

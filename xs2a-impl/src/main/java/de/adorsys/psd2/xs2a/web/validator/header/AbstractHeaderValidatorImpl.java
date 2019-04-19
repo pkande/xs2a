@@ -28,7 +28,7 @@ import java.util.Objects;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 
-public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
+public abstract class AbstractHeaderValidatorImpl {
 
     static final String ERROR_TEXT_ABSENT_HEADER = "Header '%s' is missing in request";
     static final String ERROR_TEXT_NULL_HEADER = "Header '%s' may not be null";
@@ -43,7 +43,6 @@ public abstract class AbstractHeaderValidatorImpl implements HeaderValidator {
 
     protected abstract String getHeaderName();
 
-    @Override
     public void validate(Map<String, String> headers, MessageError messageError) {
         ValidationResult validationResult = validate(headers);
 

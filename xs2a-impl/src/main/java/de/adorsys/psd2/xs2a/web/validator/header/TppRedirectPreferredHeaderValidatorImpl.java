@@ -18,12 +18,18 @@ package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TPP_REDIRECT_PREFERRED;
 
-public class TppRedirectPreferredHeaderValidatorImpl extends AbstractHeaderValidatorImpl {
+@Component
+public class TppRedirectPreferredHeaderValidatorImpl extends AbstractHeaderValidatorImpl
+    implements CreateConsentHeaderValidator, InitialPaymentHeaderValidator {
+
+    @Autowired
     public TppRedirectPreferredHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
         super(errorBuildingService);
     }

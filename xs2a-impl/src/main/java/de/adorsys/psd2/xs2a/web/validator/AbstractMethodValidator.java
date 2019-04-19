@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractMethodValidator implements MethodValidator {
 
-    protected abstract List<HeaderValidator> getHeaderValidators();
+    protected abstract List<? extends HeaderValidator> getHeaderValidators();
 
-    protected abstract List<BodyValidator> getBodyValidators();
+    protected abstract List<? extends BodyValidator> getBodyValidators();
 
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {

@@ -16,54 +16,41 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.adorsys.psd2.xs2a.web.validator.header.*;
-import de.adorsys.psd2.xs2a.web.validator.methods.AccountAccessValidatorImpl;
-import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.ConsentBodyFieldsValidatorImpl;
+import de.adorsys.psd2.xs2a.web.validator.header.CreateConsentHeaderValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.CreateConsentBodyValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
 
-    private ErrorBuildingService errorBuildingService;
-    private ObjectMapper objectMapper;
-    private List<HeaderValidator> headerValidators = new ArrayList<>();
-    private List<BodyValidator> bodyValidators = new ArrayList<>();
+    private static final String METHOD_NAME = "_createConsent";
 
-    ConsentMethodValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
-        this.errorBuildingService = errorBuildingService;
-        this.objectMapper = objectMapper;
+    private List<CreateConsentHeaderValidator> headerValidators;
+    private List<CreateConsentBodyValidator> bodyValidators;
 
-        populateHeaderValidators();
-        populateBodyValidators();
+    @Autowired
+    ConsentMethodValidatorImpl(List<CreateConsentHeaderValidator> headerValidators,
+                               List<CreateConsentBodyValidator> bodyValidators) {
+        this.headerValidators = headerValidators;
+        this.bodyValidators = bodyValidators;
     }
 
     @Override
-    public List<HeaderValidator> getHeaderValidators() {
+    public List<CreateConsentHeaderValidator> getHeaderValidators() {
         return headerValidators;
     }
 
     @Override
-    protected List<BodyValidator> getBodyValidators() {
+    protected List<CreateConsentBodyValidator> getBodyValidators() {
         return bodyValidators;
     }
 
-    private void populateHeaderValidators() {
-        //Common header validators
-        headerValidators.add(new ContentTypeHeaderValidatorImpl(errorBuildingService));
-        headerValidators.add(new XRequestIdHeaderValidatorImpl(errorBuildingService));
-        headerValidators.add(new HeadersLengthValidatorImpl(errorBuildingService));
-
-        //Specific header validators
-        headerValidators.add(new TppRedirectPreferredHeaderValidatorImpl(errorBuildingService));
-        headerValidators.add(new TppExplicitAuthorisationPrefferredHeaderValidatorImpl(errorBuildingService));
-    }
-
-    private void populateBodyValidators() {
-        bodyValidators.add(new AccountAccessValidatorImpl(errorBuildingService, objectMapper));
-        bodyValidators.add(new ConsentBodyFieldsValidatorImpl(errorBuildingService, objectMapper));
+    @Override
+    public String getMethodName() {
+        return METHOD_NAME;
     }
 
 }

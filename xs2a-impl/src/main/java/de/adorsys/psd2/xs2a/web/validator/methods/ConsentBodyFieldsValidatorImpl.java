@@ -21,6 +21,8 @@ import de.adorsys.psd2.model.Consents;
 import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -28,8 +30,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
-public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl {
+@Component
+public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl implements CreateConsentBodyValidator {
 
+    @Autowired
     public ConsentBodyFieldsValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         super(errorBuildingService, objectMapper);
     }

@@ -34,16 +34,17 @@ public class ContentTypeHeaderValidatorImplTest {
 
     private ContentTypeHeaderValidatorImpl validator;
     private MessageError messageError;
+    private Map<String, String> headers;
 
     @Before
     public void setUp() {
         validator = new ContentTypeHeaderValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
         messageError = new MessageError();
+        headers = new HashMap<>();
     }
 
     @Test
     public void validate_success() {
-        Map<String, String> headers = new HashMap<>();
         headers.put(validator.getHeaderName(), ContentType.JSON.getType());
         validator.validate(headers, messageError);
         assertTrue(messageError.getTppMessages().isEmpty());
@@ -51,7 +52,6 @@ public class ContentTypeHeaderValidatorImplTest {
 
     @Test
     public void validate_absentHeaderError() {
-        Map<String, String> headers = new HashMap<>();
         validator.validate(headers, messageError);
 
         assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
@@ -60,7 +60,6 @@ public class ContentTypeHeaderValidatorImplTest {
 
     @Test
     public void validate_nullHeaderError() {
-        Map<String, String> headers = new HashMap<>();
         headers.put(validator.getHeaderName(), null);
         validator.validate(headers, messageError);
 
@@ -70,7 +69,6 @@ public class ContentTypeHeaderValidatorImplTest {
 
     @Test
     public void validate_blankHeaderError() {
-        Map<String, String> headers = new HashMap<>();
         headers.put(validator.getHeaderName(), "");
         validator.validate(headers, messageError);
 

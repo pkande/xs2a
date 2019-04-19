@@ -24,7 +24,7 @@ import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class AbstractBodyValidatorImpl implements BodyValidator {
+public class AbstractBodyValidatorImpl {
 
     protected ErrorBuildingService errorBuildingService;
     protected ObjectMapper objectMapper;
@@ -32,11 +32,6 @@ public class AbstractBodyValidatorImpl implements BodyValidator {
     AbstractBodyValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         this.errorBuildingService = errorBuildingService;
         this.objectMapper = objectMapper;
-    }
-
-    @Override
-    public void validate(HttpServletRequest request, MessageError messageError) {
-
     }
 
     protected Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {

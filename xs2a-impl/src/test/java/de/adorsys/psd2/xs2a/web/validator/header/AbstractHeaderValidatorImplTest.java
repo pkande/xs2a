@@ -39,16 +39,17 @@ public class AbstractHeaderValidatorImplTest {
     private ErrorBuildingService errorBuildingService;
     private TppRedirectPreferredHeaderValidatorImpl validator;
     private MessageError messageError;
+    private Map<String, String> headers;
 
     @Before
     public void setUp() {
         validator = new TppRedirectPreferredHeaderValidatorImpl(errorBuildingService);
         messageError = new MessageError();
+        headers = new HashMap<>();
     }
 
     @Test
     public void checkBooleanFormat_headerIsNotPresented() {
-        Map<String, String> headers = new HashMap<>();
         validator.checkBooleanFormat(headers, messageError);
 
         verify(errorBuildingService, never()).enrichMessageError(any(MessageError.class), any(String.class));
@@ -56,7 +57,6 @@ public class AbstractHeaderValidatorImplTest {
 
     @Test
     public void checkBooleanFormat_success() {
-        Map<String, String> headers = new HashMap<>();
         headers.put(validator.getHeaderName(), "true");
         validator.checkBooleanFormat(headers, messageError);
 
@@ -73,7 +73,6 @@ public class AbstractHeaderValidatorImplTest {
 
     @Test
     public void checkBooleanFormat_error() {
-        Map<String, String> headers = new HashMap<>();
         headers.put(validator.getHeaderName(), "wrong_format");
         validator.checkBooleanFormat(headers, messageError);
 
