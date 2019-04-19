@@ -18,7 +18,7 @@ package de.adorsys.psd2.xs2a.web.validator;
 
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.header.HeaderValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
+import de.adorsys.psd2.xs2a.web.validator.body.BodyValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;

@@ -14,25 +14,33 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.header;
+package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
-import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.PSU_IP_ADDRESS;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
-public class PsuIPAddressHeaderValidatorImpl extends AbstractHeaderValidatorImpl
-    implements PaymentHeaderValidator {
+public class PaymentTypeValidatorContext {
+
+    private Map<String, PaymentValidator> context = new HashMap<>();
+    private List<PaymentValidator> paymentValidators;
 
     @Autowired
-    public PsuIPAddressHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {
-        super(errorBuildingService);
+    public PaymentTypeValidatorContext(List<PaymentValidator> paymentValidators) {
+        this.paymentValidators = paymentValidators;
+        createContext();
     }
 
-    @Override
-    protected String getHeaderName() {
-        return PSU_IP_ADDRESS;
+    public Optional<PaymentValidator> getValidator(String paymentType) {
+        return Optional.ofNullable(context.get(paymentType));
+    }
+
+    private void createContext() {
+        paymentValidators.forEach(m -> context.put(m.getPaymentType().name(), m));
     }
 }

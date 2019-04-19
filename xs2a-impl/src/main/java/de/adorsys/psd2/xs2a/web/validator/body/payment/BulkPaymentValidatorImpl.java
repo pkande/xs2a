@@ -16,10 +16,13 @@
 
 package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
 import de.adorsys.psd2.xs2a.web.validator.body.payment.mapper.PaymentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,15 +30,22 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class BulkPaymentValidatorImpl implements PaymentValidator {
+public class BulkPaymentValidatorImpl extends AbstractBodyValidatorImpl implements PaymentValidator {
 
     private ErrorBuildingService errorBuildingService;
     private PaymentMapper paymentMapper;
 
     @Autowired
-    public BulkPaymentValidatorImpl(ErrorBuildingService errorBuildingService, PaymentMapper paymentMapper) {
+    public BulkPaymentValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper,
+                                    PaymentMapper paymentMapper) {
+        super(errorBuildingService, objectMapper);
         this.errorBuildingService = errorBuildingService;
         this.paymentMapper = paymentMapper;
+    }
+
+    @Override
+    public PaymentType getPaymentType() {
+        return PaymentType.BULK;
     }
 
     @Override

@@ -27,11 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.HEADERS_TO_VALIDATE;
+
 
 @Component
 public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl
-    implements CreateConsentHeaderValidator, InitialPaymentHeaderValidator {
+    implements ConsentHeaderValidator, PaymentHeaderValidator {
 
     private static final int MAX_HEADER_LENGTH = 140;
     private static final String HEADER_LENGTH_ERROR_TEXT = "Header '%s' should not be more than %s symbols";

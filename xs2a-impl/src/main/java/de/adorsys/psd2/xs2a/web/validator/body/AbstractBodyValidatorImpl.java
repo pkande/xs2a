@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods;
+package de.adorsys.psd2.xs2a.web.validator.body;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
@@ -30,19 +30,19 @@ public class AbstractBodyValidatorImpl {
     protected ErrorBuildingService errorBuildingService;
     protected ObjectMapper objectMapper;
 
-    AbstractBodyValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
+    protected AbstractBodyValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         this.errorBuildingService = errorBuildingService;
         this.objectMapper = objectMapper;
     }
 
-    void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
+    protected void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
         if (fieldToCheck.length() > maxLength) {
             String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
             errorBuildingService.enrichMessageError(messageError, text);
         }
     }
 
-    <T> Optional<T> mapBodyToInstance(HttpServletRequest request, MessageError messageError, Class<T> clazz) {
+    protected <T> Optional<T> mapBodyToInstance(HttpServletRequest request, MessageError messageError, Class<T> clazz) {
 
         MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
         try {

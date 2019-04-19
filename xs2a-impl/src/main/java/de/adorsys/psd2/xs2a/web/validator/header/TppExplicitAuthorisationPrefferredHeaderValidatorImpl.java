@@ -27,7 +27,7 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TP
 
 @Component
 public class TppExplicitAuthorisationPrefferredHeaderValidatorImpl extends AbstractHeaderValidatorImpl
-    implements CreateConsentHeaderValidator, InitialPaymentHeaderValidator {
+    implements ConsentHeaderValidator, PaymentHeaderValidator {
 
     @Autowired
     public TppExplicitAuthorisationPrefferredHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {

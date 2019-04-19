@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods;
+package de.adorsys.psd2.xs2a.web.validator.body.consent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.model.Consents;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Component
-public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl implements CreateConsentBodyValidator {
+public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl implements ConsentBodyValidator {
 
     @Autowired
     public ConsentBodyFieldsValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {

@@ -27,7 +27,7 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.TP
 
 @Component
 public class TppRejectionNoFundsPrefferedHeaderValidationImpl extends AbstractHeaderValidatorImpl
-    implements InitialPaymentHeaderValidator {
+    implements PaymentHeaderValidator {
 
     @Autowired
     public TppRejectionNoFundsPrefferedHeaderValidationImpl(ErrorBuildingService errorBuildingService) {

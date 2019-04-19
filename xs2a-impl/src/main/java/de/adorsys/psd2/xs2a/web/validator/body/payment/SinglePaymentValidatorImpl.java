@@ -16,11 +16,14 @@
 
 package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
+import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.domain.Xs2aAmount;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
 import de.adorsys.psd2.xs2a.web.validator.body.payment.mapper.PaymentMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.IBANValidator;
@@ -30,15 +33,22 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
-public class SinglePaymentValidatorImpl implements PaymentValidator {
+public class SinglePaymentValidatorImpl extends AbstractBodyValidatorImpl implements PaymentValidator {
 
     private ErrorBuildingService errorBuildingService;
     private PaymentMapper paymentMapper;
 
     @Autowired
-    public SinglePaymentValidatorImpl(ErrorBuildingService errorBuildingService, PaymentMapper paymentMapper) {
+    public SinglePaymentValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper,
+                                      PaymentMapper paymentMapper) {
+        super(errorBuildingService, objectMapper);
         this.errorBuildingService = errorBuildingService;
         this.paymentMapper = paymentMapper;
+    }
+
+    @Override
+    public PaymentType getPaymentType() {
+        return PaymentType.SINGLE;
     }
 
     @Override
@@ -102,13 +112,6 @@ public class SinglePaymentValidatorImpl implements PaymentValidator {
         }
         if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
             checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
-        }
-    }
-
-    void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
-        if (fieldToCheck.length() > maxLength) {
-            String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
-            errorBuildingService.enrichMessageError(messageError, text);
         }
     }
 

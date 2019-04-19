@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.methods;
+package de.adorsys.psd2.xs2a.web.validator.body.consent;
 
-public interface CreateConsentBodyValidator extends BodyValidator {
+import de.adorsys.psd2.xs2a.web.validator.body.BodyValidator;
+
+public interface ConsentBodyValidator extends BodyValidator {
 }

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.header;
+package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
-public interface CreateConsentHeaderValidator extends HeaderValidator{
+import de.adorsys.psd2.xs2a.web.validator.body.BodyValidator;
+
+public interface PaymentBodyValidator extends BodyValidator {
 }

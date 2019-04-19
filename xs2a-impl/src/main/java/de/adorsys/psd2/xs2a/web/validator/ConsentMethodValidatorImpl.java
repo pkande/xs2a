@@ -16,8 +16,8 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
-import de.adorsys.psd2.xs2a.web.validator.header.CreateConsentHeaderValidator;
-import de.adorsys.psd2.xs2a.web.validator.methods.CreateConsentBodyValidator;
+import de.adorsys.psd2.xs2a.web.validator.header.ConsentHeaderValidator;
+import de.adorsys.psd2.xs2a.web.validator.body.consent.ConsentBodyValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,16 +29,16 @@ public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
 
     private static final String METHOD_NAME = "_createConsent";
 
-    private final List<CreateConsentHeaderValidator> headerValidators;
-    private final List<CreateConsentBodyValidator> bodyValidators;
+    private final List<ConsentHeaderValidator> headerValidators;
+    private final List<ConsentBodyValidator> bodyValidators;
 
     @Override
-    public List<CreateConsentHeaderValidator> getHeaderValidators() {
+    public List<ConsentHeaderValidator> getHeaderValidators() {
         return headerValidators;
     }
 
     @Override
-    protected List<CreateConsentBodyValidator> getBodyValidators() {
+    protected List<ConsentBodyValidator> getBodyValidators() {
         return bodyValidators;
     }
 
