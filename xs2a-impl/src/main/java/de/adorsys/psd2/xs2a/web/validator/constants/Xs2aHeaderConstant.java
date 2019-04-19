@@ -35,6 +35,10 @@ public class Xs2aHeaderConstant {
 
     public static final String TPP_REJECTION_NO_FUNDS_PREFERRED = "tpp-rejection-no funds-preferred";
 
+    // Array of headers that should be checked for the text length:
+    public static final String[] HEADERS_TO_VALIDATE = {PSU_ID, PSU_ID_TYPE, PSU_CORPORATE_ID, PSU_CORPORATE_ID_TYPE,
+        AUTHORISATION, TPP_REDIRECT_URI, TPP_NOK_REDIRECT_URI, PSU_IP_ADDRESS};
+
     private Xs2aHeaderConstant() {
     }
 }

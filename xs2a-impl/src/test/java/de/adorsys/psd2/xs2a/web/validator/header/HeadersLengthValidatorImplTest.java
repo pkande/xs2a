@@ -17,27 +17,29 @@
 package de.adorsys.psd2.xs2a.web.validator.header;
 
 import de.adorsys.psd2.xs2a.domain.ContentType;
-import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.adorsys.psd2.xs2a.web.validator.header.AbstractHeaderValidatorImpl.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.HEADERS_TO_VALIDATE;
+import static org.junit.Assert.*;
 
-public class ContentTypeHeaderValidatorImplTest {
+public class HeadersLengthValidatorImplTest {
 
-    private ContentTypeHeaderValidatorImpl validator;
+    private static final String CORRECT_HEADER_VALUE = "correct_value";
+    private static final String TOO_LONG_HEADER_VALUE = "DSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNMNMDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNMDSFDGHJKLKJHGFCVBNM";
+
+    private HeadersLengthValidatorImpl validator;
     private MessageError messageError;
 
     @Before
     public void setUp() {
-        validator = new ContentTypeHeaderValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
+        validator = new HeadersLengthValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
         messageError = new MessageError();
     }
 
@@ -50,31 +52,20 @@ public class ContentTypeHeaderValidatorImplTest {
     }
 
     @Test
-    public void validate_absentHeaderError() {
+    public void validate_allLengthsAreCorrect() {
         Map<String, String> headers = new HashMap<>();
+        Arrays.stream(HEADERS_TO_VALIDATE)
+            .forEach(h -> headers.put(h, CORRECT_HEADER_VALUE));
         validator.validate(headers, messageError);
-
-        assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
-        assertEquals(String.format(ERROR_TEXT_ABSENT_HEADER, validator.getHeaderName()), messageError.getTppMessage().getText());
+        assertTrue(messageError.getTppMessages().isEmpty());
     }
 
     @Test
-    public void validate_nullHeaderError() {
+    public void validate_lengthHasErrors() {
         Map<String, String> headers = new HashMap<>();
-        headers.put(validator.getHeaderName(), null);
+        Arrays.stream(HEADERS_TO_VALIDATE)
+            .forEach(h -> headers.put(h, TOO_LONG_HEADER_VALUE));
         validator.validate(headers, messageError);
-
-        assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
-        assertEquals(String.format(ERROR_TEXT_NULL_HEADER, validator.getHeaderName()), messageError.getTppMessage().getText());
-    }
-
-    @Test
-    public void validate_blankHeaderError() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(validator.getHeaderName(), "");
-        validator.validate(headers, messageError);
-
-        assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
-        assertEquals(String.format(ERROR_TEXT_BLANK_HEADER, validator.getHeaderName()), messageError.getTppMessage().getText());
+        assertEquals(HEADERS_TO_VALIDATE.length, messageError.getTppMessages().size());
     }
 }

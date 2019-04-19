@@ -20,7 +20,6 @@ import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.collections4.CollectionUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,12 +29,8 @@ import static de.adorsys.psd2.xs2a.web.validator.constants.Xs2aHeaderConstant.*;
 
 public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl {
 
-    // Array of headers that should be checked for the text length:
-    private static final String[] HEADERS_TO_VALIDATE = {PSU_ID, PSU_ID_TYPE, PSU_CORPORATE_ID, PSU_CORPORATE_ID_TYPE,
-        AUTHORISATION, TPP_REDIRECT_URI, TPP_NOK_REDIRECT_URI, PSU_IP_ADDRESS};
     private static final int MAX_HEADER_LENGTH = 140;
-
-    private static final String HEADER_LENGHT_ERROR_TEXT = "Header '%s' should not be more than %s symbols";
+    private static final String HEADER_LENGTH_ERROR_TEXT = "Header '%s' should not be more than %s symbols";
 
     public HeadersLengthValidatorImpl(ErrorBuildingService errorBuildingService) {
         super(errorBuildingService);
@@ -65,7 +60,7 @@ public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl {
 
     private void getResultWithError(MessageError messageError, List<String> wrongLengthHeaders) {
         wrongLengthHeaders.forEach(h -> {
-            String resultingMessage = String.format(HEADER_LENGHT_ERROR_TEXT, h, MAX_HEADER_LENGTH);
+            String resultingMessage = String.format(HEADER_LENGTH_ERROR_TEXT, h, MAX_HEADER_LENGTH);
             errorBuildingService.enrichMessageError(messageError, resultingMessage);
         });
     }
