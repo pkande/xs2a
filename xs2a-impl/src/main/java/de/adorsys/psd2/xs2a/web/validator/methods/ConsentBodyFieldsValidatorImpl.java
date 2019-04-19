@@ -18,17 +18,16 @@ package de.adorsys.psd2.xs2a.web.validator.methods;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.model.Consents;
-import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl implements CreateConsentBodyValidator {
@@ -41,12 +40,14 @@ public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl im
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {
 
-        Consents consents = mapBodyToConsents(request, messageError);
+        Optional<Consents> consentsOptional = mapBodyToInstance(request, messageError, Consents.class);
 
         // In case of wrong JSON - we don't proceed the inner fields validation.
-        if (consents == null) {
+        if (!consentsOptional.isPresent()) {
             return;
         }
+
+        Consents consents = consentsOptional.get();
 
         if (Objects.isNull(consents.getRecurringIndicator())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'recurringIndicator' should not be null");
@@ -65,20 +66,6 @@ public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl im
         }
     }
 
-    private Consents mapBodyToConsents(HttpServletRequest request, MessageError messageError) {
-
-        Consents body = null;
-
-        MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
-        try {
-            body = objectMapper.readValue(multiReadRequest.getInputStream(), Consents.class);
-        } catch (IOException e) {
-            errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
-        }
-
-        return body;
-    }
-
     private void validateValidUntil(LocalDate validUntil, MessageError messageError) {
         try {
             LocalDate.parse(String.valueOf(validUntil));
@@ -88,7 +75,7 @@ public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl im
         }
 
         if (validUntil.isBefore(LocalDate.now())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' may not be in the past");
+            errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' should not be in the past");
         }
     }
 

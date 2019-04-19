@@ -23,6 +23,7 @@ import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Optional;
 
 public class AbstractBodyValidatorImpl {
 
@@ -41,18 +42,15 @@ public class AbstractBodyValidatorImpl {
         }
     }
 
-    protected Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
-
-        Object body = null;
+    <T> Optional<T> mapBodyToInstance(HttpServletRequest request, MessageError messageError, Class<T> clazz) {
 
         MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
         try {
-            body = objectMapper.readValue(multiReadRequest.getInputStream(), Object.class);
+            return Optional.of(objectMapper.readValue(multiReadRequest.getInputStream(), clazz));
         } catch (IOException e) {
             errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
         }
 
-        return body;
+        return Optional.empty();
     }
-
 }

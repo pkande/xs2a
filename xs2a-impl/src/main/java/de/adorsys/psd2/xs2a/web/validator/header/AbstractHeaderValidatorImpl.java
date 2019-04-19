@@ -31,8 +31,8 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 public abstract class AbstractHeaderValidatorImpl {
 
     static final String ERROR_TEXT_ABSENT_HEADER = "Header '%s' is missing in request";
-    static final String ERROR_TEXT_NULL_HEADER = "Header '%s' may not be null";
-    static final String ERROR_TEXT_BLANK_HEADER = "Header '%s' may not be blank";
+    static final String ERROR_TEXT_NULL_HEADER = "Header '%s' should not be null";
+    static final String ERROR_TEXT_BLANK_HEADER = "Header '%s' should not be blank";
     static final String ERROR_TEXT_BOOLEAN_FORMAT = "Wrong format for '%s': value should be a boolean";
 
     protected ErrorBuildingService errorBuildingService;

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
-public class SinglePaymentValidatorImpl implements PaymentValidator{
+public class SinglePaymentValidatorImpl implements PaymentValidator {
 
     private ErrorBuildingService errorBuildingService;
     private PaymentMapper paymentMapper;

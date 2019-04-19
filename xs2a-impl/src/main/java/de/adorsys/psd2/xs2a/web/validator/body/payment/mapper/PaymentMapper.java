@@ -59,11 +59,15 @@ public class PaymentMapper {
         return mapToXs2aPeriodicPayment(convertPayment(body, PeriodicPaymentInitiationJson.class));
     }
 
-    public <R> R convertPayment(Object payment, Class<R> clazz) {
+    public BulkPayment getBulkPayment(Object body) {
+        return mapToXs2aBulkPayment(convertPayment(body, BulkPaymentInitiationJson.class));
+    }
+
+    private <R> R convertPayment(Object payment, Class<R> clazz) {
         return objectMapper.convertValue(payment, clazz);
     }
 
-    public SinglePayment mapToXs2aSinglePayment(PaymentInitiationJson paymentRequest) {
+    private SinglePayment mapToXs2aSinglePayment(PaymentInitiationJson paymentRequest) {
         SinglePayment payment = new SinglePayment();
 
         payment.setEndToEndIdentification(paymentRequest.getEndToEndIdentification());
@@ -159,7 +163,7 @@ public class PaymentMapper {
                    .orElseGet(Xs2aAddress::new);
     }
 
-    public BulkPayment mapToXs2aBulkPayment(BulkPaymentInitiationJson paymentRequest) {
+    private BulkPayment mapToXs2aBulkPayment(BulkPaymentInitiationJson paymentRequest) {
         BulkPayment bulkPayment = new BulkPayment();
         bulkPayment.setBatchBookingPreferred(paymentRequest.getBatchBookingPreferred());
         bulkPayment.setDebtorAccount(mapToXs2aAccountReference(paymentRequest.getDebtorAccount()));

@@ -16,7 +16,6 @@
 
 package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
-import de.adorsys.psd2.model.BulkPaymentInitiationJson;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
@@ -41,7 +40,7 @@ public class BulkPaymentValidatorImpl implements PaymentValidator {
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doValidation(paymentMapper.mapToXs2aBulkPayment(paymentMapper.convertPayment(body, BulkPaymentInitiationJson.class)), messageError);
+        doValidation(paymentMapper.getBulkPayment(body), messageError);
     }
 
     private void doValidation(BulkPayment bulkPayment, MessageError messageError) {

@@ -23,6 +23,9 @@ import de.adorsys.psd2.xs2a.web.validator.body.payment.mapper.PaymentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 @Component
 public class PeriodicPaymentValidatorImpl extends SinglePaymentValidatorImpl {
 
@@ -44,7 +47,24 @@ public class PeriodicPaymentValidatorImpl extends SinglePaymentValidatorImpl {
     void doValidation(PeriodicPayment periodicPayment, MessageError messageError) {
         super.doValidation(periodicPayment, messageError);
 
-        // add specific validation for periodic payment
+        if (Objects.isNull(periodicPayment.getStartDate())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'startDate' should not be null");
+        } else {
+            validateStartDate(periodicPayment.getStartDate(), messageError);
+        }
+
+        if (Objects.nonNull(periodicPayment.getExecutionRule())) {
+            checkFieldForMaxLength(periodicPayment.getExecutionRule().getValue(), "executionRule", 140, messageError);
+        }
+
+        if (Objects.isNull(periodicPayment.getFrequency())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'frequency' should not be null");
+        }
     }
 
+    private void validateStartDate(LocalDate startDate, MessageError messageError) {
+        if (startDate.isBefore(LocalDate.now())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'startDate' should not be in the past");
+        }
+    }
 }

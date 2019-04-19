@@ -61,20 +61,19 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implemen
     public void validate(HttpServletRequest request, MessageError messageError) {
 
         Map<String, String> pathParametersMap = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        Object body = mapBodyToPaymentObject(request, messageError);
+        Optional<Object> bodyOptional = mapBodyToInstance(request, messageError, Object.class);
 
         // In case of wrong JSON - we don't proceed the inner fields validation.
-        if (body == null) {
+        if (!bodyOptional.isPresent()) {
             return;
         }
 
-        validateInitiatePaymentBody(body, pathParametersMap, messageError);
+        validateInitiatePaymentBody(bodyOptional.get(), pathParametersMap, messageError);
     }
 
     private <R> R convertPayment(Object payment, Class<R> clazz) {
         return objectMapper.convertValue(payment, clazz);
     }
-
 
     private void validateInitiatePaymentBody(Object body, Map<String, String> pathParametersMap, MessageError messageError) {
         String paymentService = pathParametersMap.get("payment-service");
