@@ -52,7 +52,7 @@ public class PaymentMapper {
         return objectMapper.convertValue(payment, clazz);
     }
 
-    private SinglePayment mapToXs2aSinglePayment(PaymentInitiationJson paymentRequest) {
+    public SinglePayment mapToXs2aSinglePayment(PaymentInitiationJson paymentRequest) {
         SinglePayment payment = new SinglePayment();
 
         payment.setEndToEndIdentification(paymentRequest.getEndToEndIdentification());
