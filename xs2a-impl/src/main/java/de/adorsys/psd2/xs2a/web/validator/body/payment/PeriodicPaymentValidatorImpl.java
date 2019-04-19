@@ -44,7 +44,7 @@ public class PeriodicPaymentValidatorImpl extends SinglePaymentValidatorImpl {
     void doValidation(PeriodicPayment periodicPayment, MessageError messageError) {
         super.doValidation(periodicPayment, messageError);
 
-        //add specific validation for periodic payment
+        // add specific validation for periodic payment
     }
 
 }
