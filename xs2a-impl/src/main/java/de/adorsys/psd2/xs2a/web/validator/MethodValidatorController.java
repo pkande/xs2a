@@ -44,6 +44,6 @@ public class MethodValidatorController {
 
     private void createMethodValidationContext() {
         methodValidatorContext.put("_createConsent", new ConsentMethodValidatorImpl(errorBuildingService, objectMapper));
-        methodValidatorContext.put("_initiatePayment", new PaymentMethodValidatorImpl(errorBuildingService));
+        methodValidatorContext.put("_initiatePayment", new PaymentMethodValidatorImpl(errorBuildingService, objectMapper));
     }
 }

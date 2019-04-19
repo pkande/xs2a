@@ -16,8 +16,10 @@
 
 package de.adorsys.psd2.xs2a.web.validator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.web.validator.header.*;
 import de.adorsys.psd2.xs2a.web.validator.methods.BodyValidator;
+import de.adorsys.psd2.xs2a.web.validator.methods.PaymentBodyValidatorImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +27,16 @@ import java.util.List;
 public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
 
     private ErrorBuildingService errorBuildingService;
+    private ObjectMapper objectMapper;
     private List<HeaderValidator> headerValidators = new ArrayList<>();
+    private List<BodyValidator> bodyValidators = new ArrayList<>();
 
-    PaymentMethodValidatorImpl(ErrorBuildingService errorBuildingService) {
+    PaymentMethodValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper) {
         this.errorBuildingService = errorBuildingService;
+        this.objectMapper = objectMapper;
 
         populateHeaderValidators();
+        populateBodyValidators();
     }
 
     @Override
@@ -40,7 +46,7 @@ public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
 
     @Override
     protected List<BodyValidator> getBodyValidators() {
-        return new ArrayList<>();
+        return bodyValidators;
     }
 
     private void populateHeaderValidators() {
@@ -55,4 +61,9 @@ public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
         headerValidators.add(new TppRejectionNoFundsPrefferedHeaderValidationImpl(errorBuildingService));
         headerValidators.add(new TppExplicitAuthorisationPrefferredHeaderValidatorImpl(errorBuildingService));
     }
+
+    private void populateBodyValidators() {
+        bodyValidators.add(new PaymentBodyValidatorImpl(errorBuildingService, objectMapper));
+    }
+
 }

@@ -17,10 +17,12 @@
 package de.adorsys.psd2.xs2a.web.validator.methods;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public class AbstractBodyValidatorImpl implements BodyValidator {
 
@@ -36,4 +38,19 @@ public class AbstractBodyValidatorImpl implements BodyValidator {
     public void validate(HttpServletRequest request, MessageError messageError) {
 
     }
+
+    protected Object mapBodyToPaymentObject(HttpServletRequest request, MessageError messageError) {
+
+        Object body = null;
+
+        MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
+        try {
+            body = objectMapper.readValue(multiReadRequest.getInputStream(), Object.class);
+        } catch (IOException e) {
+            errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
+        }
+
+        return body;
+    }
+
 }
