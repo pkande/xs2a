@@ -27,12 +27,15 @@ import de.adorsys.psd2.xs2a.domain.address.Xs2aCountryCode;
 import de.adorsys.psd2.xs2a.domain.code.Xs2aFrequencyCode;
 import de.adorsys.psd2.xs2a.domain.code.Xs2aPurposeCode;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
+import de.adorsys.psd2.xs2a.domain.pis.PeriodicPayment;
 import de.adorsys.psd2.xs2a.domain.pis.Remittance;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +49,14 @@ public class PaymentMapper {
     @Autowired
     public PaymentMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    public SinglePayment getSinglePayment(Object body) {
+        return mapToXs2aSinglePayment(convertPayment(body, PaymentInitiationJson.class));
+    }
+
+    public PeriodicPayment getPeriodicPayment(Object body) {
+        return mapToXs2aPeriodicPayment(convertPayment(body, PeriodicPaymentInitiationJson.class));
     }
 
     public <R> R convertPayment(Object payment, Class<R> clazz) {
@@ -68,6 +79,32 @@ public class PaymentMapper {
         payment.setRemittanceInformationUnstructured(paymentRequest.getRemittanceInformationUnstructured());
         payment.setRemittanceInformationStructured(new Remittance());
         payment.setRequestedExecutionDate(paymentRequest.getRequestedExecutionDate());
+        return payment;
+    }
+
+    private PeriodicPayment mapToXs2aPeriodicPayment(PeriodicPaymentInitiationJson paymentRequest) {
+        PeriodicPayment payment = new PeriodicPayment();
+
+        payment.setEndToEndIdentification(paymentRequest.getEndToEndIdentification());
+        payment.setDebtorAccount(mapToXs2aAccountReference(paymentRequest.getDebtorAccount()));
+        payment.setUltimateDebtor("NOT SUPPORTED");
+        payment.setInstructedAmount(mapToXs2aAmount(paymentRequest.getInstructedAmount()));
+        payment.setCreditorAccount(mapToXs2aAccountReference(paymentRequest.getCreditorAccount()));
+        payment.setCreditorAgent(paymentRequest.getCreditorAgent());
+        payment.setCreditorName(paymentRequest.getCreditorName());
+        payment.setCreditorAddress(mapToXs2aAddress(paymentRequest.getCreditorAddress()));
+        payment.setUltimateCreditor(paymentRequest.getCreditorName());
+        payment.setPurposeCode(new Xs2aPurposeCode("N/A"));
+        payment.setRemittanceInformationUnstructured(paymentRequest.getRemittanceInformationUnstructured());
+        payment.setRemittanceInformationStructured(new Remittance());
+        payment.setRequestedExecutionDate(LocalDate.now());
+        payment.setRequestedExecutionTime(OffsetDateTime.now().plusHours(1));
+
+        payment.setStartDate(paymentRequest.getStartDate());
+        payment.setExecutionRule(mapToPisExecutionRule(paymentRequest.getExecutionRule()).orElse(null));
+        payment.setEndDate(paymentRequest.getEndDate());
+        payment.setFrequency(mapToXs2aFrequencyCode(paymentRequest.getFrequency()));
+        payment.setDayOfExecution(mapToPisDayOfExecution(paymentRequest.getDayOfExecution()).orElse(null));
         return payment;
     }
 

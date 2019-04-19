@@ -16,14 +16,14 @@
 
 package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.adorsys.psd2.model.PaymentInitiationJson;
-import de.adorsys.psd2.xs2a.domain.code.Xs2aPurposeCode;
-import de.adorsys.psd2.xs2a.domain.pis.Remittance;
+import de.adorsys.psd2.xs2a.core.profile.AccountReference;
+import de.adorsys.psd2.xs2a.domain.Xs2aAmount;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.body.payment.mapper.PaymentMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.IBANValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,10 +43,10 @@ public class SinglePaymentValidatorImpl implements PaymentValidator{
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doValidation(paymentMapper.mapToXs2aSinglePayment(convertPayment(body, PaymentInitiationJson.class)), messageError);
+        doValidation(paymentMapper.getSinglePayment(body), messageError);
     }
 
-    private void doValidation(SinglePayment singlePayment, MessageError messageError) {
+    void doValidation(SinglePayment singlePayment, MessageError messageError) {
         if (Objects.nonNull(singlePayment.getEndToEndIdentification())) {
             checkFieldForMaxLength(singlePayment.getEndToEndIdentification(), "endToEndIdentification", 35, messageError);
         }
@@ -74,6 +74,56 @@ public class SinglePaymentValidatorImpl implements PaymentValidator{
         } else {
             checkFieldForMaxLength(singlePayment.getCreditorName(), "creditorName", 70, messageError);
         }
+    }
+
+    private void validateInstructedAmount(Xs2aAmount instructedAmount, MessageError messageError) {
+        if (Objects.isNull(instructedAmount.getCurrency())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'currency' should not be null");
+        }
+        if (Objects.isNull(instructedAmount.getAmount())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'amount' should not be null");
+        } else {
+            checkFieldForMaxLength(instructedAmount.getAmount(), "amount", 140, messageError);
+        }
+    }
+
+    private void validateAccount(AccountReference accountReference, MessageError messageError) {
+        if (StringUtils.isNotBlank(accountReference.getIban()) && !isValidIban(accountReference.getIban())) {
+            errorBuildingService.enrichMessageError(messageError, "Invalid IBAN format");
+        }
+        if (StringUtils.isNotBlank(accountReference.getBban()) && !isValidBban(accountReference.getBban())) {
+            errorBuildingService.enrichMessageError(messageError, "Invalid BBAN format");
+        }
+        if (StringUtils.isNotBlank(accountReference.getPan())) {
+            checkFieldForMaxLength(accountReference.getPan(), "PAN", 35, messageError);
+        }
+        if (StringUtils.isNotBlank(accountReference.getMaskedPan())) {
+            checkFieldForMaxLength(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
+        }
+        if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
+            checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
+        }
+    }
+
+    void checkFieldForMaxLength(String fieldToCheck, String fieldName, int maxLength, MessageError messageError) {
+        if (fieldToCheck.length() > maxLength) {
+            String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
+            errorBuildingService.enrichMessageError(messageError, text);
+        }
+    }
+
+    private boolean isValidIban(String iban) {
+        IBANValidator validator = IBANValidator.getInstance();
+        return validator.isValid(normalizeString(iban));
+    }
+
+    private boolean isValidBban(String bban) {
+        return normalizeString(bban).length() >= 11
+                   && normalizeString(bban).length() <= 28; // Can be extended with aprox 50 country specific masks
+    }
+
+    private String normalizeString(String string) {
+        return string.replaceAll("[^a-zA-Z0-9]", "");
     }
 
 }
