@@ -16,7 +16,6 @@
 
 package de.adorsys.psd2.xs2a.web.validator.header;
 
-import de.adorsys.psd2.xs2a.domain.ContentType;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
@@ -30,21 +29,23 @@ import static de.adorsys.psd2.xs2a.web.validator.header.AbstractHeaderValidatorI
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ContentTypeHeaderValidatorImplTest {
+public class PsuIPAddressHeaderValidatorImplTest {
 
-    private ContentTypeHeaderValidatorImpl validator;
+    private static final String PSU_IP_ADDRESS = "192.168.12.34";
+
+    private PsuIPAddressHeaderValidatorImpl validator;
     private MessageError messageError;
 
     @Before
     public void setUp() {
-        validator = new ContentTypeHeaderValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
+        validator = new PsuIPAddressHeaderValidatorImpl(new ErrorBuildingServiceMock(ErrorType.AIS_400));
         messageError = new MessageError();
     }
 
     @Test
     public void validate_success() {
         Map<String, String> headers = new HashMap<>();
-        headers.put(validator.getHeaderName(), ContentType.JSON.getType());
+        headers.put(validator.getHeaderName(), PSU_IP_ADDRESS);
         validator.validate(headers, messageError);
         assertTrue(messageError.getTppMessages().isEmpty());
     }
