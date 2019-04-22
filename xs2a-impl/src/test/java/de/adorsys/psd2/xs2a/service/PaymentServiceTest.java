@@ -49,7 +49,6 @@ import de.adorsys.psd2.xs2a.service.mapper.spi_xs2a_mappers.Xs2aToSpiPsuDataMapp
 import de.adorsys.psd2.xs2a.service.payment.*;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
-import de.adorsys.psd2.xs2a.service.validator.PaymentValidationService;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.service.validator.pis.payment.*;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
@@ -155,8 +154,6 @@ public class PaymentServiceTest {
     @Mock
     private StandardPaymentProductsResolver standardPaymentProductsResolver;
     @Mock
-    private PaymentValidationService paymentValidationService;
-    @Mock
     private CreatePaymentValidator createPaymentValidator;
     @Mock
     private GetPaymentByIdValidator getPaymentByIdValidator;
@@ -203,9 +200,6 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
-        when(paymentValidationService.validateSinglePayment(any()))
-            .thenReturn(getValidResponse());
-
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
@@ -222,9 +216,6 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                             .body(buildPeriodicPaymentInitiationResponse())
                             .build());
-        when(paymentValidationService.validatePeriodicPayment(any()))
-            .thenReturn(getValidResponse());
-
         // When
         ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
@@ -241,9 +232,6 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
-        when(paymentValidationService.validateSinglePayment(any()))
-            .thenReturn(buildFailedSinglePaymentInitiationResponse());
-
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
@@ -279,9 +267,6 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                             .body(buildPeriodicPaymentInitiationResponse())
                             .build());
-        when(paymentValidationService.validatePeriodicPayment(any()))
-            .thenReturn(buildFailedPeriodicPaymentInitiationResponse());
-
         // When
         ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
@@ -312,10 +297,6 @@ public class PaymentServiceTest {
 
     @Test
     public void createBulkPayments() {
-        // Given
-        when(paymentValidationService.validateBulkPayment(any()))
-            .thenReturn(getValidResponse());
-
         // When
         ResponseObject<BulkPaymentInitiationResponse> actualResponse = paymentService.createPayment(BULK_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.BULK));
 
@@ -347,9 +328,6 @@ public class PaymentServiceTest {
         // Given
         PaymentInitiationParameters parameters = buildPaymentInitiationParameters(PaymentType.SINGLE);
         ArgumentCaptor<EventType> argumentCaptor = ArgumentCaptor.forClass(EventType.class);
-        when(paymentValidationService.validateSinglePayment(any()))
-            .thenReturn(getValidResponse());
-
         // When
         paymentService.createPayment(SINGLE_PAYMENT_OK, parameters);
 

@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
-import static de.adorsys.psd2.xs2a.domain.TppMessageInformation.of;
 
 @Component
 @RequiredArgsConstructor
@@ -63,7 +62,7 @@ public class ErrorBuildingService {
         enrichMessageError(messageError, validationMessageError.getTppMessage());
     }
 
-    private void enrichMessageError(MessageError messageError, TppMessageInformation tppMessageInformation) {
+    public void enrichMessageError(MessageError messageError, TppMessageInformation tppMessageInformation) {
         messageError.addTppMessage(tppMessageInformation);
     }
 
@@ -85,7 +84,7 @@ public class ErrorBuildingService {
         ErrorType errorType = errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
 
         TppMessageInformation[] tppMessages = errorMessages.stream()
-                                                  .map(e -> of(FORMAT_ERROR, e))
+                                                  .map(e -> TppMessageInformation.of(FORMAT_ERROR, e))
                                                   .toArray(TppMessageInformation[]::new);
 
         return new MessageError(errorType, tppMessages);

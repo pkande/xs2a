@@ -18,6 +18,7 @@ package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
+import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.pis.PeriodicPayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
@@ -27,6 +28,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
+
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.PERIOD_INVALID;
 
 @Component
 public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidatorImpl {
@@ -76,6 +80,9 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
         if (Objects.isNull(periodicPayment.getFrequency())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'frequency' should not be null");
         }
+        if (areDatesInvalidInPeriodicPayment(periodicPayment)) {
+            errorBuildingService.enrichMessageError(messageError, TppMessageInformation.of(PERIOD_INVALID, "Date values has wrong order"));
+        }
     }
 
     private void validateStartDate(LocalDate startDate, MessageError messageError) {
@@ -83,4 +90,15 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
             errorBuildingService.enrichMessageError(messageError, "Value 'startDate' should not be in the past");
         }
     }
+
+    private boolean areDatesInvalidInPeriodicPayment(PeriodicPayment periodicPayment) {
+        LocalDate paymentStartDate = periodicPayment.getStartDate();
+        LocalDate paymentEndDate = periodicPayment.getEndDate();
+
+        return isDateInThePast(paymentStartDate)
+                   || Optional.ofNullable(paymentEndDate)
+                          .map(dt -> dt.isBefore(paymentStartDate))
+                          .orElse(false);
+    }
+
 }

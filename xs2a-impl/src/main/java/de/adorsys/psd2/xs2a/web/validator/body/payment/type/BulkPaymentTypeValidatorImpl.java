@@ -18,6 +18,8 @@ package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
+import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
+import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
@@ -60,5 +62,9 @@ public class BulkPaymentTypeValidatorImpl extends SinglePaymentTypeValidatorImpl
         List<SinglePayment> payments = bulkPayment.getPayments();
 
         payments.forEach(singlePayment -> super.doValidation(singlePayment, messageError));
+
+        if (isDateInThePast(bulkPayment.getRequestedExecutionDate())) {
+            errorBuildingService.enrichMessageError(messageError, TppMessageInformation.of(MessageErrorCode.PERIOD_INVALID, "Value 'requestedExecutionDate' should not be in the past"));
+        }
     }
 }

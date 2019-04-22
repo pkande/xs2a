@@ -19,6 +19,7 @@ package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
+import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.Xs2aAmount;
 import de.adorsys.psd2.xs2a.domain.address.Xs2aAddress;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
@@ -31,7 +32,11 @@ import org.apache.commons.validator.routines.IBANValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
+
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.PERIOD_INVALID;
 
 @Component
 public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl implements PaymentTypeValidator {
@@ -86,6 +91,10 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
 
         if (Objects.nonNull(singlePayment.getCreditorAddress())) {
             validateCreditorAddress(singlePayment.getCreditorAddress(), messageError);
+        }
+
+        if (isDateInThePast(singlePayment.getRequestedExecutionDate())) {
+            errorBuildingService.enrichMessageError(messageError, TppMessageInformation.of(PERIOD_INVALID, "Value 'requestedExecutionDate' should not be in the past"));
         }
     }
 
@@ -142,5 +151,11 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
 
     private String normalizeString(String string) {
         return string.replaceAll("[^a-zA-Z0-9]", "");
+    }
+
+    protected boolean isDateInThePast(LocalDate dateToCheck) {
+        return Optional.ofNullable(dateToCheck)
+                   .map(date -> date.isBefore(LocalDate.now()))
+                   .orElse(false);
     }
 }

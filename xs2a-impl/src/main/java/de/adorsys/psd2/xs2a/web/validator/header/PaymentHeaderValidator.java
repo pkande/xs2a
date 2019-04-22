@@ -16,5 +16,5 @@
 
 package de.adorsys.psd2.xs2a.web.validator.header;
 
-public interface PaymentHeaderValidator extends HeaderValidator{
+public interface PaymentHeaderValidator extends HeaderValidator {
 }
