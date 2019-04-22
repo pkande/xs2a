@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -107,6 +109,8 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be null");
         } else if (StringUtils.isBlank(creditorAddress.getCountry().getCode())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be blank");
+        } else if (!Arrays.asList(Locale.getISOCountries()).contains(creditorAddress.getCountry().getCode())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'country' should be ISO 3166 ALPHA2 country code");
         }
     }
 

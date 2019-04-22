@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.service.validator.ais.consent;
 
 import de.adorsys.psd2.xs2a.core.ais.AccountAccessType;
-import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
@@ -37,9 +36,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.SESSIONS_NOT_SUPPORTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -84,56 +82,6 @@ public class CreateConsentRequestValidatorTest {
     }
 
     @Test
-    public void validateFail_RecurringIndicatorTrueFrequencyPerDayMinus() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReq(true, -1);
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
-    }
-
-    @Test
-    public void validateFail_RecurringIndicatorTrueFrequencyPerDayZero() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReq(true, 0);
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
-    }
-
-    @Test
-    public void validateFail_RecurringIndicatorFalseFrequencyPerDayMinus() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReq(false, -1);
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
-    }
-
-    @Test
-    public void validateFail_RecurringIndicatorFalseFrequencyPerDayZero() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReq(false, 0);
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
-    }
-
-    @Test
-    public void validateFail_RecurringIndicatorFalseFrequencyPerDayMoreThanOne() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReq(false, 2);
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
-    }
-
-    @Test
     public void validateSuccess_ValidUntilToday() {
         //Given
         CreateConsentReq createConsentReq = buildCreateConsentReq(true, 1, LocalDate.now());
@@ -141,16 +89,6 @@ public class CreateConsentRequestValidatorTest {
         ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
         //Then
         assertValidationResultValid(validationResult);
-    }
-
-    @Test
-    public void validateFail_ValidUntilInThePast() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReq(true, 1, LocalDate.now().minusDays(1));
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_PERIOD_INVALID(validationResult);
     }
 
     @Test
@@ -171,16 +109,6 @@ public class CreateConsentRequestValidatorTest {
         ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
         //Then
         assertValidationResultValid(validationResult);
-    }
-
-    @Test
-    public void validateFail_FlagsAndAccessesPresent() {
-        //Given
-        CreateConsentReq createConsentReq = buildCreateConsentReqWithFlagsAndAccesses(true, 1);
-        //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
-        //Then
-        assertValidationResultNotValid_FORMAT_ERROR(validationResult);
     }
 
     @Test
@@ -264,30 +192,8 @@ public class CreateConsentRequestValidatorTest {
         return createConsentReq;
     }
 
-    private CreateConsentReq buildCreateConsentReqWithFlagsAndAccesses(boolean recurringIndicator, int frequencyPerDay) {
-        CreateConsentReq createConsentReq = buildCreateConsentReq(recurringIndicator, frequencyPerDay);
-        List<AccountReference> accesses = Collections.singletonList(new AccountReference());
-        Xs2aAccountAccess accountAccess = new Xs2aAccountAccess(accesses, Collections.emptyList(), Collections.emptyList(), AccountAccessType.ALL_ACCOUNTS, null);
-        createConsentReq.setAccess(accountAccess);
-        return createConsentReq;
-    }
-
     private void assertValidationResultValid(ValidationResult validationResult) {
         assertThat(validationResult.isValid()).isTrue();
         assertThat(validationResult.getMessageError()).isNull();
-    }
-
-    private void assertValidationResultNotValid_FORMAT_ERROR(ValidationResult validationResult) {
-        assertThat(validationResult.isNotValid()).isTrue();
-        assertThat(validationResult.getMessageError()).isNotNull();
-        assertThat(validationResult.getMessageError().getErrorType()).isEqualTo(ErrorType.AIS_400);
-        assertThat(validationResult.getMessageError().getTppMessage().getMessageErrorCode()).isEqualTo(FORMAT_ERROR);
-    }
-
-    private void assertValidationResultNotValid_PERIOD_INVALID(ValidationResult validationResult) {
-        assertThat(validationResult.isNotValid()).isTrue();
-        assertThat(validationResult.getMessageError()).isNotNull();
-        assertThat(validationResult.getMessageError().getErrorType()).isEqualTo(ErrorType.AIS_400);
-        assertThat(validationResult.getMessageError().getTppMessage().getMessageErrorCode()).isEqualTo(PERIOD_INVALID);
     }
 }
