@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.domain.Xs2aAmount;
+import de.adorsys.psd2.xs2a.domain.address.Xs2aAddress;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
@@ -83,6 +84,22 @@ public class SinglePaymentValidatorImpl extends AbstractBodyValidatorImpl implem
             errorBuildingService.enrichMessageError(messageError, "Value 'creditorName' should not be null");
         } else {
             checkFieldForMaxLength(singlePayment.getCreditorName(), "creditorName", 70, messageError);
+        }
+
+        if (Objects.nonNull(singlePayment.getCreditorAddress())) {
+            validateCreditorAddress(singlePayment.getCreditorAddress(), messageError);
+        }
+    }
+
+    private void validateCreditorAddress(Xs2aAddress creditorAddress, MessageError messageError) {
+        checkFieldForMaxLength(creditorAddress.getStreet(), "street", 70, messageError);
+        checkFieldForMaxLength(creditorAddress.getBuildingNumber(), "buildingNumber", 140, messageError);
+        checkFieldForMaxLength(creditorAddress.getCity(), "city", 140, messageError);
+        checkFieldForMaxLength(creditorAddress.getPostalCode(), "postalCode", 140, messageError);
+        if (Objects.isNull(creditorAddress.getCountry())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be null");
+        } else if (StringUtils.isBlank(creditorAddress.getCountry().getCode())) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be empty");
         }
     }
 
