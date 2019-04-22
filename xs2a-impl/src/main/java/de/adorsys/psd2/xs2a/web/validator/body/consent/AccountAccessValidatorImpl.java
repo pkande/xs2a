@@ -108,6 +108,10 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
         if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
             checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
         }
+        validateCurrency(accountReference, messageError);
+    }
+
+    private void validateCurrency(AccountReference accountReference, MessageError messageError) {
         if (StringUtils.isNotBlank(accountReference.getCurrency()) && !isValidCurrency(accountReference.getCurrency())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
         }

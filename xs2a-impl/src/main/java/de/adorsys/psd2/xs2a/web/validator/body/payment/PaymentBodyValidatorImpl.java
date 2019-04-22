@@ -46,7 +46,6 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implemen
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {
 
-        Map<String, String> pathParametersMap = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         Optional<Object> bodyOptional = mapBodyToInstance(request, messageError, Object.class);
 
         // In case of wrong JSON - we don't proceed the inner fields validation.
@@ -54,6 +53,7 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implemen
             return;
         }
 
+        Map<String, String> pathParametersMap = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         validateInitiatePaymentBody(bodyOptional.get(), pathParametersMap, messageError);
     }
 
