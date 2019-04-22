@@ -52,13 +52,21 @@ public class PeriodicPaymentValidatorImpl extends SinglePaymentValidatorImpl {
         doValidation(paymentMapper.getPeriodicPayment(body), messageError);
     }
 
-    void doValidation(PeriodicPayment periodicPayment, MessageError messageError) {
+    private void doValidation(PeriodicPayment periodicPayment, MessageError messageError) {
         super.doValidation(periodicPayment, messageError);
 
         if (Objects.isNull(periodicPayment.getStartDate())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'startDate' should not be null");
         } else {
             validateStartDate(periodicPayment.getStartDate(), messageError);
+        }
+
+        if (Objects.nonNull(periodicPayment.getDebtorAccount())) {
+            validateAccount(periodicPayment.getDebtorAccount(), messageError);
+        }
+
+        if (Objects.nonNull(periodicPayment.getCreditorAccount())) {
+            validateAccount(periodicPayment.getCreditorAccount(), messageError);
         }
 
         if (Objects.nonNull(periodicPayment.getExecutionRule())) {

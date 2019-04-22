@@ -114,7 +114,7 @@ public class SinglePaymentValidatorImpl extends AbstractBodyValidatorImpl implem
         }
     }
 
-    private void validateAccount(AccountReference accountReference, MessageError messageError) {
+    void validateAccount(AccountReference accountReference, MessageError messageError) {
         if (StringUtils.isNotBlank(accountReference.getIban()) && !isValidIban(accountReference.getIban())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid IBAN format");
         }

@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.model.AccountAccess;
 import de.adorsys.psd2.model.AccountReference;
 import de.adorsys.psd2.model.Consents;
+import de.adorsys.psd2.xs2a.core.ais.AccountAccessType;
+import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
+import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
@@ -30,10 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Currency;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implements ConsentBodyValidator {
@@ -58,11 +59,12 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
         if (Objects.isNull(consents.getAccess())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'access' should not be null");
         } else {
-            validateAccountAccess(consents.getAccess(), messageError);
+            validateAccountAccess(consents, messageError);
         }
     }
 
-    private void validateAccountAccess(AccountAccess accountAccess, MessageError messageError) {
+    private void validateAccountAccess(Consents consents, MessageError messageError) {
+        AccountAccess accountAccess = consents.getAccess();
         List<AccountReference> accountAccesses = accountAccess.getAccounts();
         accountAccesses.addAll(accountAccess.getBalances());
         accountAccesses.addAll(accountAccess.getTransactions());
@@ -70,6 +72,24 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
         if (CollectionUtils.isNotEmpty(accountAccesses)) {
             accountAccesses.forEach(ar -> validateAccountReference(ar, messageError));
         }
+
+        CreateConsentReq createConsent = mapToCreateConsentReq(consents);
+
+        if (areFlagsAndAccountsInvalid(createConsent)) {
+            errorBuildingService.enrichMessageError(messageError, "Consent object can not contain both list of accounts and the flag allPsd2 or availableAccounts");
+        }
+    }
+
+    private boolean areFlagsAndAccountsInvalid(CreateConsentReq request) {
+        Xs2aAccountAccess access = request.getAccess();
+        if (access.isNotEmpty()) {
+            return !(CollectionUtils.isEmpty(request.getAccountReferences()) || areFlagsEmpty(access));
+        }
+        return false;
+    }
+
+    private boolean areFlagsEmpty(Xs2aAccountAccess access) {
+        return Objects.isNull(access.getAvailableAccounts()) && Objects.isNull(access.getAllPsd2());
     }
 
     private void validateAccountReference(AccountReference accountReference, MessageError messageError) {
@@ -114,5 +134,52 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
 
     private String normalizeString(String string) {
         return string.replaceAll("[^a-zA-Z0-9]", "");
+    }
+
+    private CreateConsentReq mapToCreateConsentReq(Consents consent) {
+        return Optional.ofNullable(consent)
+                   .map(cnst -> {
+                       CreateConsentReq createAisConsentRequest = new CreateConsentReq();
+                       createAisConsentRequest.setAccess(mapToAccountAccessInner(cnst.getAccess()));
+                       return createAisConsentRequest;
+                   })
+                   .orElse(null);
+    }
+
+    private Xs2aAccountAccess mapToAccountAccessInner(AccountAccess accountAccess) {
+        return Optional.ofNullable(accountAccess)
+                   .map(acs ->
+                            new Xs2aAccountAccess(
+                                mapToXs2aAccountReferences(acs.getAccounts()),
+                                mapToXs2aAccountReferences(acs.getBalances()),
+                                mapToXs2aAccountReferences(acs.getTransactions()),
+                                mapToAccountAccessTypeFromAvailableAccounts(acs.getAvailableAccounts()),
+                                mapToAccountAccessTypeFromAllPsd2Enum(acs.getAllPsd2())
+                            ))
+                   .orElse(null);
+    }
+
+    private List<de.adorsys.psd2.xs2a.core.profile.AccountReference> mapToXs2aAccountReferences(List<de.adorsys.psd2.model.AccountReference> references) {
+        return Optional.ofNullable(references)
+                   .map(ref -> ref.stream()
+                                   .map(this::mapToAccountReference)
+                                   .collect(Collectors.toList()))
+                   .orElseGet(Collections::emptyList);
+    }
+
+    private AccountAccessType mapToAccountAccessTypeFromAvailableAccounts(AccountAccess.AvailableAccountsEnum accountsEnum) {
+        return Optional.ofNullable(accountsEnum)
+                   .flatMap(en -> AccountAccessType.getByDescription(en.toString()))
+                   .orElse(null);
+    }
+
+    private AccountAccessType mapToAccountAccessTypeFromAllPsd2Enum(AccountAccess.AllPsd2Enum allPsd2Enum) {
+        return Optional.ofNullable(allPsd2Enum)
+                   .flatMap(en -> AccountAccessType.getByDescription(en.toString()))
+                   .orElse(null);
+    }
+
+    private de.adorsys.psd2.xs2a.core.profile.AccountReference mapToAccountReference(Object reference) {
+        return objectMapper.convertValue(reference, de.adorsys.psd2.xs2a.core.profile.AccountReference.class);
     }
 }

@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.validator.body.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
@@ -24,10 +25,13 @@ import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
 import de.adorsys.psd2.xs2a.web.validator.body.payment.mapper.PaymentMapper;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.IBANValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class BulkPaymentValidatorImpl extends AbstractBodyValidatorImpl implements PaymentValidator {
@@ -54,6 +58,11 @@ public class BulkPaymentValidatorImpl extends AbstractBodyValidatorImpl implemen
     }
 
     private void doValidation(BulkPayment bulkPayment, MessageError messageError) {
+
+        if (Objects.nonNull(bulkPayment.getDebtorAccount())) {
+            validateAccount(bulkPayment.getDebtorAccount(), messageError);
+        }
+
         List<SinglePayment> payments = bulkPayment.getPayments();
 
         payments.forEach(p -> {
@@ -62,4 +71,35 @@ public class BulkPaymentValidatorImpl extends AbstractBodyValidatorImpl implemen
 
     }
 
+    private void validateAccount(AccountReference accountReference, MessageError messageError) {
+        if (StringUtils.isNotBlank(accountReference.getIban()) && !isValidIban(accountReference.getIban())) {
+            errorBuildingService.enrichMessageError(messageError, "Invalid IBAN format");
+        }
+        if (StringUtils.isNotBlank(accountReference.getBban()) && !isValidBban(accountReference.getBban())) {
+            errorBuildingService.enrichMessageError(messageError, "Invalid BBAN format");
+        }
+        if (StringUtils.isNotBlank(accountReference.getPan())) {
+            checkFieldForMaxLength(accountReference.getPan(), "PAN", 35, messageError);
+        }
+        if (StringUtils.isNotBlank(accountReference.getMaskedPan())) {
+            checkFieldForMaxLength(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
+        }
+        if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
+            checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
+        }
+    }
+
+    private boolean isValidIban(String iban) {
+        IBANValidator validator = IBANValidator.getInstance();
+        return validator.isValid(normalizeString(iban));
+    }
+
+    private boolean isValidBban(String bban) {
+        return normalizeString(bban).length() >= 11
+                   && normalizeString(bban).length() <= 28; // Can be extended with aprox 50 country specific masks
+    }
+
+    private String normalizeString(String string) {
+        return string.replaceAll("[^a-zA-Z0-9]", "");
+    }
 }
