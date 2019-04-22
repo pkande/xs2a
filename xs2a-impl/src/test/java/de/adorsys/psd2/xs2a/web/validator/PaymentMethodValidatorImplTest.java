@@ -18,24 +18,24 @@ package de.adorsys.psd2.xs2a.web.validator;
 
 import de.adorsys.psd2.xs2a.web.validator.body.payment.PaymentBodyValidator;
 import de.adorsys.psd2.xs2a.web.validator.header.PaymentHeaderValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class PaymentMethodValidatorImpl extends AbstractMethodValidator {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
-    private static final String METHOD_NAME = "_initiatePayment";
+public class PaymentMethodValidatorImplTest {
 
-    @Autowired
-    protected PaymentMethodValidatorImpl(List<PaymentHeaderValidator> headerValidators,
-                                         List<PaymentBodyValidator> bodyValidators) {
-        super(headerValidators, bodyValidators);
-    }
+    @Test
+    public void init() {
+        List<PaymentHeaderValidator> headerValidators = new ArrayList<>();
+        List<PaymentBodyValidator> bodyValidators = new ArrayList<>();
+        PaymentMethodValidatorImpl methodValidator = new PaymentMethodValidatorImpl(headerValidators, bodyValidators);
 
-    @Override
-    public String getMethodName() {
-        return METHOD_NAME;
+        assertEquals("_initiatePayment", methodValidator.getMethodName());
+        assertSame(headerValidators, methodValidator.getHeaderValidators());
+        assertSame(bodyValidators, methodValidator.getBodyValidators());
     }
 }

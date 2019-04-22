@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
+import de.adorsys.psd2.xs2a.web.validator.body.payment.type.PaymentTypeValidatorContext;
+import de.adorsys.psd2.xs2a.web.validator.body.payment.type.PaymentTypeValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerMapping;
@@ -57,7 +59,7 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implemen
     private void validateInitiatePaymentBody(Object body, Map<String, String> pathParametersMap, MessageError messageError) {
         String paymentService = pathParametersMap.get("payment-service");
 
-        Optional<PaymentValidator> validator = paymentTypeValidatorContext.getValidator(paymentService);
+        Optional<PaymentTypeValidator> validator = paymentTypeValidatorContext.getValidator(paymentService);
         if (!validator.isPresent()) {
             throw new IllegalArgumentException("Unsupported payment service");
         }

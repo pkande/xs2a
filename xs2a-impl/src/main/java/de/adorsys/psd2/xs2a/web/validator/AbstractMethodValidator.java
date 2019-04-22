@@ -26,11 +26,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class AbstractMethodValidator implements MethodValidator {
+public abstract class AbstractMethodValidator<H extends HeaderValidator, B extends BodyValidator> implements MethodValidator {
 
-    protected abstract List<? extends HeaderValidator> getHeaderValidators();
+    private final List<H> headerValidators;
+    private final List<B> bodyValidators;
 
-    protected abstract List<? extends BodyValidator> getBodyValidators();
+    protected AbstractMethodValidator(List<H> headerValidators, List<B> bodyValidators) {
+        this.headerValidators = headerValidators;
+        this.bodyValidators = bodyValidators;
+    }
+
+    List<H> getHeaderValidators() {
+        return headerValidators;
+    }
+
+    List<B> getBodyValidators() {
+        return bodyValidators;
+    }
 
     @Override
     public void validate(HttpServletRequest request, MessageError messageError) {

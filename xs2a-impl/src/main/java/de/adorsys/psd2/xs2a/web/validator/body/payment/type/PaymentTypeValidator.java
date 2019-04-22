@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.body.payment;
+package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 
-public interface PaymentValidator {
+public interface PaymentTypeValidator {
 
     PaymentType getPaymentType();
 

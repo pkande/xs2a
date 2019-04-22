@@ -18,24 +18,23 @@ package de.adorsys.psd2.xs2a.web.validator;
 
 import de.adorsys.psd2.xs2a.web.validator.body.consent.ConsentBodyValidator;
 import de.adorsys.psd2.xs2a.web.validator.header.ConsentHeaderValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class ConsentMethodValidatorImpl extends AbstractMethodValidator {
+import static org.junit.Assert.*;
 
-    private static final String METHOD_NAME = "_createConsent";
+public class ConsentMethodValidatorImplTest {
 
-    @Autowired
-    public ConsentMethodValidatorImpl(List<ConsentHeaderValidator> headerValidators,
-                                      List<ConsentBodyValidator> bodyValidators) {
-        super(headerValidators, bodyValidators);
-    }
+    @Test
+    public void init() {
+        List<ConsentHeaderValidator> headerValidators = new ArrayList<>();
+        List<ConsentBodyValidator> bodyValidators = new ArrayList<>();
+        ConsentMethodValidatorImpl methodValidator = new ConsentMethodValidatorImpl(headerValidators, bodyValidators);
 
-    @Override
-    public String getMethodName() {
-        return METHOD_NAME;
+        assertEquals("_createConsent", methodValidator.getMethodName());
+        assertSame(headerValidators, methodValidator.getHeaderValidators());
+        assertSame(bodyValidators, methodValidator.getBodyValidators());
     }
 }

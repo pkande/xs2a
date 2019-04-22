@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.body.payment;
+package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,20 +27,20 @@ import java.util.Optional;
 @Component
 public class PaymentTypeValidatorContext {
 
-    private Map<String, PaymentValidator> context = new HashMap<>();
-    private List<PaymentValidator> paymentValidators;
+    private Map<String, PaymentTypeValidator> context = new HashMap<>();
+    private List<PaymentTypeValidator> paymentTypeValidators;
 
     @Autowired
-    public PaymentTypeValidatorContext(List<PaymentValidator> paymentValidators) {
-        this.paymentValidators = paymentValidators;
+    public PaymentTypeValidatorContext(List<PaymentTypeValidator> paymentTypeValidators) {
+        this.paymentTypeValidators = paymentTypeValidators;
         createContext();
     }
 
-    public Optional<PaymentValidator> getValidator(String paymentType) {
+    public Optional<PaymentTypeValidator> getValidator(String paymentType) {
         return Optional.ofNullable(context.get(paymentType));
     }
 
     private void createContext() {
-        paymentValidators.forEach(m -> context.put(m.getPaymentType().name(), m));
+        paymentTypeValidators.forEach(m -> context.put(m.getPaymentType().name(), m));
     }
 }

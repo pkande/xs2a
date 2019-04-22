@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.body.payment;
+package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
@@ -29,14 +29,14 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 @Component
-public class PeriodicPaymentValidatorImpl extends SinglePaymentValidatorImpl {
+public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidatorImpl {
 
     private ErrorBuildingService errorBuildingService;
     private PaymentMapper paymentMapper;
 
     @Autowired
-    public PeriodicPaymentValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper,
-                                        PaymentMapper paymentMapper) {
+    public PeriodicPaymentTypeValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper,
+                                            PaymentMapper paymentMapper) {
         super(errorBuildingService, objectMapper, paymentMapper);
         this.errorBuildingService = errorBuildingService;
         this.paymentMapper = paymentMapper;

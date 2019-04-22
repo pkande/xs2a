@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.adorsys.psd2.xs2a.web.validator.body.payment;
+package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
@@ -34,16 +34,14 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
-public class SinglePaymentValidatorImpl extends AbstractBodyValidatorImpl implements PaymentValidator {
+public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl implements PaymentTypeValidator {
 
-    private ErrorBuildingService errorBuildingService;
     private PaymentMapper paymentMapper;
 
     @Autowired
-    public SinglePaymentValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper,
-                                      PaymentMapper paymentMapper) {
+    public SinglePaymentTypeValidatorImpl(ErrorBuildingService errorBuildingService, ObjectMapper objectMapper,
+                                          PaymentMapper paymentMapper) {
         super(errorBuildingService, objectMapper);
-        this.errorBuildingService = errorBuildingService;
         this.paymentMapper = paymentMapper;
     }
 
