@@ -53,24 +53,16 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doValidation(paymentMapper.getPeriodicPayment(body), messageError);
+        doPeriodicValidation(paymentMapper.getPeriodicPayment(body), messageError);
     }
 
-    private void doValidation(PeriodicPayment periodicPayment, MessageError messageError) {
-        super.doValidation(periodicPayment, messageError);
+    void doPeriodicValidation(PeriodicPayment periodicPayment, MessageError messageError) {
+        super.doSingleValidation(periodicPayment, messageError);
 
         if (Objects.isNull(periodicPayment.getStartDate())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'startDate' should not be null");
         } else {
             validateStartDate(periodicPayment.getStartDate(), messageError);
-        }
-
-        if (Objects.nonNull(periodicPayment.getDebtorAccount())) {
-            validateAccount(periodicPayment.getDebtorAccount(), messageError);
-        }
-
-        if (Objects.nonNull(periodicPayment.getCreditorAccount())) {
-            validateAccount(periodicPayment.getCreditorAccount(), messageError);
         }
 
         if (Objects.nonNull(periodicPayment.getExecutionRule())) {
@@ -94,6 +86,11 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
     private boolean areDatesInvalidInPeriodicPayment(PeriodicPayment periodicPayment) {
         LocalDate paymentStartDate = periodicPayment.getStartDate();
         LocalDate paymentEndDate = periodicPayment.getEndDate();
+
+        //validate if start date is valid
+        if (paymentStartDate == null || paymentStartDate.isBefore(LocalDate.now())) {
+            return false;
+        }
 
         return isDateInThePast(paymentStartDate)
                    || Optional.ofNullable(paymentEndDate)

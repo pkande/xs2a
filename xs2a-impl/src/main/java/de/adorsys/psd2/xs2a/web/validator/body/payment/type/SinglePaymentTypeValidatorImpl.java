@@ -59,10 +59,10 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doValidation(paymentMapper.getSinglePayment(body), messageError);
+        doSingleValidation(paymentMapper.getSinglePayment(body), messageError);
     }
 
-    void doValidation(SinglePayment singlePayment, MessageError messageError) {
+    void doSingleValidation(SinglePayment singlePayment, MessageError messageError) {
         if (Objects.nonNull(singlePayment.getEndToEndIdentification())) {
             checkFieldForMaxLength(singlePayment.getEndToEndIdentification(), "endToEndIdentification", 35, messageError);
         }
@@ -92,7 +92,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         }
 
         if (Objects.nonNull(singlePayment.getCreditorAddress())) {
-            validateCreditorAddress(singlePayment.getCreditorAddress(), messageError);
+            validateAddress(singlePayment.getCreditorAddress(), messageError);
         }
 
         if (isDateInThePast(singlePayment.getRequestedExecutionDate())) {
@@ -100,16 +100,16 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         }
     }
 
-    private void validateCreditorAddress(Xs2aAddress creditorAddress, MessageError messageError) {
-        checkFieldForMaxLength(creditorAddress.getStreet(), "street", 70, messageError);
-        checkFieldForMaxLength(creditorAddress.getBuildingNumber(), "buildingNumber", 140, messageError);
-        checkFieldForMaxLength(creditorAddress.getCity(), "city", 140, messageError);
-        checkFieldForMaxLength(creditorAddress.getPostalCode(), "postalCode", 140, messageError);
-        if (Objects.isNull(creditorAddress.getCountry())) {
+    void validateAddress(Xs2aAddress address, MessageError messageError) {
+        checkFieldForMaxLength(address.getStreet(), "street", 70, messageError);
+        checkFieldForMaxLength(address.getBuildingNumber(), "buildingNumber", 140, messageError);
+        checkFieldForMaxLength(address.getCity(), "city", 140, messageError);
+        checkFieldForMaxLength(address.getPostalCode(), "postalCode", 140, messageError);
+        if (Objects.isNull(address.getCountry())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be null");
-        } else if (StringUtils.isBlank(creditorAddress.getCountry().getCode())) {
+        } else if (StringUtils.isBlank(address.getCountry().getCode())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be blank");
-        } else if (!Arrays.asList(Locale.getISOCountries()).contains(creditorAddress.getCountry().getCode())) {
+        } else if (!Arrays.asList(Locale.getISOCountries()).contains(address.getCountry().getCode())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should be ISO 3166 ALPHA2 country code");
         }
     }
@@ -157,7 +157,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         return string.replaceAll("[^a-zA-Z0-9]", "");
     }
 
-    protected boolean isDateInThePast(LocalDate dateToCheck) {
+    boolean isDateInThePast(LocalDate dateToCheck) {
         return Optional.ofNullable(dateToCheck)
                    .map(date -> date.isBefore(LocalDate.now()))
                    .orElse(false);
