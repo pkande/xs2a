@@ -63,7 +63,7 @@ public class ErrorBuildingService {
         enrichMessageError(messageError, validationMessageError.getTppMessage());
     }
 
-    public void enrichMessageError(MessageError messageError, TppMessageInformation tppMessageInformation) {
+    private void enrichMessageError(MessageError messageError, TppMessageInformation tppMessageInformation) {
         messageError.addTppMessage(tppMessageInformation);
     }
 

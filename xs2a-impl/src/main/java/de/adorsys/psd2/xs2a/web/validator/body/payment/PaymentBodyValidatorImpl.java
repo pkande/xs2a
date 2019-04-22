@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import de.adorsys.psd2.xs2a.web.validator.body.AbstractBodyValidatorImpl;
-import de.adorsys.psd2.xs2a.web.validator.body.payment.type.PaymentTypeValidatorContext;
 import de.adorsys.psd2.xs2a.web.validator.body.payment.type.PaymentTypeValidator;
+import de.adorsys.psd2.xs2a.web.validator.body.payment.type.PaymentTypeValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerMapping;
@@ -33,6 +33,7 @@ import java.util.Optional;
 @Component
 public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implements PaymentBodyValidator {
 
+    private static final String PAYMENT_SERVICE_PATH_VAR = "payment-service";
     private PaymentTypeValidatorContext paymentTypeValidatorContext;
 
     @Autowired
@@ -57,7 +58,7 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implemen
     }
 
     private void validateInitiatePaymentBody(Object body, Map<String, String> pathParametersMap, MessageError messageError) {
-        String paymentService = pathParametersMap.get("payment-service");
+        String paymentService = pathParametersMap.get(PAYMENT_SERVICE_PATH_VAR);
 
         Optional<PaymentTypeValidator> validator = paymentTypeValidatorContext.getValidator(paymentService);
         if (!validator.isPresent()) {
@@ -65,5 +66,4 @@ public class PaymentBodyValidatorImpl extends AbstractBodyValidatorImpl implemen
         }
         validator.get().validate(body, messageError);
     }
-
 }
