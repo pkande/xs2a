@@ -25,10 +25,8 @@ import de.adorsys.psd2.xs2a.domain.Xs2aAmount;
 import de.adorsys.psd2.xs2a.domain.address.Xs2aAddress;
 import de.adorsys.psd2.xs2a.domain.address.Xs2aCountryCode;
 import de.adorsys.psd2.xs2a.domain.code.Xs2aFrequencyCode;
-import de.adorsys.psd2.xs2a.domain.code.Xs2aPurposeCode;
 import de.adorsys.psd2.xs2a.domain.pis.BulkPayment;
 import de.adorsys.psd2.xs2a.domain.pis.PeriodicPayment;
-import de.adorsys.psd2.xs2a.domain.pis.Remittance;
 import de.adorsys.psd2.xs2a.domain.pis.SinglePayment;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,16 +70,12 @@ public class PaymentMapper {
 
         payment.setEndToEndIdentification(paymentRequest.getEndToEndIdentification());
         payment.setDebtorAccount(mapToXs2aAccountReference(paymentRequest.getDebtorAccount()));
-        payment.setUltimateDebtor("NOT SUPPORTED");
         payment.setInstructedAmount(mapToXs2aAmount(paymentRequest.getInstructedAmount()));
         payment.setCreditorAccount(mapToXs2aAccountReference(paymentRequest.getCreditorAccount()));
         payment.setCreditorAgent(paymentRequest.getCreditorAgent());
         payment.setCreditorName(paymentRequest.getCreditorName());
         payment.setCreditorAddress(mapToXs2aAddress(paymentRequest.getCreditorAddress()));
-        payment.setUltimateCreditor(paymentRequest.getCreditorName());
-        payment.setPurposeCode(new Xs2aPurposeCode("N/A"));
         payment.setRemittanceInformationUnstructured(paymentRequest.getRemittanceInformationUnstructured());
-        payment.setRemittanceInformationStructured(new Remittance());
         payment.setRequestedExecutionDate(paymentRequest.getRequestedExecutionDate());
         return payment;
     }
@@ -91,16 +85,12 @@ public class PaymentMapper {
 
         payment.setEndToEndIdentification(paymentRequest.getEndToEndIdentification());
         payment.setDebtorAccount(mapToXs2aAccountReference(paymentRequest.getDebtorAccount()));
-        payment.setUltimateDebtor("NOT SUPPORTED");
         payment.setInstructedAmount(mapToXs2aAmount(paymentRequest.getInstructedAmount()));
         payment.setCreditorAccount(mapToXs2aAccountReference(paymentRequest.getCreditorAccount()));
         payment.setCreditorAgent(paymentRequest.getCreditorAgent());
         payment.setCreditorName(paymentRequest.getCreditorName());
         payment.setCreditorAddress(mapToXs2aAddress(paymentRequest.getCreditorAddress()));
-        payment.setUltimateCreditor(paymentRequest.getCreditorName());
-        payment.setPurposeCode(new Xs2aPurposeCode("N/A"));
         payment.setRemittanceInformationUnstructured(paymentRequest.getRemittanceInformationUnstructured());
-        payment.setRemittanceInformationStructured(new Remittance());
         payment.setRequestedExecutionDate(LocalDate.now());
         payment.setRequestedExecutionTime(OffsetDateTime.now().plusHours(1));
 
@@ -112,8 +102,8 @@ public class PaymentMapper {
         return payment;
     }
 
-    private de.adorsys.psd2.xs2a.core.profile.AccountReference mapToXs2aAccountReference(Object reference12) {
-        return objectMapper.convertValue(reference12, AccountReference.class);
+    private de.adorsys.psd2.xs2a.core.profile.AccountReference mapToXs2aAccountReference(Object accountReference) { //NOPMD
+        return objectMapper.convertValue(accountReference, AccountReference.class);
     }
 
     private Optional<PisExecutionRule> mapToPisExecutionRule(ExecutionRule rule) {
@@ -180,16 +170,12 @@ public class PaymentMapper {
                        payment.setDebtorAccount(mapToXs2aAccountReference(paymentRequest.getDebtorAccount()));
                        payment.setRequestedExecutionDate(paymentRequest.getRequestedExecutionDate());
                        payment.setEndToEndIdentification(p.getEndToEndIdentification());
-                       payment.setUltimateDebtor("NOT SUPPORTED");
                        payment.setInstructedAmount(mapToXs2aAmount(p.getInstructedAmount()));
                        payment.setCreditorAccount(mapToXs2aAccountReference(p.getCreditorAccount()));
                        payment.setCreditorAgent(p.getCreditorAgent());
                        payment.setCreditorName(p.getCreditorName());
                        payment.setCreditorAddress(mapToXs2aAddress(p.getCreditorAddress()));
-                       payment.setUltimateCreditor(null);
-                       payment.setPurposeCode(new Xs2aPurposeCode(null));
                        payment.setRemittanceInformationUnstructured(p.getRemittanceInformationUnstructured());
-                       payment.setRemittanceInformationStructured(new Remittance());
                        payment.setRequestedExecutionTime(paymentRequest.getRequestedExecutionTime());
                        return payment;
                    })
