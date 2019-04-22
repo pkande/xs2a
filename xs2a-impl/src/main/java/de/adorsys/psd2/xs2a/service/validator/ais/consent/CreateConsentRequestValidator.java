@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.service.validator.ais.consent;
 
+import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
@@ -32,7 +33,8 @@ import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.core.ais.AccountAccessType.ALL_ACCOUNTS;
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.EMBEDDED;
-import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.*;
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.SERVICE_INVALID_405;
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.SESSIONS_NOT_SUPPORTED;
 
 /**
  * Validator to be used for validating create consent request according to some business rules
@@ -61,7 +63,7 @@ public class CreateConsentRequestValidator implements BusinessValidator<CreateCo
     @Override
     public ValidationResult validate(@NotNull CreateConsentReq request) {
         if (isNotSupportedGlobalConsentForAllPsd2(request)) {
-            return ValidationResult.invalid(ErrorType.AIS_400, PARAMETER_NOT_SUPPORTED);
+            return ValidationResult.invalid(ErrorType.AIS_405, TppMessageInformation.of(SERVICE_INVALID_405, "Global Consent is not supported by ASPSP"));
         }
         if (isNotSupportedBankOfferedConsent(request)) {
             return ValidationResult.invalid(ErrorType.AIS_405, SERVICE_INVALID_405);
@@ -70,7 +72,7 @@ public class CreateConsentRequestValidator implements BusinessValidator<CreateCo
             return ValidationResult.invalid(ErrorType.AIS_405, SERVICE_INVALID_405);
         }
         if (isNotSupportedCombinedServiceIndicator(request)) {
-            return ValidationResult.invalid(ErrorType.AIS_400, SESSIONS_NOT_SUPPORTED);
+            return ValidationResult.invalid(ErrorType.AIS_400, TppMessageInformation.of(SESSIONS_NOT_SUPPORTED, "Sessions are not supported by ASPSP"));
         }
 
         return ValidationResult.valid();
