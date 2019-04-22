@@ -97,7 +97,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         if (Objects.isNull(creditorAddress.getCountry())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be null");
         } else if (StringUtils.isBlank(creditorAddress.getCountry().getCode())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be empty");
+            errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be blank");
         }
     }
 
@@ -143,5 +143,4 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
     private String normalizeString(String string) {
         return string.replaceAll("[^a-zA-Z0-9]", "");
     }
-
 }

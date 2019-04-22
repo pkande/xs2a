@@ -30,6 +30,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * This interceptor is used for headers and body validation of incoming HTTP requests. The main purposes: collect the
+ * list of human-readable errors in case of using wrong headers or JSON fields (ex, IBAN has wrong format, some mandatory
+ * header is missing etc). Each error in the incoming request (validated in accordance with the PSD2 documentation)
+ * results in one text message in the response.
+ * <p>
+ * Please note, this interceptor can only return the response with the HTTP code 400 (FORMAT ERROR).
+ * <p>
+ * No business validation is present here, as business validation requires some specific options to process (ex, SCA approach,
+ * bank-profile configuration). It is implemented in the controllers and services layers.
+ */
 @Component
 @RequiredArgsConstructor
 public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
@@ -47,8 +58,6 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
         // This MessageError instance may be enriched in all chains of validation (headers and body) for all methods.
         MessageError initialMessageError = new MessageError();
 
-        // Services for the definite method validations are called by method name via factory pattern here. To add any new
-        // validators please include the new class to the 'methods.factory' package and add new enum to ControllerMethodsForValidation.
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             String methodName = handlerMethod.getMethod().getName();
@@ -58,7 +67,7 @@ public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
                 methodValidator.get().validate(request, initialMessageError);
 
                 if (!initialMessageError.getTppMessages().isEmpty()) {
-                    // Last part of all validations: if there is at least one error - we build 400 response.
+                    // Last part of all validations: if there is at least one error - we build response with HTTP code 400.
                     errorBuildingService.buildErrorResponse(response, initialMessageError);
                     return false;
                 }
