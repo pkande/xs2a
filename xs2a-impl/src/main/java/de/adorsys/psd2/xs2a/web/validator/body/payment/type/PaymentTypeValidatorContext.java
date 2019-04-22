@@ -41,6 +41,6 @@ public class PaymentTypeValidatorContext {
     }
 
     private void createContext() {
-        paymentTypeValidators.forEach(m -> context.put(m.getPaymentType().name(), m));
+        paymentTypeValidators.forEach(m -> context.put(m.getPaymentType().getValue(), m));
     }
 }
