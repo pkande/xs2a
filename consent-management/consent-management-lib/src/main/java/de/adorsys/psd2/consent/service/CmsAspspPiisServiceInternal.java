@@ -70,6 +70,7 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
                                           int allowedFrequencyPerDay) {
         CreatePiisConsentRequest request = new CreatePiisConsentRequest();
         request.setTppInfo(tppInfo);
+        request.setAccounts(accounts);
         request.setValidUntil(validUntil);
         request.setAllowedFrequencyPerDay(allowedFrequencyPerDay);
 

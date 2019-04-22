@@ -21,8 +21,11 @@ import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 @Data
 @ApiModel(description = "Piis consent request", value = "PiisConsentRequest")
@@ -50,5 +53,21 @@ public class CreatePiisConsentRequest {
 
     @ApiModelProperty(value = "Additional information about the registration process for the PSU, e.g. a reference to the TPP / PSU contract.", example = "Your contract Number 1234 with MyMerchant is completed with the registration with your bank.")
     private String registrationInformation;
+
+    //TODO 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
+    @Deprecated
+    public List<AccountReference> getAccounts() {
+        return Collections.singletonList(account);
+    }
+
+    //TODO 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
+    @Deprecated
+    public void setAccounts(List<AccountReference> accounts) {
+        if (CollectionUtils.isEmpty(accounts)) {
+            account = null;
+        }
+
+        account = accounts.get(0);
+    }
 }
 
