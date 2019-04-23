@@ -50,7 +50,11 @@ public class BulkPaymentTypeValidatorImpl extends SinglePaymentTypeValidatorImpl
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doBulkValidation(paymentMapper.getBulkPayment(body), messageError);
+        try {
+            doBulkValidation(paymentMapper.getBulkPayment(body), messageError);
+        } catch (IllegalArgumentException e) {
+            errorBuildingService.enrichMessageError(messageError, e.getMessage());
+        }
     }
 
     private void doBulkValidation(BulkPayment bulkPayment, MessageError messageError) {

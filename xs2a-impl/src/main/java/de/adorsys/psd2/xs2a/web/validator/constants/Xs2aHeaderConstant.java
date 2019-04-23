@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.validator.constants;
 
 public class Xs2aHeaderConstant {
+    // HTTP headers that are used in validation:
     public static final String CONTENT_TYPE = "content-type";
     public static final String X_REQUEST_ID = "x-request-id";
     public static final String PSU_IP_ADDRESS = "psu-ip-address";

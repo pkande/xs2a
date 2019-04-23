@@ -26,6 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * Class with common functionality (AIS and PIS) for bodies validating.
+ *
+ */
 public class AbstractBodyValidatorImpl {
 
     protected ErrorBuildingService errorBuildingService;

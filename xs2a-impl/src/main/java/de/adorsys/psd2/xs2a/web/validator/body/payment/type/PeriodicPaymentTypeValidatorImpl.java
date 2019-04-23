@@ -53,7 +53,11 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doPeriodicValidation(paymentMapper.getPeriodicPayment(body), messageError);
+        try {
+            doPeriodicValidation(paymentMapper.getPeriodicPayment(body), messageError);
+        } catch (IllegalArgumentException e) {
+            errorBuildingService.enrichMessageError(messageError, e.getMessage());
+        }
     }
 
     void doPeriodicValidation(PeriodicPayment periodicPayment, MessageError messageError) {

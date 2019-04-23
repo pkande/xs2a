@@ -33,10 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.PERIOD_INVALID;
 
@@ -59,7 +57,16 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        doSingleValidation(paymentMapper.getSinglePayment(body), messageError);
+        try {
+            doSingleValidation(paymentMapper.getSinglePayment(body), messageError);
+        } catch (IllegalArgumentException e) {
+            // TODO: think how to implement in a better way.
+            if (e.getMessage() == null) {
+                errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
+                return;
+            }
+            errorBuildingService.enrichMessageError(messageError, e.getMessage());
+        }
     }
 
     void doSingleValidation(SinglePayment singlePayment, MessageError messageError) {
@@ -122,8 +129,31 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         if (Objects.isNull(instructedAmount.getAmount())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'amount' should not be null");
         } else {
-            checkFieldForMaxLength(instructedAmount.getAmount(), "amount", 140, messageError);
+            validateAmount(instructedAmount.getAmount(), messageError);
         }
+    }
+
+    private void validateAmount(String amount, MessageError messageError) {
+        checkFieldForMaxLength(amount, "amount", 140, messageError);
+
+        if (!Pattern.matches("-?[0-9]{1,14}(.[0-9]{1,3})?", amount)) {
+            errorBuildingService.enrichMessageError(messageError, "Value 'amount' has wrong format");
+        }
+    }
+
+    private void validateCurrency(String currency, MessageError messageError) {
+        if (StringUtils.isNotBlank(currency) && !isValidCurrency(currency)) {
+            errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
+        }
+    }
+
+    private boolean isValidCurrency(String currency) {
+        try {
+            Currency.getInstance(currency);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
     void validateAccount(AccountReference accountReference, MessageError messageError) {
