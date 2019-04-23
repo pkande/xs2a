@@ -43,7 +43,7 @@ import java.util.Optional;
  */
 @Component
 @RequiredArgsConstructor
-public class HeaderValidationInterceptor extends HandlerInterceptorAdapter {
+public class RequestValidationInterceptor extends HandlerInterceptorAdapter {
 
     private final ErrorBuildingService errorBuildingService;
     private final MethodValidatorController methodValidatorController;
