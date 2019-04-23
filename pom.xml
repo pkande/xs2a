@@ -739,7 +739,6 @@ Use it manually to generate javadocs. Don't commit it
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <additionalOptions>-Xdoclint:none</additionalOptions>
-                            <source>8</source>
                         </configuration>
                         <executions>
                             <execution>
