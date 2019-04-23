@@ -88,7 +88,6 @@ public class PaymentServiceTest {
     private static final String IBAN = "DE123456789";
     private static final String AMOUNT = "100";
     private static final String WRONG_PAYMENT_ID_TEXT = "Payment not found";
-    private static final String FINALISED_TRANSACTION_STATUS_ERROR_TEXT = "Payment is finalised already and cannot be cancelled";
     private static final Currency CURRENCY = Currency.getInstance("EUR");
     private static final AspspConsentData ASPSP_CONSENT_DATA = new AspspConsentData(new byte[0], PAYMENT_ID);
     private static final PsuIdData PSU_ID_DATA = new PsuIdData(null, null, null, null);
@@ -161,7 +160,6 @@ public class PaymentServiceTest {
     private GetPaymentStatusByIdValidator getPaymentStatusByIdValidator;
     @Mock
     private CancelPaymentValidator cancelPaymentValidator;
-
     @Before
     public void setUp() {
         //Mapper
@@ -232,6 +230,9 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
+        when(createPaymentValidator.validate(any(PaymentInitiationParameters.class)))
+            .thenReturn(ValidationResult.invalid(new MessageError()));
+
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.SINGLE));
 
@@ -267,6 +268,9 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                             .body(buildPeriodicPaymentInitiationResponse())
                             .build());
+        when(createPaymentValidator.validate(any(PaymentInitiationParameters.class)))
+            .thenReturn(ValidationResult.invalid(new MessageError()));
+
         // When
         ResponseObject<PeriodicPaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, buildPaymentInitiationParameters(PaymentType.PERIODIC));
 
@@ -277,9 +281,9 @@ public class PaymentServiceTest {
     @Test
     public void createPeriodicPayment_withInvalidInitiationParameters_shouldReturnValidationError() {
         // Given
-        when(createSinglePaymentService.createPayment(any(), any(), any()))
-            .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
-                            .body(buildSinglePaymentInitiationResponse())
+        when(createPeriodicPaymentService.createPayment(any(), any(), any()))
+            .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
+                            .body(buildPeriodicPaymentInitiationResponse())
                             .build());
         when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
@@ -547,7 +551,7 @@ public class PaymentServiceTest {
         // Then
         assertThat(actualResult.getError()).isNotNull();
         assertThat(actualResult.getError().getErrorType()).isEqualTo(PIS_400);
-        assertThat(actualResult.getError().getTppMessages().contains(of(RESOURCE_BLOCKED, FINALISED_TRANSACTION_STATUS_ERROR_TEXT))).isTrue();
+        assertThat(actualResult.getError().getTppMessages().contains(of(RESOURCE_BLOCKED))).isTrue();
     }
 
     private SpiResponse<TransactionStatus> buildSpiResponseTransactionStatus() {

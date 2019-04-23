@@ -89,12 +89,13 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
 
     private boolean areDatesInvalidInPeriodicPayment(PeriodicPayment periodicPayment) {
         LocalDate paymentStartDate = periodicPayment.getStartDate();
-        LocalDate paymentEndDate = periodicPayment.getEndDate();
 
         // Validate if start date is valid
         if (paymentStartDate == null || paymentStartDate.isBefore(LocalDate.now())) {
             return false;
         }
+
+        LocalDate paymentEndDate = periodicPayment.getEndDate();
 
         return isDateInThePast(paymentStartDate)
                    || Optional.ofNullable(paymentEndDate)

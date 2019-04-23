@@ -158,7 +158,7 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
                    .orElse(null);
     }
 
-    private List<de.adorsys.psd2.xs2a.core.profile.AccountReference> mapToXs2aAccountReferences(List<de.adorsys.psd2.model.AccountReference> references, MessageError messageError) {
+    private List<de.adorsys.psd2.xs2a.core.profile.AccountReference> mapToXs2aAccountReferences(List<de.adorsys.psd2.model.AccountReference> references, MessageError messageError) { // NOPMD
         return Optional.ofNullable(references)
                    .map(ref -> ref.stream()
                                    .map((AccountReference reference) -> mapToAccountReference(reference, messageError))

@@ -52,10 +52,8 @@ public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl
         List<String> wrongLengthHeaders = new ArrayList<>();
 
         headers.forEach((k, v) -> {
-            if (Arrays.stream(HEADERS_TO_VALIDATE).anyMatch(h -> h.equalsIgnoreCase(k))) {
-                if (v.length() > MAX_HEADER_LENGTH) {
-                    wrongLengthHeaders.add(k);
-                }
+            if (Arrays.stream(HEADERS_TO_VALIDATE).anyMatch(h -> h.equalsIgnoreCase(k)) && v.length() > MAX_HEADER_LENGTH) {
+                wrongLengthHeaders.add(k);
             }
         });
 
