@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.adorsys.psd2.model.ExecutionRule;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
@@ -317,4 +318,22 @@ public class PeriodicPaymentTypeValidatorImplTest {
         assertEquals("Value 'startDate' should not be in the past", messageError.getTppMessage().getText());
     }
 
+    @Test
+    public void validatorAddress_frequency_null_error() {
+        periodicPayment.setFrequency(null);
+
+        validator.doPeriodicValidation(periodicPayment, messageError);
+        assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
+        assertEquals("Value 'frequency' should not be null", messageError.getTppMessage().getText());
+    }
+
+    @Test
+    public void validatorAddress_paymentPeriod_error() {
+        periodicPayment.setStartDate(LocalDate.now().plusDays(2)); // Start date bigger than end date
+        periodicPayment.setEndDate(LocalDate.now().plusDays(1));
+
+        validator.doPeriodicValidation(periodicPayment, messageError);
+        assertEquals(MessageErrorCode.PERIOD_INVALID, messageError.getTppMessage().getMessageErrorCode());
+        assertEquals("Date values has wrong order", messageError.getTppMessage().getText());
+    }
 }

@@ -53,7 +53,7 @@ public class BulkPaymentTypeValidatorImpl extends SinglePaymentTypeValidatorImpl
         doBulkValidation(paymentMapper.getBulkPayment(body), messageError);
     }
 
-    private void doBulkValidation(BulkPayment bulkPayment, MessageError messageError) {
+    void doBulkValidation(BulkPayment bulkPayment, MessageError messageError) {
 
         if (Objects.nonNull(bulkPayment.getDebtorAccount())) {
             validateAccount(bulkPayment.getDebtorAccount(), messageError);
@@ -64,7 +64,8 @@ public class BulkPaymentTypeValidatorImpl extends SinglePaymentTypeValidatorImpl
         payments.forEach(singlePayment -> super.doSingleValidation(singlePayment, messageError));
 
         if (isDateInThePast(bulkPayment.getRequestedExecutionDate())) {
-            errorBuildingService.enrichMessageError(messageError, TppMessageInformation.of(MessageErrorCode.PERIOD_INVALID, "Value 'requestedExecutionDate' should not be in the past"));
+            errorBuildingService.enrichMessageError(
+                messageError, TppMessageInformation.of(MessageErrorCode.PERIOD_INVALID, "Value 'requestedExecutionDate' should not be in the past"));
         }
     }
 }
