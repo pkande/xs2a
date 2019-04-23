@@ -54,14 +54,23 @@ public class CreatePiisConsentRequest {
     @ApiModelProperty(value = "Additional information about the registration process for the PSU, e.g. a reference to the TPP / PSU contract.", example = "Your contract Number 1234 with MyMerchant is completed with the registration with your bank.")
     private String registrationInformation;
 
-    //TODO 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
-    @Deprecated
+    /**
+     * @return Account Reference list
+     *
+     * @deprecated since 2.4 and will be removed in 2.7, use getAccount instead
+     */
+    @Deprecated //TODO 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
     public List<AccountReference> getAccounts() {
         return Collections.singletonList(account);
     }
 
-    //TODO 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
-    @Deprecated
+    /**
+     *
+     * @param accounts Account Reference list
+     *
+     * @deprecated since 2.4 and will be removed in 2.7, use setAccount instead
+     */
+    @Deprecated //TODO 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
     public void setAccounts(List<AccountReference> accounts) {
         if (CollectionUtils.isEmpty(accounts)) {
             account = null;

@@ -10,5 +10,5 @@ returned instead of `500 Internal Server Error`.
 ## Bugfix: Fixed process of creating PIIS consent for the same account, PSU and TPP
 From now on, PIIS consent is dedicated for one account and only one consent can be `VALID` for the same account, PSU and TPP.
 On new consent creation, previous PIIS consents with the same parameters will change status to `REVOKED_BY_PSU`.
-To create PIIS consent (`POST /aspsp-api/v1/piis/consents/` or ) provide account in `account` field instead of using `accounts` field for several accounts.
+To create PIIS consent (`POST /aspsp-api/v1/piis/consents/`) provide account in `account` field instead of using `accounts` field for several accounts.
 When retrieving PIIS consent, `account` field will represent actual account of the consent or first created account for previously created PIIS consents with several accounts.
