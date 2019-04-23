@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.web.validator.body.payment.type;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.adorsys.psd2.model.ExecutionRule;
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
@@ -126,14 +125,13 @@ public class PeriodicPaymentTypeValidatorImplTest {
     }
 
     @Test
-    public void doValidation_instructedAmount_amount_tooLong_error() {
+    public void doValidation_instructedAmount_amount_wrong_format_error() {
         Xs2aAmount instructedAmount = periodicPayment.getInstructedAmount();
         instructedAmount.setAmount(VALUE_71_LENGHT + VALUE_71_LENGHT);
 
         validator.doPeriodicValidation(periodicPayment, messageError);
         assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
-        assertEquals(String.format("Value '%s' should not be more than %s symbols", "amount", 140),
-                     messageError.getTppMessage().getText());
+        assertEquals("Value 'amount' has wrong format", messageError.getTppMessage().getText());
     }
 
     @Test

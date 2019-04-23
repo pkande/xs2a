@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public abstract class AbstractMethodValidator<H extends HeaderValidator, B extends BodyValidator> implements MethodValidator {
@@ -56,7 +57,11 @@ public abstract class AbstractMethodValidator<H extends HeaderValidator, B exten
                                           .stream()
                                           .collect(Collectors.toMap(h -> h, request::getHeader));
 
-        getHeaderValidators().forEach(v -> v.validate(headers, messageError));
+        // This is implemented for handling the headers in case insensitive mode.
+        TreeMap<String, String> caseInsensitiveHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveHeaders.putAll(headers);
+
+        getHeaderValidators().forEach(v -> v.validate(caseInsensitiveHeaders, messageError));
         getBodyValidators().forEach(v -> v.validate(request, messageError));
     }
 }

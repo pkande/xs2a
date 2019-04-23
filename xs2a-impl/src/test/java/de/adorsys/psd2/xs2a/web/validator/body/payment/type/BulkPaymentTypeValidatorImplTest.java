@@ -122,14 +122,13 @@ public class BulkPaymentTypeValidatorImplTest {
     }
 
     @Test
-    public void doValidation_instructedAmount_amount_tooLong_error() {
+    public void doValidation_instructedAmount_amount_wrong_format_error() {
         Xs2aAmount instructedAmount = singlePayment.getInstructedAmount();
         instructedAmount.setAmount(VALUE_71_LENGHT + VALUE_71_LENGHT);
 
         validator.doSingleValidation(singlePayment, messageError);
         assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
-        assertEquals(String.format("Value '%s' should not be more than %s symbols", "amount", 140),
-                     messageError.getTppMessage().getText());
+        assertEquals("Value 'amount' has wrong format", messageError.getTppMessage().getText());
     }
 
     @Test
