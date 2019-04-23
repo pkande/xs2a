@@ -73,7 +73,7 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
             accountAccesses.forEach(ar -> validateAccountReference(ar, messageError));
         }
 
-        CreateConsentReq createConsent = mapToCreateConsentReq(consents);
+        CreateConsentReq createConsent = mapToCreateConsentReq(consents, messageError);
 
         if (areFlagsAndAccountsInvalid(createConsent)) {
             errorBuildingService.enrichMessageError(messageError, "Consent object can not contain both list of accounts and the flag allPsd2 or availableAccounts");
@@ -99,15 +99,10 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
         if (StringUtils.isNotBlank(accountReference.getBban()) && !isValidBban(accountReference.getBban())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid BBAN format");
         }
-        if (StringUtils.isNotBlank(accountReference.getPan())) {
-            checkFieldForMaxLength(accountReference.getPan(), "PAN", 35, messageError);
-        }
-        if (StringUtils.isNotBlank(accountReference.getMaskedPan())) {
-            checkFieldForMaxLength(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
-        }
-        if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
-            checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
-        }
+        checkForMaxLengthIfNotNull(accountReference.getPan(), "PAN", 35, messageError);
+        checkForMaxLengthIfNotNull(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
+        checkForMaxLengthIfNotNull(accountReference.getMsisdn(), "MSISDN", 35, messageError);
+
         validateCurrency(accountReference, messageError);
     }
 
@@ -140,33 +135,33 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
         return string.replaceAll("[^a-zA-Z0-9]", "");
     }
 
-    private CreateConsentReq mapToCreateConsentReq(Consents consent) {
+    private CreateConsentReq mapToCreateConsentReq(Consents consent, MessageError messageError) {
         return Optional.ofNullable(consent)
                    .map(cnst -> {
                        CreateConsentReq createAisConsentRequest = new CreateConsentReq();
-                       createAisConsentRequest.setAccess(mapToAccountAccessInner(cnst.getAccess()));
+                       createAisConsentRequest.setAccess(mapToAccountAccessInner(cnst.getAccess(), messageError));
                        return createAisConsentRequest;
                    })
                    .orElse(null);
     }
 
-    private Xs2aAccountAccess mapToAccountAccessInner(AccountAccess accountAccess) {
+    private Xs2aAccountAccess mapToAccountAccessInner(AccountAccess accountAccess, MessageError messageError) {
         return Optional.ofNullable(accountAccess)
                    .map(acs ->
                             new Xs2aAccountAccess(
-                                mapToXs2aAccountReferences(acs.getAccounts()),
-                                mapToXs2aAccountReferences(acs.getBalances()),
-                                mapToXs2aAccountReferences(acs.getTransactions()),
+                                mapToXs2aAccountReferences(acs.getAccounts(), messageError),
+                                mapToXs2aAccountReferences(acs.getBalances(), messageError),
+                                mapToXs2aAccountReferences(acs.getTransactions(), messageError),
                                 mapToAccountAccessTypeFromAvailableAccounts(acs.getAvailableAccounts()),
                                 mapToAccountAccessTypeFromAllPsd2Enum(acs.getAllPsd2())
                             ))
                    .orElse(null);
     }
 
-    private List<de.adorsys.psd2.xs2a.core.profile.AccountReference> mapToXs2aAccountReferences(List<de.adorsys.psd2.model.AccountReference> references) {
+    private List<de.adorsys.psd2.xs2a.core.profile.AccountReference> mapToXs2aAccountReferences(List<de.adorsys.psd2.model.AccountReference> references, MessageError messageError) {
         return Optional.ofNullable(references)
                    .map(ref -> ref.stream()
-                                   .map(this::mapToAccountReference)
+                                   .map((AccountReference reference) -> mapToAccountReference(reference, messageError))
                                    .collect(Collectors.toList()))
                    .orElseGet(Collections::emptyList);
     }
@@ -183,7 +178,13 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
                    .orElse(null);
     }
 
-    private de.adorsys.psd2.xs2a.core.profile.AccountReference mapToAccountReference(Object reference) {
-        return objectMapper.convertValue(reference, de.adorsys.psd2.xs2a.core.profile.AccountReference.class);
+    private de.adorsys.psd2.xs2a.core.profile.AccountReference mapToAccountReference(Object reference, MessageError messageError) {
+        try {
+            return objectMapper.convertValue(reference, de.adorsys.psd2.xs2a.core.profile.AccountReference.class);
+        } catch (IllegalArgumentException e) {
+            // Happens only during Currency field processing, as other fields are of String type.
+            errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
+            return null;
+        }
     }
 }

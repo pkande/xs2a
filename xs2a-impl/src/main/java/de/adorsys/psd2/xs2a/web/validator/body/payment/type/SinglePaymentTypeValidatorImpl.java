@@ -105,6 +105,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         checkFieldForMaxLength(address.getBuildingNumber(), "buildingNumber", 140, messageError);
         checkFieldForMaxLength(address.getCity(), "city", 140, messageError);
         checkFieldForMaxLength(address.getPostalCode(), "postalCode", 140, messageError);
+
         if (Objects.isNull(address.getCountry())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'country' should not be null");
         } else if (StringUtils.isBlank(address.getCountry().getCode())) {
@@ -132,15 +133,10 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         if (StringUtils.isNotBlank(accountReference.getBban()) && !isValidBban(accountReference.getBban())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid BBAN format");
         }
-        if (StringUtils.isNotBlank(accountReference.getPan())) {
-            checkFieldForMaxLength(accountReference.getPan(), "PAN", 35, messageError);
-        }
-        if (StringUtils.isNotBlank(accountReference.getMaskedPan())) {
-            checkFieldForMaxLength(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
-        }
-        if (StringUtils.isNotBlank(accountReference.getMsisdn())) {
-            checkFieldForMaxLength(accountReference.getMsisdn(), "MSISDN", 35, messageError);
-        }
+
+        checkForMaxLengthIfNotNull(accountReference.getPan(), "PAN", 35, messageError);
+        checkForMaxLengthIfNotNull(accountReference.getMaskedPan(), "Masked PAN", 35, messageError);
+        checkForMaxLengthIfNotNull(accountReference.getMsisdn(), "MSISDN", 35, messageError);
     }
 
     private boolean isValidIban(String iban) {

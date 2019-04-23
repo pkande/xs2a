@@ -87,7 +87,7 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
         LocalDate paymentStartDate = periodicPayment.getStartDate();
         LocalDate paymentEndDate = periodicPayment.getEndDate();
 
-        //validate if start date is valid
+        // Validate if start date is valid
         if (paymentStartDate == null || paymentStartDate.isBefore(LocalDate.now())) {
             return false;
         }
@@ -97,5 +97,4 @@ public class PeriodicPaymentTypeValidatorImpl extends SinglePaymentTypeValidator
                           .map(dt -> dt.isBefore(paymentStartDate))
                           .orElse(false);
     }
-
 }

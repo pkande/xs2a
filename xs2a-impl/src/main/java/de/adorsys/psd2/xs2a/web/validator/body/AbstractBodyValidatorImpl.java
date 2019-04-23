@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -39,6 +40,12 @@ public class AbstractBodyValidatorImpl {
         if (fieldToCheck.length() > maxLength) {
             String text = String.format("Value '%s' should not be more than %s symbols", fieldName, maxLength);
             errorBuildingService.enrichMessageError(messageError, text);
+        }
+    }
+
+    protected void checkForMaxLengthIfNotNull(String field, String fieldName, int maxLength, MessageError messageError) {
+        if (StringUtils.isNotBlank(field)) {
+            checkFieldForMaxLength(field, fieldName, maxLength, messageError);
         }
     }
 
