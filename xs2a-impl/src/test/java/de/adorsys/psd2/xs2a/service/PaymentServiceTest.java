@@ -51,6 +51,7 @@ import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.profile.StandardPaymentProductsResolver;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
 import de.adorsys.psd2.xs2a.service.validator.pis.payment.*;
+import de.adorsys.psd2.xs2a.service.validator.pis.payment.dto.CreatePaymentRequestObject;
 import de.adorsys.psd2.xs2a.spi.domain.SpiContextData;
 import de.adorsys.psd2.xs2a.spi.domain.psu.SpiPsuData;
 import de.adorsys.psd2.xs2a.spi.domain.response.SpiResponse;
@@ -181,7 +182,7 @@ public class PaymentServiceTest {
         when(standardPaymentProductsResolver.isRawPaymentProduct(anyString()))
             .thenReturn(false);
 
-        when(createPaymentValidator.validate(any(PaymentInitiationParameters.class)))
+        when(createPaymentValidator.validate(any(CreatePaymentRequestObject.class)))
             .thenReturn(ValidationResult.valid());
         when(getPaymentByIdValidator.validate(any(GetPaymentByIdPO.class)))
             .thenReturn(ValidationResult.valid());
@@ -230,7 +231,7 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
-        when(createPaymentValidator.validate(any(PaymentInitiationParameters.class)))
+        when(createPaymentValidator.validate(any(CreatePaymentRequestObject.class)))
             .thenReturn(ValidationResult.invalid(new MessageError()));
 
         // When
@@ -247,15 +248,18 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<SinglePaymentInitiationResponse>builder()
                             .body(buildSinglePaymentInitiationResponse())
                             .build());
-        when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
+
+        PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
+
+        CreatePaymentRequestObject createPaymentRequestObject = new CreatePaymentRequestObject(SINGLE_PAYMENT_OK, invalidPaymentInitiationParameters);
+        when(createPaymentValidator.validate(createPaymentRequestObject))
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
-        PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(SINGLE_PAYMENT_OK, invalidPaymentInitiationParameters);
 
         // Then
-        verify(createPaymentValidator).validate(invalidPaymentInitiationParameters);
+        verify(createPaymentValidator).validate(createPaymentRequestObject);
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -268,7 +272,7 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                             .body(buildPeriodicPaymentInitiationResponse())
                             .build());
-        when(createPaymentValidator.validate(any(PaymentInitiationParameters.class)))
+        when(createPaymentValidator.validate(any(CreatePaymentRequestObject.class)))
             .thenReturn(ValidationResult.invalid(new MessageError()));
 
         // When
@@ -285,15 +289,18 @@ public class PaymentServiceTest {
             .thenReturn(ResponseObject.<PeriodicPaymentInitiationResponse>builder()
                             .body(buildPeriodicPaymentInitiationResponse())
                             .build());
-        when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
+
+        PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
+
+        CreatePaymentRequestObject createPaymentRequestObject = new CreatePaymentRequestObject(PERIODIC_PAYMENT_OK, invalidPaymentInitiationParameters);
+        when(createPaymentValidator.validate(createPaymentRequestObject))
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
-        PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(PERIODIC_PAYMENT_OK, invalidPaymentInitiationParameters);
 
         // Then
-        verify(createPaymentValidator).validate(invalidPaymentInitiationParameters);
+        verify(createPaymentValidator).validate(createPaymentRequestObject);
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
@@ -314,14 +321,16 @@ public class PaymentServiceTest {
     public void createBulkPayments_withInvalidInitiationParameters_shouldReturnValidationError() {
         // Given
         PaymentInitiationParameters invalidPaymentInitiationParameters = buildInvalidPaymentInitiationParameters();
-        when(createPaymentValidator.validate(buildInvalidPaymentInitiationParameters()))
+
+        CreatePaymentRequestObject createPaymentRequestObject = new CreatePaymentRequestObject(BULK_PAYMENT_OK, invalidPaymentInitiationParameters);
+        when(createPaymentValidator.validate(createPaymentRequestObject))
             .thenReturn(ValidationResult.invalid(VALIDATION_ERROR));
 
         // When
         ResponseObject<SinglePaymentInitiationResponse> actualResponse = paymentService.createPayment(BULK_PAYMENT_OK, invalidPaymentInitiationParameters);
 
         // Then
-        verify(createPaymentValidator).validate(invalidPaymentInitiationParameters);
+        verify(createPaymentValidator).validate(createPaymentRequestObject);
         assertThat(actualResponse).isNotNull();
         assertThat(actualResponse.hasError()).isTrue();
         assertThat(actualResponse.getError()).isEqualTo(VALIDATION_ERROR);
