@@ -37,6 +37,13 @@ public class MethodValidatorController {
         createMethodValidationContext();
     }
 
+    /**
+     * Returns particular {@link MethodValidator} according to method name
+     * (i.e. "_createConsent", "_initiatePayment"...)
+     *
+     * @param methodName from request
+     * @return {@link MethodValidator}
+     */
     public Optional<MethodValidator> getMethod(String methodName) {
         return Optional.ofNullable(methodValidatorContext.get(methodName));
     }
