@@ -18,7 +18,7 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <changeSet author="iku@adorsys.com.ua" id="2019-04-12-3">
+    <changeSet author="iku@adorsys.com.ua" id="2019-04-12-4">
         <comment>Drop piis_consent_acc_reference table.</comment>
         <dropTable tableName="piis_consent_acc_reference"/>
     </changeSet>

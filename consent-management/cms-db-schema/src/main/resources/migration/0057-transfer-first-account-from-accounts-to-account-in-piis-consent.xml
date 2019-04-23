@@ -32,4 +32,15 @@
 
     </changeSet>
 
+    <changeSet author="iku@adorsys.de" id="2019-04-12-3">
+        <comment>Close previous created PIIS consents which are not connected to concrete TPP</comment>
+
+        <sql>
+            UPDATE piis_consent piis
+            SET consent_status = 'REVOKED_BY_PSU'
+            WHERE piis.tpp_info_id IS NULL
+        </sql>
+
+    </changeSet>
+
 </databaseChangeLog>
