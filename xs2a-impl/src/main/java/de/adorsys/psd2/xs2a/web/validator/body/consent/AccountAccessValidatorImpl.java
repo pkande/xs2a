@@ -65,18 +65,20 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
 
     private void validateAccountAccess(Consents consents, MessageError messageError) {
         AccountAccess accountAccess = consents.getAccess();
-        List<AccountReference> accountAccesses = accountAccess.getAccounts();
-        accountAccesses.addAll(accountAccess.getBalances());
-        accountAccesses.addAll(accountAccess.getTransactions());
+        if (Objects.nonNull(accountAccess.getAccounts())) {
+            List<AccountReference> accountAccesses = accountAccess.getAccounts();
+            accountAccesses.addAll(accountAccess.getBalances());
+            accountAccesses.addAll(accountAccess.getTransactions());
 
-        if (CollectionUtils.isNotEmpty(accountAccesses)) {
-            accountAccesses.forEach(ar -> validateAccountReference(ar, messageError));
-        }
+            if (CollectionUtils.isNotEmpty(accountAccesses)) {
+                accountAccesses.forEach(ar -> validateAccountReference(ar, messageError));
+            }
 
-        CreateConsentReq createConsent = mapToCreateConsentReq(consents, messageError);
+            CreateConsentReq createConsent = mapToCreateConsentReq(consents, messageError);
 
-        if (areFlagsAndAccountsInvalid(createConsent)) {
-            errorBuildingService.enrichMessageError(messageError, "Consent object can not contain both list of accounts and the flag allPsd2 or availableAccounts");
+            if (areFlagsAndAccountsInvalid(createConsent)) {
+                errorBuildingService.enrichMessageError(messageError, "Consent object can not contain both list of accounts and the flag allPsd2 or availableAccounts");
+            }
         }
     }
 
@@ -85,7 +87,7 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
         if (access.isNotEmpty()) {
             return !(CollectionUtils.isEmpty(request.getAccountReferences()) || areFlagsEmpty(access));
         }
-        return false;
+        return true;
     }
 
     private boolean areFlagsEmpty(Xs2aAccountAccess access) {
