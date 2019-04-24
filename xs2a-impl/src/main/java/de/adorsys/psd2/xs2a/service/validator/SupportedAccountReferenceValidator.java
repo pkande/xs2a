@@ -50,6 +50,10 @@ public class SupportedAccountReferenceValidator implements BusinessValidator<Col
 
     @Override
     public @NotNull ValidationResult validate(@NotNull Collection<AccountReference> accountReferences) {
+        if (accountReferences.isEmpty()) {
+            return ValidationResult.valid();
+        }
+
         List<SupportedAccountReferenceField> supportedAccountReferenceFields = aspspProfileService.getSupportedAccountReferenceFields();
         Optional<ValidationResult> failedValidationResult = accountReferences.stream()
                                                                 .map(ar -> validateAccountReference(ar, supportedAccountReferenceFields))
