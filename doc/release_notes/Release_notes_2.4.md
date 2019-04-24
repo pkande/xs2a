@@ -16,3 +16,15 @@ Also starting from this version ASPSP is not able to create PIIS consent without
 
 ## Delete column `usage_counter` from table `ais_consent`
 Deprecated column `usage_counter` was removed from table `ais_consent`
+
+## Feature: Validation for payment initiation and consent creation
+From now on, the endpoints for payment initiation and consent creation
+(POST `/v1/{payment-service}/{payment-product}`, POST `/v1/consents`) have multi-layered validation:
+- HTTP headers and bodies are validated before the initial request reaches the Spring RestController layer (interceptor is used);
+- Business validation is implemented after the RestController layer.
+
+First stage check the format of headers and fields and returns the response with the list of human-readable errors.
+This response always has `400 FORMAT ERROR` HTTP code in case of any errors. If any new error occurs - it is added to
+the list. The second stage (business validation) is launched only after first stage succeeded and returns the appropriate
+HTTP code and error information according to the documentation. 
+
