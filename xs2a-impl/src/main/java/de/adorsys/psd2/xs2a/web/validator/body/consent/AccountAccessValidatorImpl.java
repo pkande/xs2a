@@ -109,7 +109,7 @@ public class AccountAccessValidatorImpl extends AbstractBodyValidatorImpl implem
     }
 
     private void validateCurrency(AccountReference accountReference, MessageError messageError) {
-        if (StringUtils.isNotBlank(accountReference.getCurrency()) && !isValidCurrency(accountReference.getCurrency())) {
+        if (!isValidCurrency(accountReference.getCurrency())) {
             errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
         }
     }
