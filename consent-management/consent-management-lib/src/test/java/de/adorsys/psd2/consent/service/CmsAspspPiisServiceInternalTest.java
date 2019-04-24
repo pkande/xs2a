@@ -261,6 +261,22 @@ public class CmsAspspPiisServiceInternalTest {
     }
 
     @Test
+    public void createConsent_withNullTppInfo_shouldFail() {
+        when(piisConsentRepository.save(any(PiisConsentEntity.class)))
+            .thenReturn(buildConsent());
+
+        // Given
+        PsuIdData psuIdData = buildPsuIdData();
+        CreatePiisConsentRequest request = buildCreatePiisConsentRequest(null, buildAccountReference(), EXPIRE_DATE);
+
+        // When
+        Optional<String> actual = cmsAspspPiisServiceInternal.createConsent(psuIdData, request);
+
+        // Then
+        assertThat(actual.isPresent()).isFalse();
+    }
+
+    @Test
     public void createConsent_withNullAccounts_shouldFail() {
         // Given
         PsuIdData psuIdData = buildPsuIdData();

@@ -12,3 +12,4 @@ From now on, PIIS consent is dedicated for one account and only one consent can 
 On new consent creation, previous PIIS consents with the same parameters will change status to `REVOKED_BY_PSU`.
 To create PIIS consent (`POST /aspsp-api/v1/piis/consents/`) provide account in `account` field instead of using `accounts` field for several accounts.
 When retrieving PIIS consent, `account` field will represent actual account of the consent or first created account for previously created PIIS consents with several accounts.
+Also starting from this version ASPSP is not able to create PIIS consent without TPP. Previous PIIS consents without concrete TPP are closed.

@@ -159,8 +159,8 @@ public class CmsAspspPiisServiceInternal implements CmsAspspPiisService {
     }
 
     private boolean isInvalidConsentCreationRequest(@NotNull PsuIdData psuIdData, CreatePiisConsentRequest request) {
-        boolean invalidTpp = request.getTppInfo() != null
-                                 && request.getTppInfo().isNotValid();
+        boolean invalidTpp = request.getTppInfo() == null
+                                 || request.getTppInfo().isNotValid();
 
         return invalidTpp
                    || psuIdData.isEmpty()
