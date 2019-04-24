@@ -60,7 +60,6 @@ public class SupportedAccountReferenceValidatorTest {
     private static final AccountReference ACCOUNT_REFERENCE_BBAN =
         new AccountReference(AccountReferenceType.BBAN, "bban value", Currency.getInstance("EUR"));
 
-
     @Mock
     private AspspProfileServiceWrapper aspspProfileService;
     @Mock

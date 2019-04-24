@@ -40,7 +40,6 @@ public class BulkPaymentTest {
         // Given
         BulkPayment bulkPayment = buildBulkPayment(Collections.singletonList(buildSinglePayment()));
 
-
         // When
         Set<AccountReference> actualAccountReferences = bulkPayment.getAccountReferences();
 
