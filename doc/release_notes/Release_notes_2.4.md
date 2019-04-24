@@ -28,3 +28,7 @@ This response always has `400 FORMAT ERROR` HTTP code in case of any errors. If 
 the list. The second stage (business validation) is launched only after first stage succeeded and returns the appropriate
 HTTP code and error information according to the documentation. 
 
+## Bugfix: Fix global consent creation returning wrong error code
+From now on, attempting to create global consent(i. e. consent that contains only `"allPsd2": "allAccounts"` in its 
+`access` property) with `allPsd2Support` property in ASPSP profile set to `false` will result in `405 SERVICE_INVALID` 
+error( instead of previous `400 PARAMETER_NOT_SUPPORTED`) being returned in the response.
