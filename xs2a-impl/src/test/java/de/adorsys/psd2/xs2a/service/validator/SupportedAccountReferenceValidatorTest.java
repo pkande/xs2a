@@ -18,7 +18,6 @@ package de.adorsys.psd2.xs2a.service.validator;
 
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.AccountReferenceType;
-import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.account.SupportedAccountReferenceField;
 import de.adorsys.psd2.xs2a.exception.MessageError;
@@ -48,15 +47,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SupportedAccountReferenceValidatorTest {
-    private static final PsuIdData EMPTY_PSU_DATA = new PsuIdData(null, null, null, null);
-    private static final PsuIdData PSU_DATA = new PsuIdData("some psu id", null, null, null);
-    private static final MessageError NOT_SUPPORTED_ACCOUNT_REFERENCE_ERROR =
-        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR));
+    private static final String ATTRIBUTE_NOT_SUPPORTED_MESSAGE = "Attribute %s is not supported by the ASPSP";
+    private static final String IBAN_NOT_SUPPORTED_MESSAGE = String.format(ATTRIBUTE_NOT_SUPPORTED_MESSAGE, "IBAN");
+    private static final String BBAN_NOT_SUPPORTED_MESSAGE = String.format(ATTRIBUTE_NOT_SUPPORTED_MESSAGE, "BBAN");
+    private static final MessageError IBAN_NOT_SUPPORTED_ERROR =
+        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR, IBAN_NOT_SUPPORTED_MESSAGE));
+    private static final MessageError BBAN_NOT_SUPPORTED_ERROR =
+        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR, BBAN_NOT_SUPPORTED_MESSAGE));
     private static final ServiceType SERVICE_TYPE = ServiceType.AIS;
     private static final AccountReference ACCOUNT_REFERENCE_IBAN =
         new AccountReference(AccountReferenceType.IBAN, "iban value", Currency.getInstance("EUR"));
     private static final AccountReference ACCOUNT_REFERENCE_BBAN =
         new AccountReference(AccountReferenceType.BBAN, "bban value", Currency.getInstance("EUR"));
+
 
     @Mock
     private AspspProfileServiceWrapper aspspProfileService;
@@ -118,7 +121,7 @@ public class SupportedAccountReferenceValidatorTest {
         verify(errorTypeMapper).mapToErrorType(SERVICE_TYPE, FORMAT_ERROR.getCode());
 
         assertTrue(validationResult.isNotValid());
-        assertEquals(NOT_SUPPORTED_ACCOUNT_REFERENCE_ERROR, validationResult.getMessageError());
+        assertEquals(BBAN_NOT_SUPPORTED_ERROR, validationResult.getMessageError());
     }
 
     @Test
@@ -136,7 +139,7 @@ public class SupportedAccountReferenceValidatorTest {
         verify(errorTypeMapper).mapToErrorType(SERVICE_TYPE, FORMAT_ERROR.getCode());
 
         assertTrue(validationResult.isNotValid());
-        assertEquals(NOT_SUPPORTED_ACCOUNT_REFERENCE_ERROR, validationResult.getMessageError());
+        assertEquals(BBAN_NOT_SUPPORTED_ERROR, validationResult.getMessageError());
     }
 
     @Test
@@ -154,6 +157,6 @@ public class SupportedAccountReferenceValidatorTest {
         verify(errorTypeMapper).mapToErrorType(SERVICE_TYPE, FORMAT_ERROR.getCode());
 
         assertTrue(validationResult.isNotValid());
-        assertEquals(NOT_SUPPORTED_ACCOUNT_REFERENCE_ERROR, validationResult.getMessageError());
+        assertEquals(IBAN_NOT_SUPPORTED_ERROR, validationResult.getMessageError());
     }
 }

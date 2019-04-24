@@ -18,6 +18,7 @@ package de.adorsys.psd2.xs2a.service.validator;
 
 import de.adorsys.psd2.xs2a.core.profile.AccountReference;
 import de.adorsys.psd2.xs2a.core.profile.AccountReferenceType;
+import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.account.SupportedAccountReferenceField;
 import de.adorsys.psd2.xs2a.service.RequestProviderService;
 import de.adorsys.psd2.xs2a.service.discovery.ServiceTypeDiscoveryService;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 
@@ -38,6 +40,9 @@ import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 @Component
 @RequiredArgsConstructor
 public class SupportedAccountReferenceValidator implements BusinessValidator<Collection<AccountReference>> {
+    // TODO move messages to the message bundle https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/791
+    private static final String MESSAGE_ERROR_ATTRIBUTE_NOT_SUPPORTED = "Attribute %s is not supported by the ASPSP";
+
     private final AspspProfileServiceWrapper aspspProfileService;
     private final RequestProviderService requestProviderService;
     private final ServiceTypeDiscoveryService serviceTypeDiscoveryService;
@@ -46,25 +51,32 @@ public class SupportedAccountReferenceValidator implements BusinessValidator<Col
     @Override
     public @NotNull ValidationResult validate(@NotNull Collection<AccountReference> accountReferences) {
         List<SupportedAccountReferenceField> supportedAccountReferenceFields = aspspProfileService.getSupportedAccountReferenceFields();
-        boolean allReferencesTypeSupported = accountReferences.stream()
-                                                 .allMatch(ar -> isAccountReferenceTypeSupported(ar, supportedAccountReferenceFields));
+        Optional<ValidationResult> failedValidationResult = accountReferences.stream()
+                                                                .map(ar -> validateAccountReference(ar, supportedAccountReferenceFields))
+                                                                .filter(ValidationResult::isNotValid)
+                                                                .findFirst();
 
-        if (!allReferencesTypeSupported) {
-            log.info("X-Request-ID: [{}]. Supported account reference validation has failed: account reference type is not supported by the ASPSP",
-                     requestProviderService.getRequestId());
+        return failedValidationResult.orElseGet(ValidationResult::valid);
 
-            ErrorType errorType = errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(),
-                                                                 FORMAT_ERROR.getCode());
-            return ValidationResult.invalid(errorType, FORMAT_ERROR);
-        }
-
-        return ValidationResult.valid();
     }
 
-    private boolean isAccountReferenceTypeSupported(AccountReference accountReference,
-                                                    Collection<SupportedAccountReferenceField> supportedFields) {
-        return supportedFields.stream()
-                   .map(f -> AccountReferenceType.valueOf(f.name()))
-                   .anyMatch(rt -> accountReference.getUsedAccountReferenceSelector().getAccountReferenceType().equals(rt));
+    private ValidationResult validateAccountReference(AccountReference accountReference,
+                                                      Collection<SupportedAccountReferenceField> supportedFields) {
+        AccountReferenceType usedAccountReferenceType = accountReference.getUsedAccountReferenceSelector().getAccountReferenceType();
+        boolean referenceSupported = supportedFields.stream()
+                                         .map(f -> AccountReferenceType.valueOf(f.name()))
+                                         .anyMatch(usedAccountReferenceType::equals);
+
+        if (referenceSupported) {
+            return ValidationResult.valid();
+        }
+
+        log.info("X-Request-ID: [{}]. Supported account reference validation has failed: account reference type {} is not supported by the ASPSP",
+                 requestProviderService.getRequestId(), usedAccountReferenceType);
+        ErrorType errorType = errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(),
+                                                             FORMAT_ERROR.getCode());
+        return ValidationResult.invalid(errorType,
+                                        TppMessageInformation.of(FORMAT_ERROR,
+                                                                 String.format(MESSAGE_ERROR_ATTRIBUTE_NOT_SUPPORTED, usedAccountReferenceType.toString())));
     }
 }
