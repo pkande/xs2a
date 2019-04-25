@@ -17,7 +17,10 @@
 package de.adorsys.psd2.xs2a.service.validator.ais.consent;
 
 import de.adorsys.psd2.xs2a.core.ais.AccountAccessType;
+import de.adorsys.psd2.xs2a.core.profile.AccountReference;
+import de.adorsys.psd2.xs2a.core.profile.AccountReferenceType;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
+import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
@@ -25,7 +28,10 @@ import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
+import de.adorsys.psd2.xs2a.service.validator.PsuDataInInitialRequestValidator;
+import de.adorsys.psd2.xs2a.service.validator.SupportedAccountReferenceValidator;
 import de.adorsys.psd2.xs2a.service.validator.ValidationResult;
+import de.adorsys.psd2.xs2a.service.validator.ais.consent.dto.CreateConsentRequestObject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,15 +42,25 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Currency;
 
+import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.FORMAT_ERROR;
 import static de.adorsys.psd2.xs2a.domain.MessageErrorCode.SESSIONS_NOT_SUPPORTED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollectionOf;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateConsentRequestValidatorTest {
     private static final MessageError COMBINED_SERVICE_VALIDATION_ERROR =
         new MessageError(ErrorType.AIS_400, TppMessageInformation.of(SESSIONS_NOT_SUPPORTED));
+    private static final MessageError PSU_DATA_VALIDATION_ERROR =
+        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR));
+    private static final MessageError SUPPORTED_ACCOUNT_REFERENCE_VALIDATION_ERROR =
+        new MessageError(ErrorType.AIS_400, TppMessageInformation.of(FORMAT_ERROR));
+    private static final PsuIdData EMPTY_PSU_DATA = new PsuIdData(null, null, null, null);
 
     @InjectMocks
     private CreateConsentRequestValidator createConsentRequestValidator;
@@ -52,6 +68,10 @@ public class CreateConsentRequestValidatorTest {
     private AspspProfileServiceWrapper aspspProfileService;
     @Mock
     private ScaApproachResolver scaApproachResolver;
+    @Mock
+    private PsuDataInInitialRequestValidator psuDataInInitialRequestValidator;
+    @Mock
+    private SupportedAccountReferenceValidator supportedAccountReferenceValidator;
 
     @Before
     public void setUp() {
@@ -59,6 +79,45 @@ public class CreateConsentRequestValidatorTest {
         when(aspspProfileService.isBankOfferedConsentSupported()).thenReturn(true);
         when(aspspProfileService.isAvailableAccountsConsentSupported()).thenReturn(true);
         when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.REDIRECT);
+        when(psuDataInInitialRequestValidator.validate(any(PsuIdData.class)))
+            .thenReturn(ValidationResult.valid());
+        when(supportedAccountReferenceValidator.validate(anyCollectionOf(AccountReference.class)))
+            .thenReturn(ValidationResult.valid());
+    }
+
+    @Test
+    public void validate_withInvalidPsuData_shouldReturnErrorFromValidator() {
+        //Given
+        when(psuDataInInitialRequestValidator.validate(any(PsuIdData.class)))
+            .thenReturn(ValidationResult.invalid(PSU_DATA_VALIDATION_ERROR));
+        CreateConsentReq createConsentReq = buildCreateConsentReqWithCombinedServiceIndicator(false);
+
+        //When
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
+
+        //Then
+        verify(psuDataInInitialRequestValidator).validate(EMPTY_PSU_DATA);
+        assertThat(validationResult.isNotValid()).isTrue();
+        assertThat(validationResult.getMessageError()).isEqualTo(PSU_DATA_VALIDATION_ERROR);
+    }
+
+    @Test
+    public void validate_withUnsupportedAccountReference_shouldReturnErrorFromValidator() {
+        //Given
+        when(supportedAccountReferenceValidator.validate(anyCollectionOf(AccountReference.class)))
+            .thenReturn(ValidationResult.invalid(SUPPORTED_ACCOUNT_REFERENCE_VALIDATION_ERROR));
+
+        AccountReference accountReference = new AccountReference(AccountReferenceType.IBAN, "some iban", Currency.getInstance("EUR"));
+        Xs2aAccountAccess xs2aAccountAccess = new Xs2aAccountAccess(Collections.singletonList(accountReference), Collections.emptyList(), Collections.emptyList(), null, null);
+        CreateConsentReq createConsentReq = buildCreateConsentReqWithAccess(xs2aAccountAccess);
+
+        //When
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
+
+        //Then
+        verify(supportedAccountReferenceValidator).validate(Collections.singleton(accountReference));
+        assertThat(validationResult.isNotValid()).isTrue();
+        assertThat(validationResult.getMessageError()).isEqualTo(SUPPORTED_ACCOUNT_REFERENCE_VALIDATION_ERROR);
     }
 
     @Test
@@ -66,7 +125,7 @@ public class CreateConsentRequestValidatorTest {
         //Given
         CreateConsentReq createConsentReq = buildCreateConsentReq(true, 1);
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
         //Then
         assertValidationResultValid(validationResult);
     }
@@ -76,7 +135,7 @@ public class CreateConsentRequestValidatorTest {
         //Given
         CreateConsentReq createConsentReq = buildCreateConsentReq(false, 1);
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
         //Then
         assertValidationResultValid(validationResult);
     }
@@ -86,7 +145,7 @@ public class CreateConsentRequestValidatorTest {
         //Given
         CreateConsentReq createConsentReq = buildCreateConsentReq(true, 1, LocalDate.now());
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
         //Then
         assertValidationResultValid(validationResult);
     }
@@ -96,7 +155,7 @@ public class CreateConsentRequestValidatorTest {
         //Given
         CreateConsentReq createConsentReq = buildCreateConsentReqWithoutFlagsAndAccesses(true, 1);
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
         //Then
         assertValidationResultValid(validationResult);
     }
@@ -106,7 +165,7 @@ public class CreateConsentRequestValidatorTest {
         //Given
         CreateConsentReq createConsentReq = buildCreateConsentReq(true, 1);
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
         //Then
         assertValidationResultValid(validationResult);
     }
@@ -118,7 +177,7 @@ public class CreateConsentRequestValidatorTest {
         CreateConsentReq createConsentReq = buildCreateConsentReqWithCombinedServiceIndicator(true);
 
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
 
         //Then
         assertValidationResultValid(validationResult);
@@ -131,7 +190,7 @@ public class CreateConsentRequestValidatorTest {
         CreateConsentReq createConsentReq = buildCreateConsentReqWithCombinedServiceIndicator(false);
 
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
 
         //Then
         assertValidationResultValid(validationResult);
@@ -144,7 +203,7 @@ public class CreateConsentRequestValidatorTest {
         CreateConsentReq createConsentReq = buildCreateConsentReqWithCombinedServiceIndicator(false);
 
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
 
         //Then
         assertValidationResultValid(validationResult);
@@ -157,11 +216,17 @@ public class CreateConsentRequestValidatorTest {
         CreateConsentReq createConsentReq = buildCreateConsentReqWithCombinedServiceIndicator(true);
 
         //When
-        ValidationResult validationResult = createConsentRequestValidator.validate(createConsentReq);
+        ValidationResult validationResult = createConsentRequestValidator.validate(new CreateConsentRequestObject(createConsentReq, EMPTY_PSU_DATA));
 
         //Then
         assertThat(validationResult.isNotValid()).isTrue();
         assertThat(validationResult.getMessageError()).isEqualTo(COMBINED_SERVICE_VALIDATION_ERROR);
+    }
+
+    private CreateConsentReq buildCreateConsentReqWithAccess(Xs2aAccountAccess xs2aAccountAccess) {
+        CreateConsentReq createConsentReq = buildCreateConsentReqWithCombinedServiceIndicator(false);
+        createConsentReq.setAccess(xs2aAccountAccess);
+        return createConsentReq;
     }
 
     private CreateConsentReq buildCreateConsentReqWithCombinedServiceIndicator(boolean combinedServiceIndicator) {
