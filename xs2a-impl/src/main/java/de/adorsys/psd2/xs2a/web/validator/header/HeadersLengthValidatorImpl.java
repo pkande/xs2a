@@ -45,31 +45,31 @@ public class HeadersLengthValidatorImpl extends AbstractHeaderValidatorImpl
 
     @Override
     public void validate(Map<String, String> inputHeaders, MessageError messageError) {
-        Map<Integer, List<String>> wrongLengthHeaders1 = new HashMap<>();
+        Map<Integer, List<String>> wrongLengthHeadersMap = new HashMap<>();
 
-        HEADERS_MAP.forEach((length, array) -> validateByLength(inputHeaders, array, wrongLengthHeaders1, length));
+        HEADERS_MAP.forEach((maxLength, listOfHeadersToValidate) -> validateByLength(inputHeaders, listOfHeadersToValidate, wrongLengthHeadersMap, maxLength));
 
-        if (MapUtils.isNotEmpty(wrongLengthHeaders1)) {
-            getResultWithError(messageError, wrongLengthHeaders1);
+        if (MapUtils.isNotEmpty(wrongLengthHeadersMap)) {
+            getResultWithError(messageError, wrongLengthHeadersMap);
         }
     }
 
-    private void validateByLength(Map<String, String> headers, String[] headersToBeValidated, Map<Integer, List<String>> wrongLengthHeaders1, int length) {
+    private void validateByLength(Map<String, String> headers, String[] headersToBeValidated, Map<Integer, List<String>> wrongLengthHeadersMap, int length) {
         headers.forEach((k, v) -> {
             if (Arrays.stream(headersToBeValidated).anyMatch(h -> h.equalsIgnoreCase(k)) && v.length() > length) {
-                if (!wrongLengthHeaders1.containsKey(length)) {
-                    wrongLengthHeaders1.put(length, new ArrayList<String>() {{
+                if (!wrongLengthHeadersMap.containsKey(length)) {
+                    wrongLengthHeadersMap.put(length, new ArrayList<String>() {{
                         add(k);
                     }});
                 } else {
-                    wrongLengthHeaders1.get(length).add(k);
+                    wrongLengthHeadersMap.get(length).add(k);
                 }
             }
         });
     }
 
-    private void getResultWithError(MessageError messageError, Map<Integer, List<String>> wrongLengthHeaders1) {
-        wrongLengthHeaders1.forEach((length, listOfHeaders) -> listOfHeaders.forEach(h -> {
+    private void getResultWithError(MessageError messageError, Map<Integer, List<String>> wrongLengthHeadersMap) {
+        wrongLengthHeadersMap.forEach((length, listOfHeaders) -> listOfHeaders.forEach(h -> {
             String resultingMessage = String.format(HEADER_LENGTH_ERROR_TEXT, h, length);
             errorBuildingService.enrichMessageError(messageError, resultingMessage);
         }));

@@ -60,16 +60,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
 
     @Override
     public void validate(Object body, MessageError messageError) {
-        try {
-            doSingleValidation(paymentMapper.getSinglePayment(body), messageError);
-        } catch (IllegalArgumentException e) {
-            // TODO: think how to implement in a better way.
-            if (e.getMessage() == null) {
-                errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
-                return;
-            }
-            errorBuildingService.enrichMessageError(messageError, e.getMessage());
-        }
+        doSingleValidation(paymentMapper.getSinglePayment(body), messageError);
     }
 
     void doSingleValidation(SinglePayment singlePayment, MessageError messageError) {
@@ -127,7 +118,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
 
     private void validateInstructedAmount(Xs2aAmount instructedAmount, MessageError messageError) {
         if (Objects.isNull(instructedAmount.getCurrency())) {
-            errorBuildingService.enrichMessageError(messageError, "Value 'currency' should not be null");
+            errorBuildingService.enrichMessageError(messageError, "Value 'currency' has wrong format");
         }
         if (Objects.isNull(instructedAmount.getAmount())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'amount' should not be null");

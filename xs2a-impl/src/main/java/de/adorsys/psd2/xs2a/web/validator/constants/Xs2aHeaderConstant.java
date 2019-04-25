@@ -39,6 +39,7 @@ public class Xs2aHeaderConstant {
 
     public static final String TPP_REJECTION_NO_FUNDS_PREFERRED = "tpp-rejection-no funds-preferred";
 
+    // This map holds arrays of HTTP headers to be validated for max length. Key is the maximum length of the header.
     public static final Map<Integer, String[]> HEADERS_MAP = new HashMap<Integer, String[]>() {{
         put(50, new String[]{PSU_ID, PSU_ID_TYPE, PSU_CORPORATE_ID, PSU_CORPORATE_ID_TYPE});
         put(140, new String[]{AUTHORISATION, TPP_REDIRECT_URI, TPP_NOK_REDIRECT_URI, PSU_IP_ADDRESS});

@@ -64,6 +64,7 @@ public class RequestValidationInterceptor extends HandlerInterceptorAdapter {
 
             Optional<MethodValidator> methodValidator = methodValidatorController.getMethod(methodName);
             if (methodValidator.isPresent()) {
+                // TODO: think about changing the chain of void methods: https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/813
                 methodValidator.get().validate(request, initialMessageError);
 
                 if (!initialMessageError.getTppMessages().isEmpty()) {

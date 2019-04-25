@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -68,13 +67,6 @@ public class ConsentBodyFieldsValidatorImpl extends AbstractBodyValidatorImpl im
     }
 
     private void validateValidUntil(LocalDate validUntil, MessageError messageError) {
-        try {
-            LocalDate.parse(String.valueOf(validUntil));
-        } catch (DateTimeParseException e) {
-            errorBuildingService.enrichMessageError(messageError, "Wrong 'validUntil' date value");
-            return;
-        }
-
         if (validUntil.isBefore(LocalDate.now())) {
             errorBuildingService.enrichMessageError(messageError, "Value 'validUntil' should not be in the past");
         }

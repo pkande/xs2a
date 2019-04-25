@@ -134,9 +134,15 @@ public class PaymentMapper {
     }
 
     private Currency getCurrencyByCode(String code) {
-        return StringUtils.isNotBlank(code)
-                   ? Currency.getInstance(code)
-                   : null;
+        if (StringUtils.isNotEmpty(code)) {
+            try {
+                return Currency.getInstance(code);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private Xs2aAddress mapToXs2aAddress(Address address) {
