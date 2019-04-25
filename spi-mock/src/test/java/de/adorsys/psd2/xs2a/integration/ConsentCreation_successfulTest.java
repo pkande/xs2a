@@ -277,7 +277,7 @@ public class ConsentCreation_successfulTest {
         return aisAccountConsent;
     }
 
-    private CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse(){
+    private CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse() {
         return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED);
     }
 }
