@@ -17,26 +17,13 @@
 package de.adorsys.psd2.xs2a.domain.address;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(description = "Address", value = "Address")
 public class Xs2aAddress {
-
-    @ApiModelProperty(value = "Street", example = "Herrnstraße")
     private String street;
-
-    @ApiModelProperty(value = "Building number", example = "123-34")
     private String buildingNumber;
-
-    @ApiModelProperty(value = "City", example = "Nürnberg")
     private String city;
-
-    @ApiModelProperty(value = "Postal code", example = "90431")
     private String postalCode;
-
-    @ApiModelProperty(value = "Country", required = true)
     private Xs2aCountryCode country;
 }

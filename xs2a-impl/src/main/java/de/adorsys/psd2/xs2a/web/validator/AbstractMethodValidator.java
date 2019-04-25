@@ -48,7 +48,7 @@ public abstract class AbstractMethodValidator<H extends HeaderValidator, B exten
     /**
      * Common validator which validates request headers and body
      *
-     * @param request      {@link javax.servlet.http.HttpServletResponse}
+     * @param request      {@link javax.servlet.http.HttpServletRequest}
      * @param messageError is populated by errors during validation
      */
     @Override

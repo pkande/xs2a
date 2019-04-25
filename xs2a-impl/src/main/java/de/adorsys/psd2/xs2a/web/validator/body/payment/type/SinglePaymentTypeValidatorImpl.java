@@ -63,7 +63,7 @@ public class SinglePaymentTypeValidatorImpl extends AbstractBodyValidatorImpl im
         try {
             doSingleValidation(paymentMapper.getSinglePayment(body), messageError);
         } catch (IllegalArgumentException e) {
-            // TODO: think how to implement in a better way.
+            // TODO: think how to implement in a better way. https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/812
             if (e.getMessage() == null) {
                 errorBuildingService.enrichMessageError(messageError, "Invalid currency code format");
                 return;

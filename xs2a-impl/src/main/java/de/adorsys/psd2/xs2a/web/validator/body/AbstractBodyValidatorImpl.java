@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.web.validator.body;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.adorsys.psd2.xs2a.component.MultiReadHttpServletRequest;
 import de.adorsys.psd2.xs2a.exception.MessageError;
 import de.adorsys.psd2.xs2a.web.validator.ErrorBuildingService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +27,6 @@ import java.util.Optional;
 
 /**
  * Class with common functionality (AIS and PIS) for bodies validating.
- *
  */
 public class AbstractBodyValidatorImpl {
 
@@ -54,10 +52,8 @@ public class AbstractBodyValidatorImpl {
     }
 
     protected <T> Optional<T> mapBodyToInstance(HttpServletRequest request, MessageError messageError, Class<T> clazz) {
-
-        MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(request);
         try {
-            return Optional.of(objectMapper.readValue(multiReadRequest.getInputStream(), clazz));
+            return Optional.of(objectMapper.readValue(request.getInputStream(), clazz));
         } catch (IOException e) {
             errorBuildingService.enrichMessageError(messageError, "Cannot deserialize the request body");
         }
