@@ -35,7 +35,7 @@ public class XRequestIdHeaderValidatorImpl extends AbstractHeaderValidatorImpl
     private static final String UUID_REGEX = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\z";
     private static final Pattern PATTERN = Pattern.compile(UUID_REGEX, Pattern.CASE_INSENSITIVE);
 
-    static final String ERROR_TEXT_WRONG_HEADER = "Header 'X-Request-ID' has to be represented by standard 36-char UUID representation";
+    static final String ERROR_TEXT_WRONG_HEADER = "Header 'x-request-id' has to be represented by standard 36-char UUID representation";
 
     @Autowired
     public XRequestIdHeaderValidatorImpl(ErrorBuildingService errorBuildingService) {

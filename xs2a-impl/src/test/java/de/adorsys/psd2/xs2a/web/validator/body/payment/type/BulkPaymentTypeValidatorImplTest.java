@@ -108,7 +108,7 @@ public class BulkPaymentTypeValidatorImplTest {
 
         validator.doSingleValidation(singlePayment, messageError);
         assertEquals(MessageErrorCode.FORMAT_ERROR, messageError.getTppMessage().getMessageErrorCode());
-        assertEquals("Value 'currency' should not be null", messageError.getTppMessage().getText());
+        assertEquals("Value 'currency' has wrong format", messageError.getTppMessage().getText());
     }
 
     @Test
