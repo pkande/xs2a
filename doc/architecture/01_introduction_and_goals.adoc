@@ -51,6 +51,3 @@ providing capabilities to interoperate with TPP by defined XS2A Standard Interfa
 |===
 
 
-xref:README.adoc[<-- Back to table of contents]
-
-<<Table of Contents>>
