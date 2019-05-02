@@ -25,12 +25,14 @@ import de.adorsys.psd2.consent.api.service.PisCommonPaymentServiceEncrypted;
 import de.adorsys.psd2.xs2a.config.factory.PisScaStageAuthorisationFactory;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
+import de.adorsys.psd2.xs2a.core.sca.AuthorisationScaApproachResponse;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.domain.ErrorHolder;
 import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataRequest;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.domain.pis.PaymentAuthorisationType;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.pis.stage.PisScaStage;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
@@ -50,7 +52,7 @@ public class PisAuthorisationService {
     private final PisCommonPaymentServiceEncrypted pisCommonPaymentServiceEncrypted;
     private final PisScaStageAuthorisationFactory pisScaStageAuthorisationFactory;
     private final Xs2aPisCommonPaymentMapper pisCommonPaymentMapper;
-    private final ScaApproachResolver scaApproachResolver;
+    private final InitialScaApproachResolver initialScaApproachResolver;
 
     /**
      * Sends a POST request to CMS to store created pis authorisation
@@ -60,7 +62,7 @@ public class PisAuthorisationService {
      * @return a response object containing authorisation id
      */
     public CreatePisAuthorisationResponse createPisAuthorisation(String paymentId, PsuIdData psuData) {
-        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CREATED, psuData, scaApproachResolver.resolveScaApproach());
+        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CREATED, psuData, initialScaApproachResolver.resolveScaApproach());
         return pisCommonPaymentServiceEncrypted.createAuthorization(paymentId, request)
                    .orElse(null);
     }
@@ -150,7 +152,7 @@ public class PisAuthorisationService {
      * @return long representation of identifier of stored pis authorisation cancellation
      */
     public CreatePisAuthorisationResponse createPisAuthorisationCancellation(String paymentId, PsuIdData psuData) {
-        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CANCELLED, psuData, scaApproachResolver.resolveScaApproach());
+        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CANCELLED, psuData, initialScaApproachResolver.resolveScaApproach());
         return pisCommonPaymentServiceEncrypted.createAuthorizationCancellation(paymentId, request)
                    .orElse(null);
     }
@@ -195,5 +197,15 @@ public class PisAuthorisationService {
      */
     public Optional<ScaStatus> getCancellationAuthorisationScaStatus(String paymentId, String cancellationId) {
         return pisCommonPaymentServiceEncrypted.getAuthorisationScaStatus(paymentId, cancellationId, CmsAuthorisationType.CANCELLED);
+    }
+
+    // TODO write javadocs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    public Optional<AuthorisationScaApproachResponse> getAuthorisationScaApproach(String authorisationId, PaymentAuthorisationType authorisationType) {
+        // TODO handle third value https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+        CmsAuthorisationType cmsAuthorisationType = authorisationType == PaymentAuthorisationType.INITIATION
+                                                        ? CmsAuthorisationType.CREATED
+                                                        : CmsAuthorisationType.CANCELLED;
+
+        return pisCommonPaymentServiceEncrypted.getAuthorisationScaApproach(authorisationId, cmsAuthorisationType);
     }
 }

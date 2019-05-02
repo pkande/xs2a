@@ -27,7 +27,7 @@ import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentResponse;
 import de.adorsys.psd2.xs2a.domain.consent.UpdateConsentPsuDataReq;
 import de.adorsys.psd2.xs2a.domain.consent.UpdateConsentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.AuthorisationMethodDecider;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
@@ -47,7 +47,7 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
     private final AuthorisationMethodDecider authorisationMethodDecider;
     private final RedirectLinkBuilder redirectLinkBuilder;
 
-    public ConsentAspect(ScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
+    public ConsentAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
         super(scaApproachResolver, messageService, aspspProfileService);
         this.authorisationMethodDecider = authorisationMethodDecider;
         this.redirectLinkBuilder = redirectLinkBuilder;

@@ -23,7 +23,7 @@ import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.Transactions;
 import de.adorsys.psd2.xs2a.domain.account.*;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.controller.AccountController;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ import java.util.List;
 @Aspect
 @Component
 public class AccountAspect extends AbstractLinkAspect<AccountController> {
-    public AccountAspect(ScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService) {
+    public AccountAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService) {
         super(scaApproachResolver, messageService, aspspProfileService);
     }
 

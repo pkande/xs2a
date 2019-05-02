@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.service.authorization.pis;
 
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.ScaServiceResolver;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.util.List;
 @Service
 public class PisScaAuthorisationServiceResolver extends ScaServiceResolver<PisScaAuthorisationService> {
 
-    public PisScaAuthorisationServiceResolver(List<PisScaAuthorisationService> services, ScaApproachResolver scaApproachResolver) {
-        super(services, scaApproachResolver);
+    public PisScaAuthorisationServiceResolver(List<PisScaAuthorisationService> services, InitialScaApproachResolver initialScaApproachResolver, ScaApproachResolver scaApproachResolver) {
+        super(services, initialScaApproachResolver, scaApproachResolver);
     }
 }

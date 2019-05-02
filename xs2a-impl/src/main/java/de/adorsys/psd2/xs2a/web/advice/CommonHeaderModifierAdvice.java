@@ -16,7 +16,7 @@
 
 package de.adorsys.psd2.xs2a.web.advice;
 
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -31,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @ControllerAdvice(basePackages = "de.adorsys.psd2.xs2a.web.controller")
 public class CommonHeaderModifierAdvice implements ResponseBodyAdvice<Object> {
-    protected final ScaApproachResolver scaApproachResolver;
+    protected final InitialScaApproachResolver scaApproachResolver;
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {

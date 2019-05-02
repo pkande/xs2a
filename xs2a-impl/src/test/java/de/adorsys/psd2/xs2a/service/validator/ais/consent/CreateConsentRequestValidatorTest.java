@@ -25,7 +25,7 @@ import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
 import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.validator.PsuDataInInitialRequestValidator;
@@ -67,7 +67,7 @@ public class CreateConsentRequestValidatorTest {
     @Mock
     private AspspProfileServiceWrapper aspspProfileService;
     @Mock
-    private ScaApproachResolver scaApproachResolver;
+    private InitialScaApproachResolver scaApproachResolver;
     @Mock
     private PsuDataInInitialRequestValidator psuDataInInitialRequestValidator;
     @Mock

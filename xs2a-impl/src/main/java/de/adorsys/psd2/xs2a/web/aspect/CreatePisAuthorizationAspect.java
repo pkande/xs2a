@@ -25,7 +25,7 @@ import de.adorsys.psd2.xs2a.domain.consent.Xs2aAuthenticationObject;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aCreatePisAuthorisationRequest;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aCreatePisAuthorisationResponse;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import de.adorsys.psd2.xs2a.web.controller.PaymentController;
@@ -44,7 +44,7 @@ import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 public class CreatePisAuthorizationAspect extends AbstractLinkAspect<PaymentController> {
     private RedirectLinkBuilder redirectLinkBuilder;
 
-    public CreatePisAuthorizationAspect(ScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService, RedirectLinkBuilder redirectLinkBuilder) {
+    public CreatePisAuthorizationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService, RedirectLinkBuilder redirectLinkBuilder) {
         super(scaApproachResolver, messageService, aspspProfileService);
         this.redirectLinkBuilder = redirectLinkBuilder;
     }

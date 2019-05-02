@@ -27,6 +27,7 @@ import de.adorsys.psd2.consent.api.pis.proto.PisPaymentInfo;
 import de.adorsys.psd2.consent.api.service.PisCommonPaymentServiceEncrypted;
 import de.adorsys.psd2.xs2a.core.pis.TransactionStatus;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
+import de.adorsys.psd2.xs2a.core.sca.AuthorisationScaApproachResponse;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
@@ -281,5 +282,33 @@ public class PisCommonPaymentController {
         return pisCommonPaymentServiceEncrypted.updateScaApproach(authorisationId, scaApproach)
                    ? new ResponseEntity<>(true, HttpStatus.OK)
                    : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // TODO correct swagger docs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    @GetMapping(path = "/authorisations/{authorisation-id}/sca-approach")
+    @ApiOperation(value = "Gets list of consent authorisation IDs by consent ID")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 404, message = "Not Found")})
+    public ResponseEntity<AuthorisationScaApproachResponse> getAuthorisationScaApproach(
+        @ApiParam(name = "consent-id", value = "The account consent identification assigned to the created account consent.", example = "vOHy6fj2f5IgxHk-kTlhw6sZdTXbRE3bWsu2obq54beYOChP5NvRmfh06nrwumc2R01HygQenchEcdGOlU-U0A==_=_iR74m2PdNyE")
+        @PathVariable("authorisation-id") String authorisationId) {
+        return pisCommonPaymentServiceEncrypted.getAuthorisationScaApproach(authorisationId, CmsAuthorisationType.CREATED)
+                   .map(scaApproachResponse -> new ResponseEntity<>(scaApproachResponse, HttpStatus.OK))
+                   .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // TODO correct swagger docs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    @GetMapping(path = "/cancellation-authorisations/{authorisation-id}/sca-approach")
+    @ApiOperation(value = "Gets list of consent authorisation IDs by consent ID")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 404, message = "Not Found")})
+    public ResponseEntity<AuthorisationScaApproachResponse> getCancellationAuthorisationScaApproach(
+        @ApiParam(name = "consent-id", value = "The account consent identification assigned to the created account consent.", example = "vOHy6fj2f5IgxHk-kTlhw6sZdTXbRE3bWsu2obq54beYOChP5NvRmfh06nrwumc2R01HygQenchEcdGOlU-U0A==_=_iR74m2PdNyE")
+        @PathVariable("authorisation-id") String authorisationId) {
+        return pisCommonPaymentServiceEncrypted.getAuthorisationScaApproach(authorisationId, CmsAuthorisationType.CANCELLED)
+                   .map(scaApproachResponse -> new ResponseEntity<>(scaApproachResponse, HttpStatus.OK))
+                   .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

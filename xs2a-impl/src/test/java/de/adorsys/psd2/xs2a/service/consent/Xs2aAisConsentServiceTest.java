@@ -29,7 +29,7 @@ import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.core.tpp.TppInfo;
 import de.adorsys.psd2.xs2a.core.tpp.TppRole;
 import de.adorsys.psd2.xs2a.domain.consent.*;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aAisConsentAuthorisationMapper;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aAisConsentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aAuthenticationObjectToCmsScaMethodMapper;
@@ -88,7 +88,7 @@ public class Xs2aAisConsentServiceTest {
     @Mock
     private Xs2aAuthenticationObjectToCmsScaMethodMapper xs2AAuthenticationObjectToCmsScaMethodMapper;
     @Mock
-    private ScaApproachResolver scaApproachResolver;
+    private InitialScaApproachResolver scaApproachResolver;
 
 
     @Test

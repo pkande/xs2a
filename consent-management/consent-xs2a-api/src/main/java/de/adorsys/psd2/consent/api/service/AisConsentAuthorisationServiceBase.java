@@ -21,6 +21,7 @@ import de.adorsys.psd2.consent.api.ais.AisConsentAuthorizationRequest;
 import de.adorsys.psd2.consent.api.ais.AisConsentAuthorizationResponse;
 import de.adorsys.psd2.consent.api.ais.CreateAisConsentAuthorizationResponse;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
+import de.adorsys.psd2.xs2a.core.sca.AuthorisationScaApproachResponse;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 
 import java.util.List;
@@ -114,4 +115,11 @@ interface AisConsentAuthorisationServiceBase {
      * @return <code>true</code> if authorisation was found and SCA approach updated, <code>false</code> otherwise
      */
     boolean updateScaApproach(String authorisationId, ScaApproach scaApproach);
+
+    /**
+     * TODO add javadocs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+     *
+     * @return
+     */
+    Optional<AuthorisationScaApproachResponse> getAuthorisationScaApproach(String authorisationId);
 }

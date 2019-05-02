@@ -133,7 +133,7 @@ public class ConsentServiceTest {
     @Mock
     private AspspProfileServiceWrapper aspspProfileService;
     @Mock
-    private ScaApproachResolver scaApproachResolver;
+    private InitialScaApproachResolver scaApproachResolver;
     @Mock
     private AuthorisationMethodDecider authorisationMethodDecider;
     @Mock

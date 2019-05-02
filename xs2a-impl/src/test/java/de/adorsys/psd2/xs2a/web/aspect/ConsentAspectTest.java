@@ -24,7 +24,7 @@ import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentResponse;
-import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.AuthorisationMethodDecider;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class ConsentAspectTest {
     @Mock
     private AspspProfileService aspspProfileService;
     @Mock
-    private ScaApproachResolver scaApproachResolver;
+    private InitialScaApproachResolver scaApproachResolver;
     @Mock
     private AuthorisationMethodDecider authorisationMethodDecider;
     @Mock
