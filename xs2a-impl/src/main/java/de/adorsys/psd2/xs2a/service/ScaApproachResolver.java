@@ -19,6 +19,7 @@ package de.adorsys.psd2.xs2a.service;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.domain.ScaApproachHolder;
+import de.adorsys.psd2.xs2a.domain.consent.response.AuthorisationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +71,14 @@ public class ScaApproachResolver {
         }
 
         return firstScaApproach;
+    }
+
+    public ScaApproach resolveScaApproach(AuthorisationResponse authorisationResponse) {
+        if (scaApproachHolder.isNotEmpty()) {
+            return scaApproachHolder.getScaApproach();
+        }
+
+        return authorisationResponse.getScaApproach();
     }
 
     /**

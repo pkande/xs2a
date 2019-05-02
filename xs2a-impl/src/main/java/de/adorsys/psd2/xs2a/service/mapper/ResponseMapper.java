@@ -19,6 +19,7 @@ package de.adorsys.psd2.xs2a.service.mapper;
 import de.adorsys.psd2.xs2a.domain.CustomContentTypeProvider;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -35,15 +36,24 @@ import static org.springframework.http.HttpStatus.*;
 @Component
 public class ResponseMapper {
     public <T, R> ResponseEntity<?> ok(ResponseObject<T> response, Function<T, R> mapper) { //NOPMD short method name ok corresponds to status code
-        return generateResponse(response, OK, mapper);
+        return generateResponse(response, OK, null, mapper);
+    }
+
+    // TODO think about order of params https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    public <T, R> ResponseEntity<?> ok(ResponseObject<T> response, HttpHeaders httpHeaders, Function<T, R> mapper) { //NOPMD short method name ok corresponds to status code
+        return generateResponse(response, OK, httpHeaders, mapper);
     }
 
     public <T, R> ResponseEntity<?> created(ResponseObject<T> response, Function<T, R> mapper) {
-        return generateResponse(response, CREATED, mapper);
+        return generateResponse(response, CREATED, null, mapper);
+    }
+
+    public <T, R> ResponseEntity<?> created(ResponseObject<T> response, HttpHeaders httpHeaders, Function<T, R> mapper) {
+        return generateResponse(response, CREATED, httpHeaders, mapper);
     }
 
     public <T, R> ResponseEntity<?> delete(ResponseObject<T> response, Function<T, R> mapper) {
-        return generateResponse(response, NO_CONTENT, mapper);
+        return generateResponse(response, NO_CONTENT, null, mapper);
     }
 
     public <T> ResponseEntity ok(ResponseObject<T> response) { //NOPMD short method name ok corresponds to status code
@@ -63,10 +73,13 @@ public class ResponseMapper {
     }
 
     private <T> ResponseEntity generateResponse(ResponseObject<T> response, HttpStatus positiveStatus) {
-        return generateResponse(response, positiveStatus, null);
+        return generateResponse(response, positiveStatus, null, null);
     }
 
-    private <T, R> ResponseEntity generateResponse(ResponseObject<T> response, HttpStatus positiveStatus, Function<T, R> mapper) {
+    private <T, R> ResponseEntity generateResponse(ResponseObject<T> response,
+                                                   HttpStatus positiveStatus,
+                                                   HttpHeaders httpHeaders,
+                                                   Function<T, R> mapper) {
         if (response.hasError()) {
             throw new IllegalArgumentException("Response includes an error: " + response.getError());
         }
@@ -83,6 +96,7 @@ public class ResponseMapper {
         }
 
         return responseBuilder
+                   .headers(httpHeaders)
                    .body(getBody(body, mapper));
     }
 

@@ -228,7 +228,7 @@ public class ConsentCreation_successfulTest {
         // Given
         given(aspspProfileService.getScaApproaches()).willReturn(Collections.singletonList(scaApproach));
         given(aisConsentAuthorisationServiceEncrypted.createAuthorizationWithResponse(any(String.class), any(AisConsentAuthorizationRequest.class)))
-            .willReturn(Optional.of(buildCreateAisConsentAuthorizationResponse()));
+            .willReturn(Optional.of(buildCreateAisConsentAuthorizationResponse(scaApproach)));
         given(aisConsentServiceEncrypted.createConsent(any(CreateAisConsentRequest.class)))
             .willReturn(Optional.of(ENCRYPT_CONSENT_ID));
         given(aisConsentServiceEncrypted.getInitialAisAccountConsentById(any(String.class)))
@@ -277,7 +277,7 @@ public class ConsentCreation_successfulTest {
         return aisAccountConsent;
     }
 
-    private CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse() {
-        return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED);
+    private CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse(ScaApproach scaApproach) {
+        return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED, scaApproach);
     }
 }

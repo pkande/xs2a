@@ -54,6 +54,7 @@ public class RedirectAisAuthorizationService implements AisAuthorizationService 
                        resp.setAuthorizationId(auth.getAuthorizationId());
                        resp.setScaStatus(auth.getScaStatus());
                        resp.setResponseLinkType(SCA_REDIRECT);
+                       resp.setScaApproach(auth.getScaApproach());
 
                        return resp;
                    });

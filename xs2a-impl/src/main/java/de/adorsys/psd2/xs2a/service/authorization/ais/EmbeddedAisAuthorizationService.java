@@ -32,7 +32,8 @@ import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.config.factory.AisScaStageAuthorisationFactory.SEPARATOR;
 import static de.adorsys.psd2.xs2a.config.factory.AisScaStageAuthorisationFactory.SERVICE_PREFIX;
-import static de.adorsys.psd2.xs2a.domain.consent.ConsentAuthorizationResponseLinkType.*;
+import static de.adorsys.psd2.xs2a.domain.consent.ConsentAuthorizationResponseLinkType.UPDATE_PSU_AUTHENTICATION;
+import static de.adorsys.psd2.xs2a.domain.consent.ConsentAuthorizationResponseLinkType.UPDATE_PSU_IDENTIFICATION;
 
 /**
  * AisAuthorizationService implementation to be used in case of embedded approach
@@ -67,6 +68,7 @@ public class EmbeddedAisAuthorizationService implements AisAuthorizationService 
                        resp.setAuthorizationId(auth.getAuthorizationId());
                        resp.setScaStatus(auth.getScaStatus());
                        resp.setResponseLinkType(getResponseLinkType(psuData, psuData));
+                       resp.setScaApproach(auth.getScaApproach());
 
                        return resp;
                    });

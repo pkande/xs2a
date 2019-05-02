@@ -495,9 +495,13 @@ public class ConsentService {
         );
     }
 
+    // TODO consider returning something https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
     private void proceedImplicitCaseForCreateConsent(CreateConsentResponse response, PsuIdData psuData, String consentId) {
         aisScaAuthorisationServiceResolver.getService().createConsentAuthorization(psuData, consentId)
-            .ifPresent(a -> response.setAuthorizationId(a.getAuthorizationId()));
+            .ifPresent(a -> {
+                response.setAuthorizationId(a.getAuthorizationId());
+                response.setScaApproach(a.getScaApproach());
+            });
     }
 
     private SpiContextData getSpiContextData(List<PsuIdData> psuIdDataList) {

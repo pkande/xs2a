@@ -16,13 +16,13 @@
 
 package de.adorsys.psd2.consent.api.ais;
 
+import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
 
-@Data
-@AllArgsConstructor
+@Value
 public class CreateAisConsentAuthorizationResponse {
     private String authorizationId;
     private ScaStatus scaStatus;
+    private ScaApproach scaApproach;
 }

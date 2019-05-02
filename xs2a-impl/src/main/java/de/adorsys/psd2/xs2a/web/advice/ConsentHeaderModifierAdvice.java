@@ -50,14 +50,14 @@ public class ConsentHeaderModifierAdvice extends CommonHeaderModifierAdvice {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         String methodName = returnType.getMethod().getName();
         if ("_createConsent".equals(methodName)) {
-            response.getHeaders().add("Aspsp-Sca-Approach", scaApproachResolver.resolveScaApproach().name());
-            if (!hasError(body, ConsentsResponse201.class)) {
-                ConsentsResponse201 consentResponse = (ConsentsResponse201) body;
-
-                String selfLink = linkExtractor.extract(consentResponse.getLinks(), SELF_LINK_NAME)
-                                      .orElse(null);
-                response.getHeaders().add("Location", selfLink);
-            }
+//            response.getHeaders().add("Aspsp-Sca-Approach", scaApproachResolver.resolveScaApproach().name());
+//            if (!hasError(body, ConsentsResponse201.class)) {
+//                ConsentsResponse201 consentResponse = (ConsentsResponse201) body;
+//
+//                String selfLink = linkExtractor.extract(consentResponse.getLinks(), SELF_LINK_NAME)
+//                                      .orElse(null);
+//                response.getHeaders().add("Location", selfLink);
+//            }
         } else if ("_startConsentAuthorisation".equals(methodName)
                        || "_updateConsentsPsuData".equals(methodName)) {
             response.getHeaders().add("Aspsp-Sca-Approach", scaApproachResolver.resolveScaApproach().name());

@@ -200,6 +200,7 @@ public class DecoupledAisAuthorizationServiceTest {
         resp.setAuthorizationId(AUTHORISATION_ID);
         resp.setScaStatus(ScaStatus.RECEIVED);
         resp.setResponseLinkType(ConsentAuthorizationResponseLinkType.UPDATE_PSU_AUTHENTICATION);
+
         return resp;
     }
 
@@ -223,6 +224,6 @@ public class DecoupledAisAuthorizationServiceTest {
     }
 
     private CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse(){
-        return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED);
+        return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED, ScaApproach.DECOUPLED);
     }
 }

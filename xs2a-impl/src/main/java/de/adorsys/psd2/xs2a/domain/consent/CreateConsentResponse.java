@@ -18,12 +18,14 @@ package de.adorsys.psd2.xs2a.domain.consent;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.sca.ChallengeData;
 import de.adorsys.psd2.xs2a.domain.Links;
+import de.adorsys.psd2.xs2a.domain.consent.response.AuthorisationResponse;
 import lombok.Data;
 
 @Data
-public class CreateConsentResponse {
+public class CreateConsentResponse implements AuthorisationResponse {
     private final String consentStatus;
 
     private final String consentId;
@@ -44,5 +46,9 @@ public class CreateConsentResponse {
     //For Embedded approach Implicit case
     @JsonIgnore
     private String authorizationId;
+
+    // TODO consider passing whole authorisation https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    @JsonIgnore
+    private ScaApproach scaApproach;
 
 }

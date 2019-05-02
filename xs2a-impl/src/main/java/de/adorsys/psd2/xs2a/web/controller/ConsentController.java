@@ -24,6 +24,7 @@ import de.adorsys.psd2.xs2a.core.tpp.TppRedirectUri;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.consent.*;
 import de.adorsys.psd2.xs2a.service.ConsentService;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.mapper.ResponseMapper;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ResponseErrorMapper;
 import de.adorsys.psd2.xs2a.web.mapper.AuthorisationMapper;
@@ -33,6 +34,7 @@ import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +53,7 @@ public class ConsentController implements ConsentApi {
     private final AuthorisationMapper authorisationMapper;
     private final TppRedirectUriMapper tppRedirectUriMapper;
     private final ResponseErrorMapper responseErrorMapper;
+    private final ScaApproachResolver scaApproachResolver;
 
     @Override
     public ResponseEntity createConsent(UUID xRequestID, Consents body, String digest, String signature,
@@ -69,9 +72,20 @@ public class ConsentController implements ConsentApi {
         ResponseObject<CreateConsentResponse> createConsentResponse =
             consentService.createAccountConsentsWithResponse(createConsent, psuData, BooleanUtils.isTrue(tpPExplicitAuthorisationPreferred), tppRedirectUri);
 
-        return createConsentResponse.hasError()
-                   ? responseErrorMapper.generateErrorResponse(createConsentResponse.getError())
-                   : responseMapper.created(createConsentResponse, consentModelMapper::mapToConsentsResponse201);
+        if (createConsentResponse.hasError()) {
+            return responseErrorMapper.generateErrorResponse(createConsentResponse.getError());
+        }
+
+        CreateConsentResponse serviceBody = createConsentResponse.getBody();
+
+        HttpHeaders headers = new HttpHeaders();
+        // TODO decide whether to omit on error https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+        headers.add("Aspsp-Sca-Approach", scaApproachResolver.resolveScaApproach(serviceBody).name());
+
+        String selfLink = serviceBody.getLinks().getSelf();
+        headers.add("Location", selfLink);
+
+        return responseMapper.created(createConsentResponse, headers, consentModelMapper::mapToConsentsResponse201);
     }
 
     @Override

@@ -65,6 +65,7 @@ public class DecoupledAisAuthorizationService implements AisAuthorizationService
                        resp.setAuthorizationId(auth.getAuthorizationId());
                        resp.setScaStatus(auth.getScaStatus());
                        resp.setResponseLinkType(getResponseLinkType(psuData, psuData));
+                       resp.setScaApproach(auth.getScaApproach());
 
                        return resp;
                    });

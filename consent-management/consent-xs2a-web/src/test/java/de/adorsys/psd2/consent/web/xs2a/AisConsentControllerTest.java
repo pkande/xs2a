@@ -25,6 +25,7 @@ import de.adorsys.psd2.consent.api.service.AisConsentAuthorisationServiceEncrypt
 import de.adorsys.psd2.consent.api.service.AisConsentServiceEncrypted;
 import de.adorsys.psd2.consent.web.xs2a.controller.AisConsentController;
 import de.adorsys.psd2.xs2a.core.consent.ConsentStatus;
+import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import org.junit.Before;
@@ -58,6 +59,7 @@ public class AisConsentControllerTest {
     private static final String AUTHORIZATION_ID_1 = "4400de4c-1c74-4ca0-941d-8f56b828f31d";
     private static final String WRONG_AUTHORIZATION_ID = "Wrong authorization id";
     private static final AisConsentAuthorizationResponse CONSENT_AUTHORIZATION_RESPONSE = getConsentAuthorizationResponse();
+    private static final ScaApproach SCA_APPROACH = ScaApproach.REDIRECT;
 
     private static final ScaStatus SCA_STATUS = ScaStatus.RECEIVED;
 
@@ -305,7 +307,7 @@ public class AisConsentControllerTest {
     }
 
     private CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse() {
-        return new CreateAisConsentAuthorizationResponse(AUTHORIZATION_ID, ScaStatus.RECEIVED);
+        return new CreateAisConsentAuthorizationResponse(AUTHORIZATION_ID, ScaStatus.RECEIVED, SCA_APPROACH);
     }
 
 }

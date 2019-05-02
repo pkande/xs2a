@@ -16,9 +16,11 @@
 
 package de.adorsys.psd2.xs2a.domain.consent;
 
+import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import lombok.Data;
 
+// Consider making some fields final https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
 @Data
 public class CreateConsentAuthorizationResponse {
     private String consentId;
@@ -26,4 +28,5 @@ public class CreateConsentAuthorizationResponse {
     private ScaStatus scaStatus;
     private ConsentAuthorizationResponseLinkType responseLinkType;
     private String psuMessage;
+    private ScaApproach scaApproach;
 }

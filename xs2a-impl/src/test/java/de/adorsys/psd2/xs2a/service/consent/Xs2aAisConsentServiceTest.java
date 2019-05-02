@@ -441,7 +441,7 @@ public class Xs2aAisConsentServiceTest {
         return new Xs2aAccountAccess(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), AccountAccessType.ALL_ACCOUNTS_WITH_BALANCES, AccountAccessType.ALL_ACCOUNTS_WITH_BALANCES);
     }
 
-    private static CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse(){
-        return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED);
+    private static CreateAisConsentAuthorizationResponse buildCreateAisConsentAuthorizationResponse() {
+        return new CreateAisConsentAuthorizationResponse(AUTHORISATION_ID, ScaStatus.RECEIVED, SCA_APPROACH);
     }
 }
