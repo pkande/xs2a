@@ -77,10 +77,10 @@ public class ErrorBuildingService {
                    .orElse(null);
     }
 
-    private MessageError getMessageError(Set<TppMessageInformation> tppMessageInformations) {
+    private MessageError getMessageError(Set<TppMessageInformation> tppMessages) {
         ErrorType errorType = errorTypeMapper.mapToErrorType(serviceTypeDiscoveryService.getServiceType(), FORMAT_ERROR.getCode());
 
-        return new MessageError(errorType, tppMessageInformations.toArray(new TppMessageInformation[tppMessageInformations.size()]));
+        return new MessageError(errorType, tppMessages.toArray(new TppMessageInformation[tppMessages.size()]));
     }
 
 }
