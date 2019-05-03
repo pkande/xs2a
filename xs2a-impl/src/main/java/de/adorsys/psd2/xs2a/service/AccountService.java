@@ -227,9 +227,9 @@ public class AccountService {
     /**
      * Gets Balances Report based on consentId and accountId
      *
-     * @param consentId String representing an AccountConsent identification
-     * @param accountId String representing a PSU`s Account at ASPSP
-     * @param requestUri  the URI of incoming request
+     * @param consentId  String representing an AccountConsent identification
+     * @param accountId  String representing a PSU`s Account at ASPSP
+     * @param requestUri the URI of incoming request
      * @return Balances Report based on consentId and accountId
      */
     public ResponseObject<Xs2aBalancesReport> getBalancesReport(String consentId, String accountId, String requestUri) {
@@ -304,7 +304,7 @@ public class AccountService {
      * @param dateTo        ISO Date representing the value of desired end date of AccountReport (if omitted is set
      *                      to current date)
      * @param bookingStatus ENUM representing either one of BOOKED/PENDING or BOTH transaction statuses
-     * @param requestUri  the URI of incoming request
+     * @param requestUri    the URI of incoming request
      * @return TransactionsReport filled with appropriate transaction arrays Booked and Pending. For v1.1 balances
      * sections is added
      */
@@ -456,10 +456,15 @@ public class AccountService {
         }
 
         Transactions transactions = spiToXs2aTransactionMapper.mapToXs2aTransaction(payload);
-        checkAndExpireConsentIfOneAccessType(accountConsent, consentId);
-        return ResponseObject.<Transactions>builder()
-                   .body(transactions)
-                   .build();
+
+        ResponseObject<Transactions> response =
+            ResponseObject.<Transactions>builder()
+                .body(transactions)
+                .build();
+
+        writeLogAndCheckConsent(consentId, false, accountConsent, TypeAccess.TRANSACTION, response, requestUri);
+
+        return response;
     }
 
     private void writeLogAndCheckConsent(String consentId, boolean withBalance, AccountConsent accountConsent, TypeAccess typeAccess, ResponseObject response, String requestUri) {
