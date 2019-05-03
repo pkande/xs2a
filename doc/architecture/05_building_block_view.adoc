@@ -62,18 +62,18 @@ Contained Building Blocks::
 | Component | Description
 
 | [xs2a]#XS2A Service#
-| Business-logic, validators and services operating to serve TPPs according to a Berlin Group operational rules defined by XS2A Interface
+| Business-logic, validators and services operating to serve TPPs according to a Berlin Group operational rules defined by XS2A Interface.
 
 
 | [xs2a]#ASPSP Profile#
-| A service that provides static configuration of features, those are supported by actual ASPSP
+| A service that provides static configuration of features, those are supported by actual ASPSP.
 
 | [connector]#ASPSP-Connector#
 | An implementation of SPI-API interface to connect XS2A-services with ASPSP internal system to process requests.
 This part is to be implemented for each particular deployment, depending on underlying ASPSP systems.
 
 | [xs2a]#CMS#
-| Consent Management System A Service that persists and manages the PSUs Consents for account accesses and payments and corresponding to these consents data.
+| Consent Management System - Service that persists and manages the PSUs Consents for account accesses and payments and corresponding to these consents data.
 Provides internal CMS-PSU-API and CMS-APSPS-API interfaces for other internal ASPSP systems.
 |===
 
@@ -85,13 +85,13 @@ Important Interfaces::
 | REST interfaces defined by Berlin Group NextgenPSD2 Standards. Serves TPPs to access the ASPSP Systems.
 
 | [xs2a]#SPI-API#
-| Internal Java interface to provide a universal way to implement connectors to underlying ASPSP Systems
+| Internal Java interface to provide a universal way to implement connectors to underlying ASPSP Systems.
 
 | [xs2a]#CMS-PSU-API#
-| Internal ASPSP Java and/or REST interface to provide a possibility to perform payment/consent authorisation in bank systems
+| Internal ASPSP Java and/or REST interface to provide a possibility to perform payment/consent authorisation in bank systems.
 
 | [xs2a]#CMS-ASPSP-API#
-| Internal ASPSP Java and/or REST interface to provide an access to CMS-managed data from other ASPSP systems (generally - to read/export data, in some usecases also to manage data)
+| Internal ASPSP Java and/or REST interface to provide an access to CMS-managed data from other ASPSP systems (generally - to read/export data, in some usecases also to manage data).
 
 |===
 
@@ -102,7 +102,7 @@ External systems::
 | Third-party provider, acting on behalf of PSU, operating the accounts/payment data of PSU provided by ASPSP through XS2A Interface.
 
 | [tpp]#Certification Authority#
-| A QWAC/QSEAL TLS Certificate issuer that operates under the conditions of PSD2 regulations
+| A QWAC/QSEAL TLS Certificate issuer that operates under the conditions of PSD2 regulations.
 |===
 
 Surrounding ASPSP systems::

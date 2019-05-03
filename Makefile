@@ -5,7 +5,7 @@ WORKDIR=${PWD}
 .PHONY : clean usage pages prepare_pages
 
 usage :
-	echo "\"make clean\" or \"make pages\""
+	@echo "Use \"make clean\" or \"make pages\""
 
 prepare_pages:
 	mkdir -p pages pages/html
