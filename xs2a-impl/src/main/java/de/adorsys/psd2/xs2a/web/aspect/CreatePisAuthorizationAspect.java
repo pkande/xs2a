@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.aspect;
 
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
+import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.domain.Links;
@@ -25,7 +26,7 @@ import de.adorsys.psd2.xs2a.domain.consent.Xs2aAuthenticationObject;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aCreatePisAuthorisationRequest;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aCreatePisAuthorisationResponse;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import de.adorsys.psd2.xs2a.web.controller.PaymentController;
@@ -42,26 +43,23 @@ import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 @Aspect
 @Component
 public class CreatePisAuthorizationAspect extends AbstractLinkAspect<PaymentController> {
+    private ScaApproachResolver scaApproachResolver;
     private RedirectLinkBuilder redirectLinkBuilder;
 
-    public CreatePisAuthorizationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService, RedirectLinkBuilder redirectLinkBuilder) {
-        super(scaApproachResolver, messageService, aspspProfileService);
+    public CreatePisAuthorizationAspect(ScaApproachResolver scaApproachResolver, MessageService messageService,
+                                        AspspProfileService aspspProfileService, RedirectLinkBuilder redirectLinkBuilder) {
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
         this.redirectLinkBuilder = redirectLinkBuilder;
     }
 
     @AfterReturning(pointcut = "execution(* de.adorsys.psd2.xs2a.service.PaymentAuthorisationService.createPisAuthorisation(..)) && args(createRequest)", returning = "result", argNames = "result,createRequest")
     public ResponseObject createPisAuthorizationAspect(ResponseObject result, Xs2aCreatePisAuthorisationRequest createRequest) {
-        String paymentId = createRequest.getPaymentId();
-        String paymentType = createRequest.getPaymentService();
-
-        String paymentProduct = createRequest.getPaymentProduct();
-        PsuIdData psuData = createRequest.getPsuData();
-
         if (!result.hasError()) {
             if (result.getBody() instanceof Xs2aCreatePisAuthorisationResponse) {
                 Xs2aCreatePisAuthorisationResponse response = (Xs2aCreatePisAuthorisationResponse) result.getBody();
 
-                response.setLinks(buildLink(paymentType, paymentProduct, paymentId, response.getAuthorisationId(), psuData));
+                response.setLinks(buildLink(createRequest, response.getAuthorisationId()));
             } else if (result.getBody() instanceof Xs2aUpdatePisCommonPaymentPsuDataResponse) {
                 Xs2aUpdatePisCommonPaymentPsuDataResponse response = (Xs2aUpdatePisCommonPaymentPsuDataResponse) result.getBody();
                 response.setLinks(updateLink(response, createRequest));
@@ -72,17 +70,24 @@ public class CreatePisAuthorizationAspect extends AbstractLinkAspect<PaymentCont
         return enrichErrorTextMessage(result);
     }
 
-    private Links buildLink(String paymentService, String paymentProduct, String paymentId, String authorisationId, PsuIdData psuData) {
-        Links links = buildDefaultPaymentLinks(paymentService, paymentProduct, paymentId);
+    private Links buildLink(Xs2aCreatePisAuthorisationRequest createRequest, String authorisationId) {
+        String paymentId = createRequest.getPaymentId();
+        String paymentType = createRequest.getPaymentService();
 
-        if (EnumSet.of(EMBEDDED, DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
+        String paymentProduct = createRequest.getPaymentProduct();
+        PsuIdData psuData = createRequest.getPsuData();
+
+        Links links = buildDefaultPaymentLinks(paymentType, paymentProduct, paymentId);
+
+        ScaApproach initiationScaApproach = scaApproachResolver.getInitiationScaApproach(authorisationId);
+        if (EnumSet.of(EMBEDDED, DECOUPLED).contains(initiationScaApproach)) {
             String path = UrlHolder.PIS_AUTHORISATION_LINK_URL;
             if (psuData.isEmpty()) {
-                links.setUpdatePsuIdentification(buildPath(path, paymentService, paymentProduct, paymentId, authorisationId));
+                links.setUpdatePsuIdentification(buildPath(path, paymentType, paymentProduct, paymentId, authorisationId));
             } else {
-                links.setUpdatePsuAuthentication(buildPath(path, paymentService, paymentProduct, paymentId, authorisationId));
+                links.setUpdatePsuAuthentication(buildPath(path, paymentType, paymentProduct, paymentId, authorisationId));
             }
-        } else if (scaApproachResolver.resolveScaApproach() == REDIRECT) {
+        } else if (initiationScaApproach == REDIRECT) {
             String scaRedirectLink = redirectLinkBuilder.buildPaymentScaRedirectLink(paymentId, authorisationId);
             links.setScaRedirect(scaRedirectLink);
         }
@@ -95,25 +100,25 @@ public class CreatePisAuthorizationAspect extends AbstractLinkAspect<PaymentCont
         ScaStatus scaStatus = response.getScaStatus();
 
         if (isScaStatusMethodAuthenticated(scaStatus)) {
-            links.setSelectAuthenticationMethod(buildAuthorisationLink(createRequest.getPaymentService(), createRequest.getPaymentProduct(), response.getPaymentId(), response.getAuthorisationId()));
+            links.setSelectAuthenticationMethod(buildAuthorisationLink(response, createRequest));
 
             // TODO https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
-        } else if (isScaStatusMethodSelected(response.getChosenScaMethod(), scaStatus) && scaApproachResolver.resolveScaApproach() == EMBEDDED) {
-            links.setAuthoriseTransaction(buildAuthorisationLink(createRequest.getPaymentService(), createRequest.getPaymentProduct(), response.getPaymentId(), response.getAuthorisationId()));
+        } else if (isScaStatusMethodSelected(response.getChosenScaMethod(), scaStatus) &&
+                                                                              scaApproachResolver.getInitiationScaApproach(response.getAuthorisationId()) == EMBEDDED) {
+            links.setAuthoriseTransaction(buildAuthorisationLink(response, createRequest));
         } else if (isScaStatusFinalised(scaStatus)) {
 
-            links.setScaStatus(buildAuthorisationLink(createRequest.getPaymentService(), createRequest.getPaymentProduct(), response.getPaymentId(), response.getAuthorisationId()));
+            links.setScaStatus(buildAuthorisationLink(response, createRequest));
         } else if (isScaStatusMethodIdentified(scaStatus)) {
-            links.setUpdatePsuAuthentication(buildAuthorisationLink(createRequest.getPaymentService(), createRequest.getPaymentProduct(), response.getPaymentId(), response.getAuthorisationId()));
+            links.setUpdatePsuAuthentication(buildAuthorisationLink(response, createRequest));
         }
 
         return links;
     }
 
-
-
-    private String buildAuthorisationLink(String paymentService, String paymentProduct, String paymentId, String authorisationId) {
-        return buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, paymentService, paymentProduct, paymentId, authorisationId);
+    private String buildAuthorisationLink(Xs2aUpdatePisCommonPaymentPsuDataResponse response, Xs2aCreatePisAuthorisationRequest createRequest) {
+        return buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, createRequest.getPaymentService(),
+                         createRequest.getPaymentProduct(), response.getPaymentId(), response.getAuthorisationId());
     }
 
     private boolean isScaStatusFinalised(ScaStatus scaStatus) {

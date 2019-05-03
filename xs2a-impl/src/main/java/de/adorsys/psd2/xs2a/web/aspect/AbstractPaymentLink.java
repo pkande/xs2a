@@ -17,6 +17,7 @@
 package de.adorsys.psd2.xs2a.web.aspect;
 
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
+import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationParameters;
@@ -32,11 +33,13 @@ import static de.adorsys.psd2.xs2a.core.pis.TransactionStatus.RJCT;
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 
 public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
+    private InitialScaApproachResolver scaApproachResolver;
     private final AuthorisationMethodDecider authorisationMethodDecider;
     private final RedirectLinkBuilder redirectLinkBuilder;
 
     public AbstractPaymentLink(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
-        super(scaApproachResolver, messageService, aspspProfileService);
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
         this.authorisationMethodDecider = authorisationMethodDecider;
         this.redirectLinkBuilder = redirectLinkBuilder;
     }
@@ -63,11 +66,12 @@ public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
 
         Links links = buildDefaultPaymentLinks(paymentService, paymentProduct, paymentId);
 
-        if (EnumSet.of(EMBEDDED, DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
+        ScaApproach scaApproach = scaApproachResolver.resolveScaApproach();
+        if (EnumSet.of(EMBEDDED, DECOUPLED).contains(scaApproach)) {
             return addEmbeddedDecoupledRelatedLinks(links, paymentRequestParameters, body);
-        } else if (scaApproachResolver.resolveScaApproach() == REDIRECT) {
+        } else if (scaApproach == REDIRECT) {
             return addRedirectRelatedLinks(links, paymentRequestParameters, body);
-        } else if (scaApproachResolver.resolveScaApproach() == OAUTH) {
+        } else if (scaApproach == OAUTH) {
             links.setScaOAuth("scaOAuth"); //TODO generate link for oauth https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/326
         }
         return links;

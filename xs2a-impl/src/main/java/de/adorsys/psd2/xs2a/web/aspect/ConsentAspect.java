@@ -27,7 +27,7 @@ import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentResponse;
 import de.adorsys.psd2.xs2a.domain.consent.UpdateConsentPsuDataReq;
 import de.adorsys.psd2.xs2a.domain.consent.UpdateConsentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.AuthorisationMethodDecider;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
@@ -44,11 +44,13 @@ import java.util.Optional;
 @Aspect
 @Component
 public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
+    private final ScaApproachResolver scaApproachResolver;
     private final AuthorisationMethodDecider authorisationMethodDecider;
     private final RedirectLinkBuilder redirectLinkBuilder;
 
-    public ConsentAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
-        super(scaApproachResolver, messageService, aspspProfileService);
+    public ConsentAspect(ScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
         this.authorisationMethodDecider = authorisationMethodDecider;
         this.redirectLinkBuilder = redirectLinkBuilder;
     }
@@ -102,9 +104,10 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
         links.setSelf(buildPath(UrlHolder.CONSENT_LINK_URL, consentId));
         links.setStatus(buildPath(UrlHolder.CONSENT_STATUS_URL, consentId));
 
-        if (EnumSet.of(ScaApproach.EMBEDDED, ScaApproach.DECOUPLED).contains(scaApproachResolver.resolveScaApproach())) {
+        ScaApproach scaApproach = scaApproachResolver.getInitiationScaApproach(response.getAuthorizationId());
+        if (EnumSet.of(ScaApproach.EMBEDDED, ScaApproach.DECOUPLED).contains(scaApproach)) {
             buildLinkForEmbeddedAndDecoupledScaApproach(response, links, explicitPreferred, psuData);
-        } else if (ScaApproach.REDIRECT == scaApproachResolver.resolveScaApproach()) {
+        } else if (ScaApproach.REDIRECT == scaApproach) {
             if (authorisationMethodDecider.isExplicitMethod(explicitPreferred, response.isMultilevelScaRequired())) {
                 links.setStartAuthorisation(buildPath(UrlHolder.CREATE_AIS_AUTHORISATION_URL, consentId));
             } else {
@@ -175,7 +178,8 @@ public class ConsentAspect extends AbstractLinkAspect<ConsentController> {
     private Links buildLinksForScaMethodSelectedConsentResponse(UpdateConsentPsuDataReq request) {
         Links links = new Links();
 
-        if (scaApproachResolver.resolveScaApproach() == ScaApproach.DECOUPLED) {
+        ScaApproach scaApproach = scaApproachResolver.getInitiationScaApproach(request.getAuthorizationId());
+        if (scaApproach == ScaApproach.DECOUPLED) {
             links.setScaStatus(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));
         } else {
             links.setAuthoriseTransaction(buildPath(UrlHolder.AIS_AUTHORISATION_URL, request.getConsentId(), request.getAuthorizationId()));

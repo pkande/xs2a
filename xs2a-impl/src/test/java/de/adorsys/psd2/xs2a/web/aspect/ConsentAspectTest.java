@@ -24,7 +24,7 @@ import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.AuthorisationMethodDecider;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import org.junit.Before;
@@ -61,7 +61,7 @@ public class ConsentAspectTest {
     @Mock
     private AspspProfileService aspspProfileService;
     @Mock
-    private InitialScaApproachResolver scaApproachResolver;
+    private ScaApproachResolver scaApproachResolver;
     @Mock
     private AuthorisationMethodDecider authorisationMethodDecider;
     @Mock
@@ -79,7 +79,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inRedirectImplicitMode_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.REDIRECT);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.REDIRECT);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -97,7 +97,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inRedirectImplicitMode_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.REDIRECT);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.REDIRECT);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -115,7 +115,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inRedirectExplicitMode_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.REDIRECT);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.REDIRECT);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(true);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -133,7 +133,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inRedirectExplicitMode_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.REDIRECT);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.REDIRECT);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(true);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -151,7 +151,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inEmbeddedImplicitMode_withPsuDataInRequest_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.EMBEDDED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.EMBEDDED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -169,7 +169,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inEmbeddedImplicitMode_withPsuDataInRequest_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.EMBEDDED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.EMBEDDED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -187,7 +187,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inEmbeddedImplicitMode_withoutPsuDataInRequest_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.EMBEDDED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.EMBEDDED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -205,7 +205,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inEmbeddedImplicitMode_withoutPsuDataInRequest_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.EMBEDDED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.EMBEDDED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -223,7 +223,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inEmbeddedExplicitMode_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.EMBEDDED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.EMBEDDED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(true);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -241,7 +241,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inEmbeddedExplicitMode_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.EMBEDDED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.EMBEDDED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(true);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -259,7 +259,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inDecoupledImplicitMode_withPsuDataInRequest_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.DECOUPLED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.DECOUPLED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -277,7 +277,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inDecoupledImplicitMode_withPsuDataInRequest_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.DECOUPLED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.DECOUPLED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -295,7 +295,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inDecoupledImplicitMode_withoutPsuDataInRequest_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.DECOUPLED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.DECOUPLED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -313,7 +313,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inDecoupledImplicitMode_withoutPsuDataInRequest_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.DECOUPLED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.DECOUPLED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(false);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -331,7 +331,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inDecoupledExplicitMode_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(false));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.DECOUPLED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.DECOUPLED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(true);
 
         CreateConsentResponse response = buildCreateConsentResponse();
@@ -349,7 +349,7 @@ public class ConsentAspectTest {
     public void invokeCreateAccountConsentAspect_inDecoupledExplicitMode_withForcedUrl_shouldAddCorrectLinks() {
         // Given
         when(aspspProfileService.getAspspSettings()).thenReturn(buildAspspSettings(true));
-        when(scaApproachResolver.resolveScaApproach()).thenReturn(ScaApproach.DECOUPLED);
+        when(scaApproachResolver.getInitiationScaApproach(AUTHORISATION_ID)).thenReturn(ScaApproach.DECOUPLED);
         when(authorisationMethodDecider.isExplicitMethod(anyBoolean(), anyBoolean())).thenReturn(true);
 
         CreateConsentResponse response = buildCreateConsentResponse();
