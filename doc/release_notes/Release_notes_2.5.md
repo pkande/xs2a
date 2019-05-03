@@ -17,6 +17,12 @@ If the amount of accesses for any of these endpoint is exceeded - the `429 ACCES
 endpoints are still accessible until their amount is not exceeded.
 
 Also, the `usageCounter` field in `AisAccountConsent` is deprecated - now the new field `usageCounterMap` should be used
-instead. It is a map: key is the endpoint, value is a number of its usage. Interfaces `CmsAspspAisExportService` and
-`CmsPsuAisService` are affected.
+instead. It is a map: key is the endpoint, value is a number of its usage. The following services were affected by this
+change:
 
+  - In consent-aspsp-api:
+    - `de.adorsys.psd2.consent.aspsp.api.ais.CmsAspspAisExportService`
+    (`GET /aspsp-api/v1/ais/consents/tpp/{tpp-id}`, `GET /aspsp-api/v1/ais/consents/psu`, `GET /aspsp-api/v1/ais/consents/account/{account-id}`)
+  - In consent-psu-api:
+    - `de.adorsys.psd2.consent.psu.api.CmsPsuAisService`
+    (`GET /psu-api/v1/ais/consent/{consent-id}`, `GET /psu-api/v1/ais/consent/consents`)

@@ -25,7 +25,7 @@
         <sql>truncate table ais_consent_usage;</sql>
 
         <addColumn tableName="ais_consent_usage">
-            <column name="request_uri" type="VARCHAR(2048)">
+            <column name="request_uri" type="VARCHAR(1000)">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
