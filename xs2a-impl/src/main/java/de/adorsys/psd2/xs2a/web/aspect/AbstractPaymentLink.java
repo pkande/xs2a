@@ -32,11 +32,13 @@ import static de.adorsys.psd2.xs2a.core.pis.TransactionStatus.RJCT;
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 
 public abstract class AbstractPaymentLink<T> extends AbstractLinkAspect<T> {
+    private InitialScaApproachResolver scaApproachResolver;
     private final AuthorisationMethodDecider authorisationMethodDecider;
     private final RedirectLinkBuilder redirectLinkBuilder;
 
     public AbstractPaymentLink(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
-        super(scaApproachResolver, messageService, aspspProfileService);
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
         this.authorisationMethodDecider = authorisationMethodDecider;
         this.redirectLinkBuilder = redirectLinkBuilder;
     }

@@ -34,8 +34,11 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController> {
+    private InitialScaApproachResolver scaApproachResolver;
+
     public UpdatePisPsuDataAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService) {
-        super(scaApproachResolver, messageService, aspspProfileService);
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
     }
 
     @AfterReturning(pointcut = "execution(* de.adorsys.psd2.xs2a.service.PaymentAuthorisationService.updatePisCommonPaymentPsuData(..)) && args( request)", returning = "result", argNames = "result,request")

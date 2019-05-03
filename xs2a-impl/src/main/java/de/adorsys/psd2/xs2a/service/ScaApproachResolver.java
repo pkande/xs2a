@@ -40,6 +40,15 @@ public class ScaApproachResolver {
     private final PisAuthorisationService pisAuthorisationService;
     private final ScaApproachHolder scaApproachHolder;
 
+    public ScaApproach getInitiationScaApproach(String authorisationId) {
+        return resolveScaApproach(authorisationId, PaymentAuthorisationType.INITIATION);
+    }
+
+    public ScaApproach getCancellationScaApproach(String authorisationId) {
+        return resolveScaApproach(authorisationId, PaymentAuthorisationType.CANCELLATION);
+    }
+
+    // TODO: 2019-05-03 (AMU) make it private
     @NotNull
     public ScaApproach resolveScaApproach(@NotNull String authorisationId, PaymentAuthorisationType authorisationType) {
         // TODO check if needed https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722

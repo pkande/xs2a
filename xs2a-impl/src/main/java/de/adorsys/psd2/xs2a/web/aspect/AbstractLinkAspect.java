@@ -21,7 +21,6 @@ import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,6 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 @Component
 @RequiredArgsConstructor
 public abstract class AbstractLinkAspect<T> {
-    protected final InitialScaApproachResolver scaApproachResolver;
     private final MessageService messageService;
     private final AspspProfileService aspspProfileService;
 

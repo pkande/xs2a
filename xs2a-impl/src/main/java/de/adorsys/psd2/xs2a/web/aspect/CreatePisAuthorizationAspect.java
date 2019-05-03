@@ -42,10 +42,13 @@ import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 @Aspect
 @Component
 public class CreatePisAuthorizationAspect extends AbstractLinkAspect<PaymentController> {
+    private InitialScaApproachResolver scaApproachResolver;
     private RedirectLinkBuilder redirectLinkBuilder;
 
-    public CreatePisAuthorizationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService, RedirectLinkBuilder redirectLinkBuilder) {
-        super(scaApproachResolver, messageService, aspspProfileService);
+    public CreatePisAuthorizationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService,
+                                        AspspProfileService aspspProfileService, RedirectLinkBuilder redirectLinkBuilder) {
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
         this.redirectLinkBuilder = redirectLinkBuilder;
     }
 
