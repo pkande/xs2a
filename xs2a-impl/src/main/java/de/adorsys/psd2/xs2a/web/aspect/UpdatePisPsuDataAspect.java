@@ -24,7 +24,7 @@ import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAuthenticationObject;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataRequest;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.controller.PaymentController;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -34,9 +34,9 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController> {
-    private InitialScaApproachResolver scaApproachResolver;
+    private ScaApproachResolver scaApproachResolver;
 
-    public UpdatePisPsuDataAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService) {
+    public UpdatePisPsuDataAspect(ScaApproachResolver scaApproachResolver, MessageService messageService, AspspProfileService aspspProfileService) {
         super(messageService, aspspProfileService);
         this.scaApproachResolver = scaApproachResolver;
     }
@@ -49,16 +49,16 @@ public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController
             ScaStatus scaStatus = body.getScaStatus();
 
             if (isScaStatusMethodAuthenticated(scaStatus)) {
-                links.setSelectAuthenticationMethod(buildAuthorisationLink(request.getPaymentService(), request.getPaymentProduct(), request.getPaymentId(), request.getAuthorisationId()));
+                links.setSelectAuthenticationMethod(buildAuthorisationLink(request));
 
                 // TODO https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
-            } else if (isScaStatusMethodSelected(body.getChosenScaMethod(), scaStatus) && scaApproachResolver.resolveScaApproach() == ScaApproach.EMBEDDED) {
-                links.setAuthoriseTransaction(buildAuthorisationLink(request.getPaymentService(), request.getPaymentProduct(), request.getPaymentId(), request.getAuthorisationId()));
+            } else if (isScaStatusMethodSelected(body.getChosenScaMethod(), scaStatus) && isEmbeddedScaApproach(request.getAuthorisationId())) {
+                links.setAuthoriseTransaction(buildAuthorisationLink(request));
             } else if (isScaStatusFinalised(scaStatus)) {
 
-                links.setScaStatus(buildAuthorisationLink(request.getPaymentService(), request.getPaymentProduct(), request.getPaymentId(), request.getAuthorisationId()));
+                links.setScaStatus(buildAuthorisationLink(request));
             } else if (isScaStatusMethodIdentified(scaStatus)) {
-                links.setUpdatePsuAuthentication(buildAuthorisationLink(request.getPaymentService(), request.getPaymentProduct(), request.getPaymentId(), request.getAuthorisationId()));
+                links.setUpdatePsuAuthentication(buildAuthorisationLink(request));
             }
 
             body.setLinks(links);
@@ -75,8 +75,13 @@ public class UpdatePisPsuDataAspect extends AbstractLinkAspect<PaymentController
         return links;
     }
 
-    private String buildAuthorisationLink(String paymentService, String paymentProduct, String paymentId, String authorisationId) {
-        return buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, paymentService, paymentProduct, paymentId, authorisationId);
+    private String buildAuthorisationLink(Xs2aUpdatePisCommonPaymentPsuDataRequest request) {
+        return buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, request.getPaymentService(), request.getPaymentProduct(),
+                         request.getPaymentId(), request.getAuthorisationId());
+    }
+
+    private boolean isEmbeddedScaApproach(String authorisationId) {
+        return scaApproachResolver.getInitiationScaApproach(authorisationId) == ScaApproach.EMBEDDED;
     }
 
     private boolean isScaStatusFinalised(ScaStatus scaStatus) {
