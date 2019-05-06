@@ -31,6 +31,9 @@ public class UpdateConsentLinks extends AbstractLinks {
         String authorizationId = request.getAuthorizationId();
         ScaStatus scaStatus = request.getScaStatus();
 
+        setSelf(buildPath(UrlHolder.CONSENT_LINK_URL, consentId));
+        setStatus(buildPath(UrlHolder.CONSENT_STATUS_URL, consentId));
+
         if (scaStatus == ScaStatus.PSUAUTHENTICATED) {
             setSelectAuthenticationMethod(buildPath(UrlHolder.AIS_AUTHORISATION_URL, consentId, authorizationId));
         } else if (scaStatus == ScaStatus.SCAMETHODSELECTED) {
@@ -45,8 +48,5 @@ public class UpdateConsentLinks extends AbstractLinks {
         } else if (scaStatus == ScaStatus.PSUIDENTIFIED) {
             setStartAuthorisationWithPsuAuthentication(buildPath(UrlHolder.AIS_AUTHORISATION_URL, consentId, authorizationId));
         }
-
-        setSelf(buildPath(UrlHolder.CONSENT_LINK_URL, consentId));
-        setStatus(buildPath(UrlHolder.CONSENT_STATUS_URL, consentId));
     }
 }

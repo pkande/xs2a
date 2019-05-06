@@ -48,7 +48,6 @@ public class UpdatePisAuthorizationLinks extends AbstractLinks {
                        scaApproachResolver.getInitiationScaApproach(response.getAuthorisationId()) == EMBEDDED) {
             setAuthoriseTransaction(buildAuthorisationLink(response, createRequest));
         } else if (isScaStatusFinalised(scaStatus)) {
-
             setScaStatus(buildAuthorisationLink(response, createRequest));
         } else if (isScaStatusMethodIdentified(scaStatus)) {
             setUpdatePsuAuthentication(buildAuthorisationLink(response, createRequest));
@@ -57,7 +56,7 @@ public class UpdatePisAuthorizationLinks extends AbstractLinks {
 
     private String buildAuthorisationLink(Xs2aUpdatePisCommonPaymentPsuDataResponse response, Xs2aCreatePisAuthorisationRequest createRequest) {
         return buildPath(UrlHolder.PIS_AUTHORISATION_LINK_URL, createRequest.getPaymentService(),
-                         createRequest.getPaymentProduct(), response.getPaymentId(), response.getAuthorisationId());
+                         createRequest.getPaymentProduct(), createRequest.getPaymentId(), response.getAuthorisationId());
     }
 
     private boolean isScaStatusFinalised(ScaStatus scaStatus) {
