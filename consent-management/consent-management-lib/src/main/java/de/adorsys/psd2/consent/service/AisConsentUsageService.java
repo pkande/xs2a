@@ -45,7 +45,7 @@ public class AisConsentUsageService {
     public void resetUsage(AisConsent aisConsent) {
         List<AisConsentUsage> aisConsentUsageList = aisConsentUsageRepository.findReadByConsentAndUsageDate(aisConsent, LocalDate.now());
         aisConsentUsageList.forEach(acu -> acu.setUsage(0));
-        aisConsentUsageRepository.save(aisConsentUsageList);
+        aisConsentUsageRepository.saveAll(aisConsentUsageList);
     }
 
     @Transactional
