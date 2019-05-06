@@ -183,9 +183,11 @@ interface PisCommonPaymentServiceBase {
     boolean updateScaApproach(String authorisationId, ScaApproach scaApproach);
 
     /**
-     * TODO add javadocs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+     * Gets SCA approach from the authorisation by authorisation ID and authorisation type
      *
-     * @return
+     * @param authorisationId   String representation of the authorisation identifier
+     * @param authorisationType Type of authorisation
+     * @return SCA approach of the authorisation
      */
     Optional<AuthorisationScaApproachResponse> getAuthorisationScaApproach(String authorisationId, CmsAuthorisationType authorisationType);
 }

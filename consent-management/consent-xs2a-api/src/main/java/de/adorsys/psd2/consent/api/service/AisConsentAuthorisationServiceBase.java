@@ -42,7 +42,8 @@ interface AisConsentAuthorisationServiceBase {
      * @param request   needed parameters for creating consent authorization
      * @return String authorization id
      */
-    @Deprecated //TODO in sprint 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
+    @Deprecated
+    //TODO in sprint 2.7 Remove this method https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/805
     Optional<String> createAuthorization(String consentId, AisConsentAuthorizationRequest request);
 
     /**
@@ -117,9 +118,10 @@ interface AisConsentAuthorisationServiceBase {
     boolean updateScaApproach(String authorisationId, ScaApproach scaApproach);
 
     /**
-     * TODO add javadocs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+     * Gets SCA approach from the authorisation by authorisation ID
      *
-     * @return
+     * @param authorisationId String representation of the authorisation identifier
+     * @return SCA approach of the authorisation
      */
     Optional<AuthorisationScaApproachResponse> getAuthorisationScaApproach(String authorisationId);
 }

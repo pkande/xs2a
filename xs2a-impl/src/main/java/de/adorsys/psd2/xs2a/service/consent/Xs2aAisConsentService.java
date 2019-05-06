@@ -241,7 +241,12 @@ public class Xs2aAisConsentService {
         aisConsentService.updateMultilevelScaRequired(consentId, multilevelScaRequired);
     }
 
-    // TODO write javadocs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    /**
+     * Gets SCA approach from the authorisation
+     *
+     * @param authorisationId String representation of the authorisation identifier
+     * @return SCA approach
+     */
     public Optional<AuthorisationScaApproachResponse> getAuthorisationScaApproach(String authorisationId) {
         return aisConsentAuthorisationServiceEncrypted.getAuthorisationScaApproach(authorisationId);
     }

@@ -199,9 +199,14 @@ public class PisAuthorisationService {
         return pisCommonPaymentServiceEncrypted.getAuthorisationScaStatus(paymentId, cancellationId, CmsAuthorisationType.CANCELLED);
     }
 
-    // TODO write javadocs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
+    /**
+     * Gets SCA approach of the authorisation by its id and type
+     *
+     * @param authorisationId   String representation of the authorisation identifier
+     * @param authorisationType Type of authorisation
+     * @return SCA approach of the authorisation
+     */
     public Optional<AuthorisationScaApproachResponse> getAuthorisationScaApproach(String authorisationId, PaymentAuthorisationType authorisationType) {
-        // TODO handle third value https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
         CmsAuthorisationType cmsAuthorisationType = authorisationType == PaymentAuthorisationType.INITIATION
                                                         ? CmsAuthorisationType.CREATED
                                                         : CmsAuthorisationType.CANCELLED;

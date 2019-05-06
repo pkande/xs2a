@@ -268,14 +268,13 @@ public class AisConsentController {
                    : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // TODO correct swagger docs https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
     @GetMapping(path = "/authorisations/{authorisation-id}/sca-approach")
-    @ApiOperation(value = "Gets list of consent authorisation IDs by consent ID")
+    @ApiOperation(value = "Gets SCA approach of the consent authorisation by its ID")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 404, message = "Not Found")})
     public ResponseEntity<AuthorisationScaApproachResponse> getAuthorisationScaApproach(
-        @ApiParam(name = "consent-id", value = "The account consent identification assigned to the created account consent.", example = "vOHy6fj2f5IgxHk-kTlhw6sZdTXbRE3bWsu2obq54beYOChP5NvRmfh06nrwumc2R01HygQenchEcdGOlU-U0A==_=_iR74m2PdNyE")
+        @ApiParam(name = "consent-id", value = "The consent authorisation identification.", example = "bf489af6-a2cb-4b75-b71d-d66d58b934d7")
         @PathVariable("authorisation-id") String authorisationId) {
         return aisConsentAuthorisationServiceEncrypted.getAuthorisationScaApproach(authorisationId)
                    .map(scaApproachResponse -> new ResponseEntity<>(scaApproachResponse, HttpStatus.OK))
