@@ -231,6 +231,10 @@ public class PaymentCancellationAuthorisationServiceTest {
 
     @Test
     public void getPaymentCancellationAuthorisationScaStatus_success() {
+        // Given
+        when(pisScaAuthorisationServiceResolver.getServiceCancellation(CANCELLATION_AUTHORISATION_ID))
+            .thenReturn(pisScaAuthorisationService);
+
         // When
         ResponseObject<ScaStatus> actual =
             paymentCancellationAuthorisationService.getPaymentCancellationAuthorisationScaStatus(PAYMENT_ID,
@@ -245,6 +249,8 @@ public class PaymentCancellationAuthorisationServiceTest {
     public void getPaymentCancellationAuthorisationScaStatus_success_shouldRecordEvent() {
         // Given:
         ArgumentCaptor<EventType> argumentCaptor = ArgumentCaptor.forClass(EventType.class);
+        when(pisScaAuthorisationServiceResolver.getServiceCancellation(CANCELLATION_AUTHORISATION_ID))
+            .thenReturn(pisScaAuthorisationService);
 
         // When
         paymentCancellationAuthorisationService.getPaymentCancellationAuthorisationScaStatus(PAYMENT_ID,
@@ -258,6 +264,10 @@ public class PaymentCancellationAuthorisationServiceTest {
 
     @Test
     public void getPaymentCancellationAuthorisationScaStatus_failure_wrongIds() {
+        // Given
+        when(pisScaAuthorisationServiceResolver.getServiceCancellation(WRONG_CANCELLATION_AUTHORISATION_ID))
+            .thenReturn(pisScaAuthorisationService);
+
         // When
         ResponseObject<ScaStatus> actual =
             paymentCancellationAuthorisationService.getPaymentCancellationAuthorisationScaStatus(PAYMENT_ID,
