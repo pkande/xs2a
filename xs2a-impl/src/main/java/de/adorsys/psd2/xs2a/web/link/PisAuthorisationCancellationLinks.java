@@ -25,7 +25,6 @@ import de.adorsys.psd2.xs2a.web.aspect.UrlHolder;
 import java.util.EnumSet;
 
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
-import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.OAUTH;
 
 public class PisAuthorisationCancellationLinks extends AbstractLinks {
 

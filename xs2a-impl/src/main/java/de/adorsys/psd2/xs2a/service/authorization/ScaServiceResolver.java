@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.service.authorization;
 
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
-import de.adorsys.psd2.xs2a.domain.pis.PaymentAuthorisationType;
 import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +55,7 @@ public class ScaServiceResolver<T extends ScaApproachServiceTypeProvider> implem
      * @return particular service for chosen sca approach
      */
     public T getServiceInitiation(String authorisationId) {
-        return SERVICE_CONTAINER.get(scaApproachResolver.resolveScaApproach(authorisationId, PaymentAuthorisationType.INITIATION));
+        return SERVICE_CONTAINER.get(scaApproachResolver.getInitiationScaApproach(authorisationId));
     }
 
     /**
@@ -65,7 +64,7 @@ public class ScaServiceResolver<T extends ScaApproachServiceTypeProvider> implem
      * @return particular service for chosen sca approach
      */
     public T getServiceCancellation(String authorisationId) {
-        return SERVICE_CONTAINER.get(scaApproachResolver.resolveScaApproach(authorisationId, PaymentAuthorisationType.CANCELLATION));
+        return SERVICE_CONTAINER.get(scaApproachResolver.getCancellationScaApproach(authorisationId));
     }
 
 }
