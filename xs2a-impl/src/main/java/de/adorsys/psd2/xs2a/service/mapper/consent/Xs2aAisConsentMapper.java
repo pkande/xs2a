@@ -220,7 +220,7 @@ public class Xs2aAisConsentMapper {
                        ac.isMultilevelScaRequired(),
                        ac.getAuthorisations(),
                        ac.getStatusChangeTimestamp(),
-                       ac.getUsageCounter()))
+                       ac.getUsageCounterMap()))
                    .orElse(null);
     }
 

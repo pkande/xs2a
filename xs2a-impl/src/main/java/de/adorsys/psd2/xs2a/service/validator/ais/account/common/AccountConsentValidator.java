@@ -53,9 +53,9 @@ public class AccountConsentValidator {
     }
 
     private boolean isAccessExceeded(AccountConsent accountConsent, String requestUri) {
-        if (!accountConsent.getUsageCounter().containsKey(requestUri)) {
+        if (!accountConsent.getUsageCounterMap().containsKey(requestUri)) {
             return false;
         }
-        return accountConsent.getUsageCounter().get(requestUri) <= 0;
+        return accountConsent.getUsageCounterMap().get(requestUri) <= 0;
     }
 }

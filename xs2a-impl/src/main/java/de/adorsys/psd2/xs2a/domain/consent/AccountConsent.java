@@ -70,7 +70,7 @@ public class AccountConsent {
     private final OffsetDateTime statusChangeTimestamp;
 
     @JsonIgnore
-    private Map<String, Integer> usageCounter = new HashMap<>();
+    private Map<String, Integer> usageCounterMap = new HashMap<>();
 
     @JsonIgnore
     public boolean isExpired() {
