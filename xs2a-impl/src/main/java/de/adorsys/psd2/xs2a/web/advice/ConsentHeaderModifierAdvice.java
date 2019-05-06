@@ -17,7 +17,7 @@
 package de.adorsys.psd2.xs2a.web.advice;
 
 import de.adorsys.psd2.model.ConsentsResponse201;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.web.LinkExtractor;
 import de.adorsys.psd2.xs2a.web.controller.ConsentController;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class ConsentHeaderModifierAdvice extends CommonHeaderModifierAdvice {
 
     private final LinkExtractor linkExtractor;
 
-    public ConsentHeaderModifierAdvice(InitialScaApproachResolver scaApproachResolver,
+    public ConsentHeaderModifierAdvice(ScaApproachResolver scaApproachResolver,
                                        LinkExtractor linkExtractor) {
         super(scaApproachResolver);
         this.linkExtractor = linkExtractor;

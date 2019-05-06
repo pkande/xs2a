@@ -16,7 +16,6 @@
 
 package de.adorsys.psd2.xs2a.service.payment.sca;
 
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.ScaServiceResolver;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ import java.util.List;
 @Service
 public class ScaPaymentServiceResolver extends ScaServiceResolver<ScaPaymentService> {
 
-    public ScaPaymentServiceResolver(List<ScaPaymentService> services, InitialScaApproachResolver initialScaApproachResolver, ScaApproachResolver scaApproachResolver) {
-        super(services, initialScaApproachResolver, scaApproachResolver);
+    public ScaPaymentServiceResolver(List<ScaPaymentService> services, ScaApproachResolver scaApproachResolver) {
+        super(services, scaApproachResolver);
     }
 }

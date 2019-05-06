@@ -20,7 +20,7 @@ package de.adorsys.psd2.xs2a.service.authorization;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.domain.ScaApproachHolder;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.RequestProviderService;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,9 +39,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InitialScaApproachResolverTest {
+public class ScaApproachResolverTest {
     @InjectMocks
-    private InitialScaApproachResolver scaApproachResolver;
+    private ScaApproachResolver scaApproachResolver;
 
     @Mock
     private AspspProfileService aspspProfileService;

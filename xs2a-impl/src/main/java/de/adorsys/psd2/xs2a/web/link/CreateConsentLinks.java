@@ -19,7 +19,6 @@ package de.adorsys.psd2.xs2a.web.link;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import de.adorsys.psd2.xs2a.web.aspect.UrlHolder;
@@ -28,7 +27,7 @@ import java.util.EnumSet;
 
 public class CreateConsentLinks extends AbstractLinks {
 
-    public CreateConsentLinks(String httpUrl, InitialScaApproachResolver initialScaApproachResolver, ScaApproachResolver scaApproachResolver,
+    public CreateConsentLinks(String httpUrl, ScaApproachResolver scaApproachResolver,
                               CreateConsentResponse response, RedirectLinkBuilder redirectLinkBuilder,
                               boolean isExplicitMethod, PsuIdData psuData) {
         super(httpUrl);
@@ -41,7 +40,7 @@ public class CreateConsentLinks extends AbstractLinks {
 
         String authorisationId = response.getAuthorizationId();
         ScaApproach scaApproach = authorisationId == null
-                                      ? initialScaApproachResolver.resolveScaApproach()
+                                      ? scaApproachResolver.resolveScaApproach()
                                       : scaApproachResolver.getInitiationScaApproach(authorisationId);
 
         if (EnumSet.of(ScaApproach.EMBEDDED, ScaApproach.DECOUPLED).contains(scaApproach)) {

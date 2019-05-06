@@ -32,7 +32,7 @@ import de.adorsys.psd2.xs2a.domain.MessageErrorCode;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataRequest;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentAuthorisationType;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.pis.stage.PisScaStage;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
@@ -52,7 +52,7 @@ public class PisAuthorisationService {
     private final PisCommonPaymentServiceEncrypted pisCommonPaymentServiceEncrypted;
     private final PisScaStageAuthorisationFactory pisScaStageAuthorisationFactory;
     private final Xs2aPisCommonPaymentMapper pisCommonPaymentMapper;
-    private final InitialScaApproachResolver initialScaApproachResolver;
+    private final ScaApproachResolver scaApproachResolver;
 
     /**
      * Sends a POST request to CMS to store created pis authorisation
@@ -62,7 +62,7 @@ public class PisAuthorisationService {
      * @return a response object containing authorisation id
      */
     public CreatePisAuthorisationResponse createPisAuthorisation(String paymentId, PsuIdData psuData) {
-        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CREATED, psuData, initialScaApproachResolver.resolveScaApproach());
+        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CREATED, psuData, scaApproachResolver.resolveScaApproach());
         return pisCommonPaymentServiceEncrypted.createAuthorization(paymentId, request)
                    .orElse(null);
     }
@@ -152,7 +152,7 @@ public class PisAuthorisationService {
      * @return long representation of identifier of stored pis authorisation cancellation
      */
     public CreatePisAuthorisationResponse createPisAuthorisationCancellation(String paymentId, PsuIdData psuData) {
-        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CANCELLED, psuData, initialScaApproachResolver.resolveScaApproach());
+        CreatePisAuthorisationRequest request = new CreatePisAuthorisationRequest(CmsAuthorisationType.CANCELLED, psuData, scaApproachResolver.resolveScaApproach());
         return pisCommonPaymentServiceEncrypted.createAuthorizationCancellation(paymentId, request)
                    .orElse(null);
     }

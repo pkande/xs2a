@@ -19,7 +19,7 @@ package de.adorsys.psd2.xs2a.service.validator.ais.consent;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.domain.consent.CreateConsentReq;
 import de.adorsys.psd2.xs2a.domain.consent.Xs2aAccountAccess;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ErrorType;
 import de.adorsys.psd2.xs2a.service.profile.AspspProfileServiceWrapper;
 import de.adorsys.psd2.xs2a.service.validator.BusinessValidator;
@@ -49,7 +49,7 @@ public class CreateConsentRequestValidator implements BusinessValidator<CreateCo
     private static final String MESSAGE_ERROR_GLOBAL_CONSENT_NOT_SUPPORTED = "Global Consent is not supported by ASPSP";
 
     private final AspspProfileServiceWrapper aspspProfileService;
-    private final InitialScaApproachResolver initialScaApproachResolver;
+    private final ScaApproachResolver scaApproachResolver;
     private final PsuDataInInitialRequestValidator psuDataInInitialRequestValidator;
     private final SupportedAccountReferenceValidator supportedAccountReferenceValidator;
 
@@ -110,7 +110,7 @@ public class CreateConsentRequestValidator implements BusinessValidator<CreateCo
             return false;
         }
 
-        if (initialScaApproachResolver.resolveScaApproach() == EMBEDDED) {
+        if (scaApproachResolver.resolveScaApproach() == EMBEDDED) {
             return true;
         }
 

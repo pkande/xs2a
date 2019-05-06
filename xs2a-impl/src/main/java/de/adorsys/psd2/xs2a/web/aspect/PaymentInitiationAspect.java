@@ -20,7 +20,7 @@ import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationParameters;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.AuthorisationMethodDecider;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
@@ -34,11 +34,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class PaymentInitiationAspect extends AbstractLinkAspect<PaymentController> {
 
-    private InitialScaApproachResolver scaApproachResolver;
+    private ScaApproachResolver scaApproachResolver;
     private AuthorisationMethodDecider authorisationMethodDecider;
     private RedirectLinkBuilder redirectLinkBuilder;
 
-    public PaymentInitiationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService,
+    public PaymentInitiationAspect(ScaApproachResolver scaApproachResolver, MessageService messageService,
                                    AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder,
                                    AspspProfileService aspspProfileService) {
         super(messageService, aspspProfileService);

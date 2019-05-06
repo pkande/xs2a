@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.service.authorization;
 
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
@@ -31,7 +30,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ScaServiceResolver<T extends ScaApproachServiceTypeProvider> implements InitializingBean {
     private final List<T> services;
-    private final InitialScaApproachResolver initialScaApproachResolver;
     private final ScaApproachResolver scaApproachResolver;
     private final Map<ScaApproach, T> SERVICE_CONTAINER = new HashMap<>();
 
@@ -46,7 +44,7 @@ public class ScaServiceResolver<T extends ScaApproachServiceTypeProvider> implem
      * @return particular service for chosen sca approach
      */
     public T getService() {
-        return SERVICE_CONTAINER.get(initialScaApproachResolver.resolveScaApproach());
+        return SERVICE_CONTAINER.get(scaApproachResolver.resolveScaApproach());
     }
 
     /**

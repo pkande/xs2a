@@ -19,7 +19,7 @@ package de.adorsys.psd2.xs2a.web.link;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationParameters;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import de.adorsys.psd2.xs2a.web.aspect.UrlHolder;
 
@@ -30,11 +30,11 @@ import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.*;
 
 public class PaymentInitiationLinks extends AbstractLinks {
 
-    private InitialScaApproachResolver scaApproachResolver;
+    private ScaApproachResolver scaApproachResolver;
     private RedirectLinkBuilder redirectLinkBuilder;
     private boolean isExplicitMethod;
 
-    public PaymentInitiationLinks(String httpUrl, InitialScaApproachResolver scaApproachResolver, RedirectLinkBuilder redirectLinkBuilder,
+    public PaymentInitiationLinks(String httpUrl, ScaApproachResolver scaApproachResolver, RedirectLinkBuilder redirectLinkBuilder,
                                   PaymentInitiationParameters paymentRequestParameters, PaymentInitiationResponse body,
                                   boolean isExplicitMethod) {
         super(httpUrl);

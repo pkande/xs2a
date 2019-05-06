@@ -16,6 +16,7 @@
 
 package de.adorsys.psd2.xs2a.service;
 
+import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.xs2a.core.profile.ScaApproach;
 import de.adorsys.psd2.xs2a.core.sca.AuthorisationScaApproachResponse;
 import de.adorsys.psd2.xs2a.domain.ScaApproachHolder;
@@ -24,23 +25,72 @@ import de.adorsys.psd2.xs2a.service.authorization.pis.PisAuthorisationService;
 import de.adorsys.psd2.xs2a.service.consent.Xs2aAisConsentService;
 import de.adorsys.psd2.xs2a.service.discovery.ServiceTypeDiscoveryService;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ServiceType;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.DECOUPLED;
+import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.REDIRECT;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ScaApproachResolver {
     private final ServiceTypeDiscoveryService serviceTypeDiscoveryService;
     private final Xs2aAisConsentService xs2aAisConsentService;
     private final PisAuthorisationService pisAuthorisationService;
     private final ScaApproachHolder scaApproachHolder;
+    private final AspspProfileService aspspProfileService;
+    private final RequestProviderService requestProviderService;
+
+    public ScaApproachResolver(ServiceTypeDiscoveryService serviceTypeDiscoveryService, @Lazy Xs2aAisConsentService xs2aAisConsentService, @Lazy PisAuthorisationService pisAuthorisationService, ScaApproachHolder scaApproachHolder, AspspProfileService aspspProfileService, RequestProviderService requestProviderService) {
+        this.serviceTypeDiscoveryService = serviceTypeDiscoveryService;
+        this.xs2aAisConsentService = xs2aAisConsentService;
+        this.pisAuthorisationService = pisAuthorisationService;
+        this.scaApproachHolder = scaApproachHolder;
+        this.aspspProfileService = aspspProfileService;
+        this.requestProviderService = requestProviderService;
+    }
+
+    /**
+     * Resolve which sca approach from sca approaches list in ASPSP-profile should be used for authorisation.
+     * <p>
+     * If header "tpp-redirect-preferred" is provided with value "true" and ASPSP supports Redirect approach, then this approach will be used.
+     * If header "tpp-redirect-preferred" is provided with value "false", the first non-Redirect approach from the list will be used.
+     * If header "tpp-redirect-preferred" is not provided, the first approach from the list will be chosen.
+     * If ASPSP has only one SCA approach in profile, header "tpp-redirect-preferred" will be ignored
+     * and only approach from profile will be used
+     *
+     * @return chosen ScaApproach to be used for authorisation
+     */
+    public ScaApproach resolveScaApproach() {
+        if (scaApproachHolder.isNotEmpty()) {
+            return scaApproachHolder.getScaApproach();
+        }
+
+        List<ScaApproach> scaApproaches = aspspProfileService.getScaApproaches();
+        ScaApproach firstScaApproach = getFirst(scaApproaches);
+        Optional<Boolean> tppRedirectPreferredOptional = requestProviderService.resolveTppRedirectPreferred();
+        if (!tppRedirectPreferredOptional.isPresent()) {
+            return firstScaApproach;
+        }
+
+        boolean tppRedirectPreferred = tppRedirectPreferredOptional.get();
+        if (tppRedirectPreferred && scaApproaches.contains(REDIRECT)) {
+            return REDIRECT;
+        }
+
+        if (!tppRedirectPreferred
+                && REDIRECT == firstScaApproach
+                && scaApproaches.size() > 1) {
+            return getSecond(scaApproaches);
+        }
+
+        return firstScaApproach;
+    }
 
     /**
      * Gets SCA approach from the existing initiation authorisation
@@ -91,4 +141,13 @@ public class ScaApproachResolver {
     public void forceDecoupledScaApproach() {
         scaApproachHolder.setScaApproach(DECOUPLED);
     }
+
+    private ScaApproach getFirst(List<ScaApproach> scaApproaches) {
+        return scaApproaches.get(0);
+    }
+
+    private ScaApproach getSecond(List<ScaApproach> scaApproaches) {
+        return scaApproaches.get(1);
+    }
+
 }

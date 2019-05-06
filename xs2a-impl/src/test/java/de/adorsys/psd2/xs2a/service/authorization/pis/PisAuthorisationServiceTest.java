@@ -28,7 +28,7 @@ import de.adorsys.psd2.xs2a.core.psu.PsuIdData;
 import de.adorsys.psd2.xs2a.core.sca.ScaStatus;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataRequest;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.pis.stage.initiation.PisScaReceivedAuthorisationStage;
 import de.adorsys.psd2.xs2a.service.mapper.consent.Xs2aPisCommonPaymentMapper;
 import org.junit.Before;
@@ -77,7 +77,7 @@ public class PisAuthorisationServiceTest {
     @Mock
     private Xs2aPisCommonPaymentMapper pisCommonPaymentMapper;
     @Mock
-    private InitialScaApproachResolver scaApproachResolver;
+    private ScaApproachResolver scaApproachResolver;
     @Mock
     private PisScaReceivedAuthorisationStage pisScaReceivedAuthorisationStage;
 

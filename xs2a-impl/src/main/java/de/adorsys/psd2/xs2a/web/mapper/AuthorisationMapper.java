@@ -25,7 +25,7 @@ import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.consent.*;
 import de.adorsys.psd2.xs2a.domain.consent.pis.Xs2aUpdatePisCommonPaymentPsuDataResponse;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RequiredArgsConstructor
 public class AuthorisationMapper {
     private final CoreObjectsMapper coreObjectsMapper;
-    private final InitialScaApproachResolver scaApproachResolver;
+    private final ScaApproachResolver scaApproachResolver;
     private final RedirectLinkBuilder redirectLinkBuilder;
     private final AspspProfileService aspspProfileService;
     private final HrefLinkMapper hrefLinkMapper;

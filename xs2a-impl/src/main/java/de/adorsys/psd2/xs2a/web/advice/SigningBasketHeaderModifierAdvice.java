@@ -19,7 +19,7 @@ package de.adorsys.psd2.xs2a.web.advice;
 import de.adorsys.psd2.model.HrefType;
 import de.adorsys.psd2.model.LinksSigningBasket;
 import de.adorsys.psd2.model.SigningBasketResponse201;
-import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
+import de.adorsys.psd2.xs2a.service.ScaApproachResolver;
 import de.adorsys.psd2.xs2a.web.controller.SigningBasketController;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -33,7 +33,7 @@ import java.util.Optional;
 @ControllerAdvice(assignableTypes = {SigningBasketController.class})
 public class SigningBasketHeaderModifierAdvice extends CommonHeaderModifierAdvice {
 
-    public SigningBasketHeaderModifierAdvice(InitialScaApproachResolver scaApproachResolver) {
+    public SigningBasketHeaderModifierAdvice(ScaApproachResolver scaApproachResolver) {
         super(scaApproachResolver);
     }
 
