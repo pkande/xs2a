@@ -17,14 +17,13 @@
 package de.adorsys.psd2.xs2a.web.aspect;
 
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
-import de.adorsys.psd2.xs2a.core.pis.TransactionStatus;
 import de.adorsys.psd2.xs2a.core.profile.PaymentType;
-import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.pis.CancelPaymentResponse;
 import de.adorsys.psd2.xs2a.service.authorization.PaymentCancellationAuthorisationNeededDecider;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.controller.PaymentController;
+import de.adorsys.psd2.xs2a.web.link.PaymentCancellationLinks;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
@@ -44,26 +43,12 @@ public class PaymentCancellationAspect extends AbstractLinkAspect<PaymentControl
     public ResponseObject<CancelPaymentResponse> cancelPayment(ResponseObject<CancelPaymentResponse> result, PaymentType paymentType, String paymentProduct, String paymentId) {
         if (!result.hasError()) {
             CancelPaymentResponse response = result.getBody();
-            response.setLinks(buildCancellationLinks(response, paymentType, paymentProduct, paymentId));
+            response.setLinks(new PaymentCancellationLinks(getHttpUrl(), paymentType, paymentProduct, paymentId,
+                                                           cancellationScaNeededDecider.isScaRequired(response.isStartAuthorisationRequired()),
+                                                           response.getTransactionStatus()));
             return result;
         }
         return enrichErrorTextMessage(result);
     }
 
-    private Links buildCancellationLinks(CancelPaymentResponse response, PaymentType paymentType, String paymentProduct, String paymentId) {
-        Links links = new Links();
-
-        if (isStartAuthorisationLinksNeeded(response)) {
-            links.setStartAuthorisation(buildPath(UrlHolder.START_PIS_CANCELLATION_AUTH_URL, paymentType.getValue(), paymentProduct, paymentId));
-            links.setSelf(buildPath(UrlHolder.PAYMENT_LINK_URL, paymentType.getValue(), paymentProduct, paymentId));
-            links.setStatus(buildPath(UrlHolder.PAYMENT_STATUS_URL, paymentType.getValue(), paymentProduct, paymentId));
-        }
-        return links;
-    }
-
-    private boolean isStartAuthorisationLinksNeeded(CancelPaymentResponse response) {
-        return response.getTransactionStatus().isNotFinalisedStatus()
-                   && response.getTransactionStatus() != TransactionStatus.RCVD
-                   && cancellationScaNeededDecider.isScaRequired(response.isStartAuthorisationRequired());
-    }
 }

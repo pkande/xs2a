@@ -19,21 +19,32 @@ package de.adorsys.psd2.xs2a.web.aspect;
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationParameters;
+import de.adorsys.psd2.xs2a.domain.pis.PaymentInitiationResponse;
 import de.adorsys.psd2.xs2a.service.InitialScaApproachResolver;
 import de.adorsys.psd2.xs2a.service.authorization.AuthorisationMethodDecider;
 import de.adorsys.psd2.xs2a.service.message.MessageService;
 import de.adorsys.psd2.xs2a.web.RedirectLinkBuilder;
 import de.adorsys.psd2.xs2a.web.controller.PaymentController;
+import de.adorsys.psd2.xs2a.web.link.PaymentInitiationLinks;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class PaymentInitiationAspect extends AbstractPaymentLink<PaymentController> {
+public class PaymentInitiationAspect extends AbstractLinkAspect<PaymentController> {
 
-    public PaymentInitiationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService, AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder, AspspProfileService aspspProfileService) {
-        super(scaApproachResolver, messageService, authorisationMethodDecider, redirectLinkBuilder, aspspProfileService);
+    private InitialScaApproachResolver scaApproachResolver;
+    private AuthorisationMethodDecider authorisationMethodDecider;
+    private RedirectLinkBuilder redirectLinkBuilder;
+
+    public PaymentInitiationAspect(InitialScaApproachResolver scaApproachResolver, MessageService messageService,
+                                   AuthorisationMethodDecider authorisationMethodDecider, RedirectLinkBuilder redirectLinkBuilder,
+                                   AspspProfileService aspspProfileService) {
+        super(messageService, aspspProfileService);
+        this.scaApproachResolver = scaApproachResolver;
+        this.authorisationMethodDecider = authorisationMethodDecider;
+        this.redirectLinkBuilder = redirectLinkBuilder;
     }
 
     @AfterReturning(pointcut = "execution(* de.adorsys.psd2.xs2a.service.PaymentService.createPayment(..)) && args(payment,requestParameters, ..)", returning = "result", argNames = "result,payment,requestParameters")
@@ -42,5 +53,17 @@ public class PaymentInitiationAspect extends AbstractPaymentLink<PaymentControll
             return enrichLink(result, requestParameters);
         }
         return enrichErrorTextMessage(result);
+    }
+
+    protected ResponseObject<?> enrichLink(ResponseObject<?> result, PaymentInitiationParameters paymentRequestParameters) {
+        Object body = result.getBody();
+        doEnrichLink(paymentRequestParameters, (PaymentInitiationResponse) body);
+
+        return result;
+    }
+
+    private void doEnrichLink(PaymentInitiationParameters paymentRequestParameters, PaymentInitiationResponse body) {
+        body.setLinks(new PaymentInitiationLinks(getHttpUrl(), scaApproachResolver, redirectLinkBuilder, paymentRequestParameters, body,
+                                                 authorisationMethodDecider.isExplicitMethod(paymentRequestParameters.isTppExplicitAuthorisationPreferred(), body.isMultilevelScaRequired())));
     }
 }

@@ -25,6 +25,7 @@ import de.adorsys.psd2.xs2a.service.consent.Xs2aAisConsentService;
 import de.adorsys.psd2.xs2a.service.discovery.ServiceTypeDiscoveryService;
 import de.adorsys.psd2.xs2a.service.mapper.psd2.ServiceType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ import java.util.Optional;
 
 import static de.adorsys.psd2.xs2a.core.profile.ScaApproach.DECOUPLED;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScaApproachResolver {
@@ -40,22 +42,30 @@ public class ScaApproachResolver {
     private final PisAuthorisationService pisAuthorisationService;
     private final ScaApproachHolder scaApproachHolder;
 
-    public ScaApproach getInitiationScaApproach(String authorisationId) {
+    /**
+     * Gets SCA approach from the existing initiation authorisation
+     *
+     * @param authorisationId authorisation identifier
+     * @return SCA approach, stored in the authorisation
+     */
+    @NotNull
+    public ScaApproach getInitiationScaApproach(@NotNull String authorisationId) {
         return resolveScaApproach(authorisationId, PaymentAuthorisationType.INITIATION);
     }
 
-    public ScaApproach getCancellationScaApproach(String authorisationId) {
+    /**
+     * Gets SCA approach from the existing cancellation authorisation
+     *
+     * @param authorisationId authorisation identifier
+     * @return SCA approach, stored in the authorisation
+     */
+    @NotNull
+    public ScaApproach getCancellationScaApproach(@NotNull String authorisationId) {
         return resolveScaApproach(authorisationId, PaymentAuthorisationType.CANCELLATION);
     }
 
-    // TODO: 2019-05-03 (AMU) make it private
     @NotNull
-    public ScaApproach resolveScaApproach(@NotNull String authorisationId, PaymentAuthorisationType authorisationType) {
-        // TODO check if needed https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
-        if (scaApproachHolder.isNotEmpty()) {
-            return scaApproachHolder.getScaApproach();
-        }
-
+    private ScaApproach resolveScaApproach(@NotNull String authorisationId, PaymentAuthorisationType authorisationType) {
         Optional<AuthorisationScaApproachResponse> scaApproachResponse = Optional.empty();
         ServiceType serviceType = serviceTypeDiscoveryService.getServiceType();
         if (serviceType == ServiceType.AIS) {
@@ -65,8 +75,10 @@ public class ScaApproachResolver {
         }
 
         if (!scaApproachResponse.isPresent()) {
-            // TODO write error message https://git.adorsys.de/adorsys/xs2a/aspsp-xs2a/issues/722
-            throw new IllegalArgumentException();
+            log.error("Couldn't retrieve SCA approach from the authorisation with id: {} and type: {}",
+                      authorisationId, authorisationType);
+            throw new IllegalArgumentException("Wrong authorisation id: " + authorisationId +
+                                                   " or type: " + authorisationType);
         }
 
         return scaApproachResponse.get().getScaApproach();

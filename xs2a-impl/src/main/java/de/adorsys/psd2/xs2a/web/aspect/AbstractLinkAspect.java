@@ -17,7 +17,6 @@
 package de.adorsys.psd2.xs2a.web.aspect;
 
 import de.adorsys.psd2.aspsp.profile.service.AspspProfileService;
-import de.adorsys.psd2.xs2a.domain.Links;
 import de.adorsys.psd2.xs2a.domain.ResponseObject;
 import de.adorsys.psd2.xs2a.domain.TppMessageInformation;
 import de.adorsys.psd2.xs2a.exception.MessageError;
@@ -62,13 +61,18 @@ public abstract class AbstractLinkAspect<T> {
     }
 
     String buildPath(String path, Object... params) {
-        UriComponentsBuilder uriComponentsBuilder = aspspProfileService.getAspspSettings().isForceXs2aBaseUrl()
-                                                        ? fromHttpUrl(aspspProfileService.getAspspSettings().getXs2aBaseUrl())
-                                                        : fromHttpUrl(linkTo(getControllerClass()).toString());
+        UriComponentsBuilder uriComponentsBuilder = fromHttpUrl(getHttpUrl());
+
         return uriComponentsBuilder
                    .path(path)
                    .buildAndExpand(params)
                    .toUriString();
+    }
+
+    String getHttpUrl() {
+        return aspspProfileService.getAspspSettings().isForceXs2aBaseUrl()
+                   ? aspspProfileService.getAspspSettings().getXs2aBaseUrl()
+                   : linkTo(getControllerClass()).toString();
     }
 
     @SuppressWarnings("unchecked")
@@ -83,10 +87,4 @@ public abstract class AbstractLinkAspect<T> {
         }
     }
 
-    Links buildDefaultPaymentLinks(String paymentService, String paymentProduct, String paymentId) {
-        Links links = new Links();
-        links.setSelf(buildPath(UrlHolder.PAYMENT_LINK_URL, paymentService, paymentProduct, paymentId));
-        links.setStatus(buildPath(UrlHolder.PAYMENT_STATUS_URL, paymentService, paymentProduct, paymentId));
-        return links;
-    }
 }
