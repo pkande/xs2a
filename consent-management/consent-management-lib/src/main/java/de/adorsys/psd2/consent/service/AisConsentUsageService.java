@@ -49,7 +49,7 @@ public class AisConsentUsageService {
     }
 
     @Transactional
-    public Map<String, Integer> getUsageCounter(AisConsent aisConsent) {
+    public Map<String, Integer> getUsageCounterMap(AisConsent aisConsent) {
         return aisConsentUsageRepository.findReadByConsentAndUsageDate(aisConsent, LocalDate.now())
                    .stream()
                    .collect(Collectors.toMap(AisConsentUsage::getRequestUri,

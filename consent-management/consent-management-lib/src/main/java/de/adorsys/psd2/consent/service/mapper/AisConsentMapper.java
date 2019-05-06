@@ -56,7 +56,7 @@ public class AisConsentMapper {
                                                 ? mapToAisAccountAccess(consent)
                                                 : mapToAspspAisAccountAccess(consent);
 
-        Map<String, Integer> usageCounterMap = aisConsentUsageService.getUsageCounter(consent);
+        Map<String, Integer> usageCounterMap = aisConsentUsageService.getUsageCounterMap(consent);
 
         return new AisAccountConsent(
             consent.getExternalId(),
@@ -86,7 +86,7 @@ public class AisConsentMapper {
      * @return mapped AIS consent
      */
     public AisAccountConsent mapToInitialAisAccountConsent(AisConsent consent) {
-        Map<String, Integer> usageCounterMap = aisConsentUsageService.getUsageCounter(consent);
+        Map<String, Integer> usageCounterMap = aisConsentUsageService.getUsageCounterMap(consent);
 
         return new AisAccountConsent(
             consent.getExternalId(),

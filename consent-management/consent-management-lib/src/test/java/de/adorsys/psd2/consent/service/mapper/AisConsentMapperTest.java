@@ -108,7 +108,7 @@ public class AisConsentMapperTest {
         // Given
         AisConsent aisConsent = buildAisConsent();
         AisAccountAccess expectedAccess = buildAisAccountAccessAccountsWithResourceId();
-        when(aisConsentUsageService.getUsageCounter(aisConsent)).thenReturn(USAGE_COUNTER);
+        when(aisConsentUsageService.getUsageCounterMap(aisConsent)).thenReturn(USAGE_COUNTER);
 
         // When
         AisAccountConsent result = aisConsentMapper.mapToAisAccountConsent(aisConsent);
@@ -122,7 +122,7 @@ public class AisConsentMapperTest {
         // Given
         AisConsent aisConsent = buildAisConsent();
         AisAccountAccess expectedAccess = buildAisAccountAccessAccounts();
-        when(aisConsentUsageService.getUsageCounter(aisConsent)).thenReturn(USAGE_COUNTER);
+        when(aisConsentUsageService.getUsageCounterMap(aisConsent)).thenReturn(USAGE_COUNTER);
 
         // When
         AisAccountConsent result = aisConsentMapper.mapToInitialAisAccountConsent(aisConsent);
