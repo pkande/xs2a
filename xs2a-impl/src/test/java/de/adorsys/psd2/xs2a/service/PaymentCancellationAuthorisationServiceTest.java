@@ -105,6 +105,8 @@ public class PaymentCancellationAuthorisationServiceTest {
             .thenReturn(Optional.empty());
         when(pisScaAuthorisationServiceResolver.getService())
             .thenReturn(pisScaAuthorisationService);
+        when(pisScaAuthorisationServiceResolver.getServiceCancellation(AUTHORISATION_ID))
+            .thenReturn(pisScaAuthorisationService);
 
         when(xs2aPisCommonPaymentService.getPisCommonPaymentById(PAYMENT_ID))
             .thenReturn(Optional.of(PIS_COMMON_PAYMENT_RESPONSE));
@@ -195,11 +197,9 @@ public class PaymentCancellationAuthorisationServiceTest {
 
     @Test
     public void getPaymentInitiationCancellationAuthorisationInformation_Success_ShouldRecordEvent() {
+        // Given:
         when(pisScaAuthorisationService.getCancellationAuthorisationSubResources(anyString()))
             .thenReturn(Optional.of(new Xs2aPaymentCancellationAuthorisationSubResource(Collections.emptyList())));
-
-        // Given:
-        Xs2aUpdatePisCommonPaymentPsuDataRequest request = buildXs2aUpdatePisPsuDataRequest();
         ArgumentCaptor<EventType> argumentCaptor = ArgumentCaptor.forClass(EventType.class);
 
         // When

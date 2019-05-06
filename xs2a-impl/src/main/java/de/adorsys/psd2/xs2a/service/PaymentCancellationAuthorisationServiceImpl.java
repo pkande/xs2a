@@ -118,7 +118,7 @@ public class PaymentCancellationAuthorisationServiceImpl implements PaymentCance
                        .build();
         }
 
-        PisScaAuthorisationService pisScaAuthorisationService = pisScaAuthorisationServiceResolver.getService();
+        PisScaAuthorisationService pisScaAuthorisationService = pisScaAuthorisationServiceResolver.getServiceCancellation(request.getAuthorisationId());
         Xs2aUpdatePisCommonPaymentPsuDataResponse response = pisScaAuthorisationService.updateCommonPaymentCancellationPsuData(request);
 
         if (response.hasError()) {

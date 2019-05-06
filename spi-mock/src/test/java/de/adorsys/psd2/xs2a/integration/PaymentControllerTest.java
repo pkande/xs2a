@@ -142,6 +142,8 @@ public class PaymentControllerTest {
             .willReturn(Optional.of(ScaStatus.RECEIVED));
         given(pisCommonPaymentServiceEncrypted.getCommonPaymentById(ENCRYPT_PAYMENT_ID))
             .willReturn(Optional.of(PisCommonPaymentResponseBuilder.buildPisCommonPaymentResponse()));
+        given(pisCommonPaymentServiceEncrypted.getAuthorisationScaApproach(AUTHORISATION_ID, CmsAuthorisationType.CREATED))
+            .willReturn(Optional.of(new AuthorisationScaApproachResponse(SCA_APPROACH)));
 
         MockHttpServletRequestBuilder requestBuilder = get(UrlBuilder.buildGetPaymentInitiationScaStatusUrl(SINGLE_PAYMENT_TYPE.getValue(), SEPA_PAYMENT_PRODUCT, ENCRYPT_PAYMENT_ID, AUTHORISATION_ID));
         requestBuilder.headers(httpHeadersExplicit);
